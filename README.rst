@@ -17,6 +17,7 @@ Requirements:
 Usage:
 ------
 .. code:: shell
+
   #!bash
 
   usage: find_mutation [-h] [-c [COUNT]] [-p [RATIO]] [-g] [-v]
@@ -27,6 +28,7 @@ Usage:
 Here we are looking for a common 4-bp duplication that occurs in some leukemias, and that is especially troublesome to detect since it occurs a few base pairs from the start of the last exon.  Most standard mapping techniques will miss this variant.  Running the find_mutation command takes a few seconds and returns an output similar to this:
 
 .. code:: shell
+
   Database	Query	Type	Variant name	Ratio	Expression	Sequence	Reference ratio	Reference expression	Reference sequence	Info
   sample.jf	NPM1	Insertion	93:/TCTG:93	0.528	9020.0	CCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTT	0.472	8076.8	CCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTT	cluster 1 n=1
 
