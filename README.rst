@@ -53,8 +53,9 @@ Each line represents a path that was constructed from the reference sequence.
 * Reference expression: estimated expression level for the reference
 * Reference sequence: reference sequence used
 * Info: supplementary information regarding the quantification method.
-  - vs_ref means that each alternate path is compared in expression with the whole reference sequence.
-  - cluster indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
+
+  - vs_ref: means that each alternate path is compared in expression with the whole reference sequence.
+  - cluster: indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
 
 Using the -g argument, one can also obtain a coverage graph for the two variants, for example:
 
