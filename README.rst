@@ -20,10 +20,10 @@ Usage:
 
   #!bash
 
-  usage: find_mutation [-h] [-c [COUNT]] [-p [RATIO]] [-g] [-v]
-                       [reference_fn [reference_fn ...]] jellyfish_fn
+  usage:km find_mutation [-h] [-c [COUNT]] [-p [RATIO]] [-g] [-v]
+                         [reference_fn [reference_fn ...]] jellyfish_fn
 
-  ./find_mutation query_examples/NPM1.fa sample.jf
+  ./km find_mutation query_examples/NPM1.fa sample.jf
 
 Here we are looking for a common 4-bp duplication that occurs in some leukemias, and that is especially troublesome to detect since it occurs a few base pairs from the start of the last exon.  Most standard mapping techniques will miss this variant.  Running the find_mutation command takes a few seconds and returns an output similar to this:
 
@@ -53,8 +53,8 @@ Each line represents a path that was constructed from the reference sequence.
 - Reference expression: estimated expression level for the reference
 - Reference sequence: reference sequence used
 - Info: supplementary information regarding the quantification method.
-..* vs_ref means that each alternate path is compared in expression with the whole reference sequence.
-..* cluster indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
+  * vs_ref means that each alternate path is compared in expression with the whole reference sequence.
+  * cluster indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
 
 
 Using the -g argument, one can also obtain a coverage graph for the two variants, for example:
