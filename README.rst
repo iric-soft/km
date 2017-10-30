@@ -10,9 +10,9 @@ Given a reference sequence of interest (typically a few hundred base pairs) arou
 
 Requirements:
 -------------
-- Python 2.7.6 or later
-- Jellyfish 2.1 or later (http://www.genome.umd.edu/jellyfish.html)
-- (Optional) Matplotlib
+* Python 2.7.6 or later
+* Jellyfish 2.1 or later (http://www.genome.umd.edu/jellyfish.html)
+* (Optional) Matplotlib
 
 Usage:
 ------
@@ -42,20 +42,19 @@ Output description:
 -------------------
 Each line represents a path that was constructed from the reference sequence.
 
-- Database: name of the Jellyfish kmer table queried
-- Query: name of the reference sequence examined
-- Type: type of mutation found (Insertion, Deletion or Substitution).  A Reference type used to identify path without mutation
-- Variant name: A description of the modification in the format start_position:deleted_bases/inserted_bases:end_position
-- Ratio: estimated ratio for the mutated allele represented by this path
-- Expression: estimated expression level for the mutated allele (coverage)
-- Sequence: sequence of the mutated path
-- Reference ratio: estimated ratio of the reference allele
-- Reference expression: estimated expression level for the reference
-- Reference sequence: reference sequence used
-- Info: supplementary information regarding the quantification method.
-  + vs_ref means that each alternate path is compared in expression with the whole reference sequence.
-  + cluster indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
-
+* Database: name of the Jellyfish kmer table queried
+* Query: name of the reference sequence examined
+* Type: type of mutation found (Insertion, Deletion or Substitution).  A Reference type used to identify path without mutation
+* Variant name: A description of the modification in the format start_position:deleted_bases/inserted_bases:end_position
+* Ratio: estimated ratio for the mutated allele represented by this path
+* Expression: estimated expression level for the mutated allele (coverage)
+* Sequence: sequence of the mutated path
+* Reference ratio: estimated ratio of the reference allele
+* Reference expression: estimated expression level for the reference
+* Reference sequence: reference sequence used
+* Info: supplementary information regarding the quantification method.
+  - vs_ref means that each alternate path is compared in expression with the whole reference sequence.
+  - cluster indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
 
 Using the -g argument, one can also obtain a coverage graph for the two variants, for example:
 
