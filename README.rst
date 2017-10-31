@@ -16,7 +16,7 @@ Requirements:
 
 Install:
 --------
-Before to install km, you need to install Jellyfish with `@binding`.
+Before to install km, you need to install Jellyfish with `binding`_.
 When it's done, you can use the setup install command:
 
 .. code:: shell
@@ -24,7 +24,7 @@ When it's done, you can use the setup install command:
   $ python setup.py install
   $ km -h
 
-.. _@binding: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
+.. _binding: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
 Usage:
 ------
@@ -35,14 +35,14 @@ From the source:
 .. code:: shell
 
   $ cd [your_km_folder]
-  $ python -m km find_mutation query_examples/NPM1.fa sample.jf
+  $ python -m km find_mutation data/catalog/GRCh38/NPM1*.fa [your_kmer_count_table].jf
 
 After setup install:
 ********************
 
 .. code:: shell
 
-  $ km find_mutation query_examples/NPM1.fa sample.jf
+  $ km find_mutation [your_target_seq].fa [your_kmer_count_table].jf
 
 Output:
 -------
