@@ -3,9 +3,9 @@
 #   Usage:  find_mutation <region_fasta or directory> <jellyfish_db>
 import os
 import time
-import utils.MutationFinder as umf
 import logging as log
-from utils.Jellyfish import Jellyfish
+from .. utils import MutationFinder as umf
+from ..utils.Jellyfish import Jellyfish
 
 
 # ###########################################################################

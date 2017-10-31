@@ -1,9 +1,9 @@
 import sys
 import argparse
 
-from argparser.find_mutation import *
+from .argparser.find_mutation import *
 
-from tools.find_mutation import main_find_mut
+from .tools.find_mutation import main_find_mut
 
 
 # ###########################################################################
@@ -30,6 +30,3 @@ def main():
 
     # execute the command
     args.func(args, sys.argv)
-
-
-main()

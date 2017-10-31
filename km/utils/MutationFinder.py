@@ -6,8 +6,8 @@ import string
 import sys
 import logging as log
 
-import utils.Graph as ug
-import utils.PathQuant as upq
+from . import Graph as ug
+from . import PathQuant as upq
 
 
 class MutationFinder:

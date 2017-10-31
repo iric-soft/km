@@ -1,4 +1,4 @@
-from argparser.common import *
+from .common import *
 
 
 def get_parser_find_mut(argparser):
