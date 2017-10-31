@@ -14,17 +14,34 @@ Requirements:
 * Jellyfish 2.1 or later (http://www.genome.umd.edu/jellyfish.html)
 * (Optional) Matplotlib
 
-Usage:
-------
+Install:
+--------
+
 .. code:: shell
 
-  #!bash
+  python setup.py install
+  km -h
 
-  usage:km find_mutation [-h] [-c [COUNT]] [-p [RATIO]] [-g] [-v]
-                         [reference_fn [reference_fn ...]] jellyfish_fn
+Usage:
+------
 
-  ./km find_mutation query_examples/NPM1.fa sample.jf
+From the code source:
+*********************
 
+.. code:: shell
+
+  cd [your_km_folder]
+  python -m ./km find_mutation query_examples/NPM1.fa sample.jf
+
+After setup install:
+********************
+
+.. code:: shell
+
+  km find_mutation query_examples/NPM1.fa sample.jf
+
+Output:
+-------
 Here we are looking for a common 4-bp duplication that occurs in some leukemias, and that is especially troublesome to detect since it occurs a few base pairs from the start of the last exon.  Most standard mapping techniques will miss this variant.  Running the find_mutation command takes a few seconds and returns an output similar to this:
 
 .. code:: shell
@@ -39,7 +56,7 @@ Here we are looking for a common 4-bp duplication that occurs in some leukemias,
 which shows that a TCTG insertion was found at position 93 of the refence sequence.
 
 Output description:
--------------------
+*******************
 Each line represents a path that was constructed from the reference sequence.
 
 * Database: name of the Jellyfish kmer table queried
