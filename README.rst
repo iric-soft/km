@@ -1,6 +1,9 @@
+
+===================================================================
 km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
 
+-------------
 Introduction:
 -------------
 
@@ -8,16 +11,19 @@ This tool was developed to identify and quantify the occurence of single nucleot
 
 Given a reference sequence of interest (typically a few hundred base pairs) around a known or suspected mutation in a gene of interest, all possible sequences that can be be created between the two end k-mers according to the sequenced reads will be reported.  A ratio of variant allele vs WT will be computed for each possible sequence constructed.
 
+-------------
 Requirements:
 -------------
 * Python 2.7.6 or later
 * Jellyfish 2.1 or later (http://www.genome.umd.edu/jellyfish.html)
 * (Optional) Matplotlib
 
+--------
 Install:
 --------
-Before to install km, you need to install Jellyfish with `binding`_.
-When it's done, you can use the setup install command:
+Before to install or use km, you need to install Jellyfish with `binding`_.
+When it's done, you can use the setup install command or execute the
+code from the source:
 
 .. code:: shell
 
@@ -26,11 +32,12 @@ When it's done, you can use the setup install command:
 
 .. _binding: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
+------
 Usage:
 ------
 
 From the source:
-*********************
+----------------
 
 .. code:: shell
 
@@ -38,14 +45,19 @@ From the source:
   $ python -m km find_mutation data/catalog/GRCh38/NPM1*.fa [your_kmer_count_table].jf
 
 After setup install:
-********************
+--------------------
 
 .. code:: shell
 
   $ km find_mutation [your_target_seq].fa [your_kmer_count_table].jf
 
+
+-------
 Output:
 -------
+
+find_mutation output:
+---------------------
 Here we are looking for a common 4-bp duplication that occurs in some leukemias, and that is especially troublesome to detect since it occurs a few base pairs from the start of the last exon.  Most standard mapping techniques will miss this variant.  Running the find_mutation command takes a few seconds and returns an output similar to this:
 
 .. code:: shell
@@ -81,3 +93,8 @@ Each line represents a path that was constructed from the reference sequence.
 Using the -g argument, one can also obtain a coverage graph for the two variants, for example:
 
 figure_1.png
+
+
+report_mutation output:
+-----------------------
+Soon...
