@@ -110,7 +110,7 @@ Using the -g argument, one can also obtain a coverage graph for the two variants
 TODO add viz_1.png
 
 
-find_mutation tool:
+find_report tool:
 -------------------
 
 Usage:
