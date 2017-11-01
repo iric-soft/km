@@ -62,6 +62,7 @@ Usage:
 
 .. code:: shell
 
+  $ km find_mutation -h
   $ km find_mutation [your_target_seq].fa [your_count_table].jf
 
 Output:
@@ -105,7 +106,7 @@ Each line represents a path of the local assembly constructed from the target se
 
 Using the -g argument, one can also obtain a coverage graph for the two variants, for example:
 
-figure_1.png
+TODO add viz_1.png
 
 
 find_mutation tool:
@@ -116,6 +117,7 @@ Usage:
 
 .. code:: shell
 
+  $ km find_report -h
   $ km find_report -t [your_target_seq].fa [find_mutation_output]
   $ km find_mutation [your_target_seq].fa [your_count_table].jf | km find_report -t [your_target_seq].fa
 
