@@ -2,8 +2,10 @@ import sys
 import argparse
 
 from .argparser.find_mutation import *
+from .argparser.find_report import *
 
 from .tools.find_mutation import main_find_mut
+from .tools.find_report import main_find_report
 
 
 # ###########################################################################
@@ -23,10 +25,18 @@ def main():
         help='Identify and quantify mutations from a k-mer database.'
     )
     find_mut.set_defaults(func=main_find_mut)
-    get_parser_find_mut(find_mut)
+    get_argparser_find_mut(find_mut)
+
+    # create the argparser for the "find_report" command
+    find_report = subparsers.add_parser(
+        'find_report',
+        help='Parse find_mutation output to reformat it in tabulated file more user friendly.'
+    )
+    find_report.set_defaults(func=main_find_report)
+    get_argparser_find_report(find_report)
 
     # recover arguments
     args = argparser.parse_args()
 
     # execute the command
-    args.func(args, sys.argv)
+    args.func(args, sys.argv, argparser)

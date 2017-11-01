@@ -74,7 +74,7 @@ class MutationFinder:
 
         self.graph_analysis(graphical)
 
-    def __grow(self, max_dist): ## 150
+    def __grow(self, max_dist):
         """Building graphs with counts: Breadth first search
         max_dist: maximum distance from the ref
         """

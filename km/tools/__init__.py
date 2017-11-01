@@ -1,1 +1,3 @@
-__all__ = ['find_mutation']
+__all__ = [
+    'find_mutation',
+    'find_report']

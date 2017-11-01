@@ -5,12 +5,12 @@ import os
 import time
 import logging as log
 from .. utils import MutationFinder as umf
-from ..utils.Jellyfish import Jellyfish
+from .. utils.Jellyfish import Jellyfish
 
 
 # ###########################################################################
 # Main function
-def main_find_mut(args, argv):
+def main_find_mut(args, argv, argparser):
     time_start = time.time()
 
     if args.verbose:
@@ -23,15 +23,15 @@ def main_find_mut(args, argv):
     jf = Jellyfish(args.jellyfish_fn, cutoff=args.ratio, n_cutoff=args.count)
 
     # Gather file names for ref. sequences.
-    if len(args.reference_fn) > 1:
-        seq_files = args.reference_fn
+    if len(args.target_fn) > 1:
+        seq_files = args.target_fn
     else:
-        if os.path.isdir(args.reference_fn[0]):
+        if os.path.isdir(args.target_fn[0]):
             seq_files = map(
-                lambda f: os.path.join(args.reference_fn[0], f),
-                os.listdir(args.reference_fn[0]))
+                lambda f: os.path.join(args.target_fn[0], f),
+                os.listdir(args.target_fn[0]))
         else:
-            seq_files = args.reference_fn
+            seq_files = args.target_fn
 
     umf.MutationFinder.output_header()
 
