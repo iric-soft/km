@@ -284,7 +284,7 @@ class MutationFinder:
                 elif len(de_seq) != 0 and len(ins_seq) == 0:
                     variant = "Deletion"
 
-                return "%s\t%d:%s:%d".format(
+                return "{}\t{}:{}:{}".format(
                     variant,
                     diff[0] + k + offset,
                     (string.lower(de_seq) + "/" + ins_seq),
