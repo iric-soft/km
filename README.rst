@@ -78,6 +78,7 @@ Here we are looking for a common 4-bp duplication that occurs in some leukemias,
   02H025/kmers-2.2.3_31.jf	NPM1_exons_10-11utr	Insertion	45:/TCTG:45	0.480	2975.4	2436	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	0.520	3224.1	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	cluster 1 n=1
 
 which shows that:
+
 * a TCTG insertion was found at position 45 of the target sequence: NPM1_exons_10-11utr.
 * the target sequence was found (without mutations).
 
