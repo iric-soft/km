@@ -9,7 +9,7 @@ Introduction:
 
 This tool was developed to identify and quantify the occurence of single nucleotide variants, insertions, deletions and duplications in RNA-seq data.  Contrary to most tools that try to report all variants in a complete genome, here we instead propose to focus the analysis on small regions of interest.
 
-Given a reference sequence of interest (typically a few hundred base pairs) around a known or suspected mutation in a gene of interest, all possible sequences that can be be created between the two end k-mers according to the sequenced reads will be reported.  A ratio of variant allele vs WT will be computed for each possible sequence constructed.
+Given a reference sequence (typically a few hundred base pairs) around a known or suspected mutation in a gene of interest, all possible sequences that can be be created between the two end k-mers according to the sequenced reads will be reported.  A ratio of variant allele vs WT will be computed for each possible sequence constructed.
 
 -------------
 Requirements:
@@ -21,16 +21,15 @@ Requirements:
 --------
 Install:
 --------
-Before to install or use km, you need to install Jellyfish with `binding`_.
-When it's done, you can use the setup install command or execute the
-code from the source:
+Before installing or using km, Jellyfish needs to be installed with Python `bindings`_.
+When it's done, the software may be executed directly from source code or installed using the setup script:
 
 .. code:: shell
 
   $ python setup.py install
   $ km -h
 
-.. _binding: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
+.. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
 ------
 Usage:
@@ -138,11 +137,11 @@ Output description:
 Each line represents a path that was constructed from the target sequence.
 
 * Sample: name of the Jellyfish kmer table queried
-* Region: The variant chromosome region
-* Location: The variant chromosome position
-* Type: The variant type
-* Removed: ...
-* Added: ...
+* Region: the variant chromosome region
+* Location: the variant chromosome position
+* Type: the variant type
+* Removed: number of nucleotides removed
+* Added: number of nucleotides added spliced | unspliced
 * Abnormal: estimated expression level for the mutated allele (coverage)
 * Normal: estimated expression level for the target
 * Ratio: estimated ratio for the mutated allele represented by this path
