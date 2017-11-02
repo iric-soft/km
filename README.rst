@@ -106,7 +106,7 @@ Each line represents a path of the local assembly constructed from the target se
 
 Using the -g argument, one can also obtain a coverage graph for the two variants, for example:
 
-.. image:: https://github.com/iric-soft/km/blob/master/figure_1.png
+.. image:: https://github.com/iric-soft/km/blob/master/data/figure/figure_1.png
 
 find_report tool:
 -------------------
