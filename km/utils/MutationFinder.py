@@ -310,7 +310,7 @@ class MutationFinder:
             quant.refine_coef()
             quant.get_ratio()
 
-            paths = quant.get_paths(
+            self.paths_quant = quant.get_paths(
                 db_f=self.jf.filename,
                 ref_name=self.ref_name,
                 name_f=lambda path: get_name(ref_i, path),
@@ -318,7 +318,7 @@ class MutationFinder:
                 ref_path=ref_i, info="whole sequence",
                 get_min_f=lambda path: min(get_counts(path, kmer)))
 
-            self.paths += paths
+            self.paths += self.paths_quant
 
             # if graphical:
             #     import matplotlib.pyplot as plt
@@ -345,7 +345,7 @@ class MutationFinder:
                 if list(path) == ref_i:
                     quant.adjust_for_reference()
 
-                paths = quant.get_paths(
+                self.paths_quant = quant.get_paths(
                     db_f=self.jf.filename,
                     ref_name=self.ref_name,
                     name_f=lambda path: get_name(ref_i, path),
@@ -353,7 +353,7 @@ class MutationFinder:
                     ref_path=ref_i, info="vs_ref",
                     get_min_f=lambda path: min(get_counts(path, kmer)))
 
-                self.paths += paths
+                self.paths += self.paths_quant
 
             if graphical:
                 import matplotlib.pyplot as plt
@@ -381,7 +381,7 @@ class MutationFinder:
                 if 0 in get_counts(short_paths[0], kmer):
                     quant.ratio = quant.coef * 0
 
-                paths = quant.get_paths(
+                self.paths_quant = quant.get_paths(
                     db_f=self.jf.filename,
                     ref_name=self.ref_name,
                     name_f=lambda path: get_name(ref_i, path),
@@ -389,7 +389,7 @@ class MutationFinder:
                     ref_path=short_paths, info="cluster 0",
                     get_min_f=lambda path: min(get_counts(path, kmer)))
 
-                self.paths += paths
+                self.paths += self.paths_quant
             else:
                 variant_diffs = []
                 variant_set = set(range(0, len(short_paths)))
@@ -455,7 +455,7 @@ class MutationFinder:
 
                     quant.get_ratio()
 
-                    paths = quant.get_paths(
+                    self.paths_quant = quant.get_paths(
                         db_f=self.jf.filename,
                         ref_name=self.ref_name,
                         name_f=lambda path: get_name(ref_path, path, offset),
@@ -464,7 +464,7 @@ class MutationFinder:
                         info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
                         get_min_f=lambda path: min(get_counts(path, kmer)))
 
-                    self.paths += paths
+                    self.paths += self.paths_quant
 
                     if graphical:
                         import matplotlib.pyplot as plt
@@ -486,3 +486,6 @@ class MutationFinder:
 
     def get_paths(self):
         return self.paths
+
+    def get_paths_quant(self):
+        return self.paths_quant
