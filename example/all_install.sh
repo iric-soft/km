@@ -1,3 +1,6 @@
+# NEED:
+# - pip : https://pip.pypa.io/en/stable/installing/
+# - virtualenv: https://virtualenv.pypa.io/en/stable/installation/
 
 ## Setup your software directory
 mkdir -p $HOME/software
@@ -12,6 +15,8 @@ wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.6/jellyfish-2.
 tar zxvf jellyfish-2.2.6.tar.gz
 cd jellyfish-2.2.6
 ./configure --prefix=$HOME/.virtualenvs/km --enable-python-binding
+# For user which install python with macport
+# ./configure --prefix=$HOME/.virtualenvs/km --enable-python-binding PYTHON_EXTRA_LDFLAGS="-u _PyMac_Error"  LDFLAGS="-L/opt/local/lib `python-config --ldflags` `python-config --libs`"
 make -j 4
 make install
 
