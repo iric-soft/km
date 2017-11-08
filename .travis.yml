@@ -1,4 +1,4 @@
-sudo: false
+sudo: enabled
 
 notifications:
     email: false
@@ -17,7 +17,7 @@ before_install:
     - pip install coverage
     - wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.6/jellyfish-2.2.6.tar.gz
     - tar -zxvf jellyfish-2.2.6.tar.gz
-    - pushd jellyfish-2.2.6 && ./configure --enable-python-binding && make -j 4 && make install && popd
+    - pushd jellyfish-2.2.6 && ./configure --enable-python-binding && make -j 4 && sudo make install && popd
 
 install:
     - python setup.py install
