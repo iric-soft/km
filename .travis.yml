@@ -1,0 +1,27 @@
+sudo: false
+
+notifications:
+    email: false
+
+language: python
+
+python:
+  - "2.7"
+
+before_install:
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - conda update --yes conda
+    - conda install --yes python=$TRAVIS_PYTHON_VERSION pip numpy
+    - pip install coverage
+    - wget https://github.com/gmarcais/Jellyfish/releases/download/v2.2.6/jellyfish-2.2.6.tar.gz
+    - tar -zxvf jellyfish-2.2.6.tar.gz
+    - pushd jellyfish-2.2.6 && ./configure --enable-python-binding && make -j 4 && make install && popd
+
+install:
+    - python setup.py install
+
+script: coverage run -m unittest discover km/tests/
+
+after_success: bash <(curl -s https://codecov.io/bash)
