@@ -2,6 +2,8 @@
 ===================================================================
 km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
+.. image:: https://img.shields.io/badge/python-2.7-blue.svg
+.. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg
 
 -------------
 Introduction:
