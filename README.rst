@@ -58,7 +58,7 @@ After setup install:
 Count table:
 ------------
 
-We recommand these parameters to create the count table with jellyfish.
+For your studies, we use these parameters to create count tables with jellyfish.
 
 .. code:: shell
 
@@ -67,8 +67,10 @@ We recommand these parameters to create the count table with jellyfish.
 Examples:
 ---------
 
-In the example folder you can find two bash scripts which can help you to
-install km with all dependency and run it one sample of leucegene.
+In the `example`_ folder you can find two bash scripts which can help you to
+install km with all dependency and run it on one Leucegene sample (03H041).
+
+.. _example: https://github.com/iric-soft/km/tree/master/example
 
 ------
 Tools:
