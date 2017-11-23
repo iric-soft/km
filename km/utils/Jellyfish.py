@@ -12,28 +12,6 @@ import logging as log
 import jellyfish
 
 
-def prepare(infiles, outfile, k=20, gz=True, max_ram=8):
-    # max_ram in GB
-    nb_threads = 4
-    nb_generators = 2
-    # counter_len in bits
-    counter_len = 12
-    s = int(0.50 * (8 * 1073741824 * max_ram) / (k + counter_len))
-    print s
-    if gz:
-        cmd = "ls -C1 %s | xargs -n 1 echo gunzip -c > generators" % ' '.join(infiles)
-        # print cmd
-        os.system(cmd)
-        in_part = "-G %d -g generators" % nb_generators
-        # print in_part
-    else:
-        in_part = ' '.join(infiles)
-    cmd = ("jellyfish count -m %d -o %s -c %d -s %d -t %d -C '-Q+' %s" %
-           (k, outfile, counter_len, s, nb_threads, in_part))
-    # print cmd
-    os.system(cmd)
-
-
 class Jellyfish:
 
     def __init__(self, filename, cutoff=0.30, n_cutoff=500, canonical=True):

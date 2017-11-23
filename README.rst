@@ -55,8 +55,27 @@ After setup install:
 
   $ km -h
 
-find_mutation tool:
--------------------
+Count table:
+------------
+
+We recommand these parameters to create the count table with jellyfish.
+
+.. code:: shell
+
+  $ jellyfish count -m 31 --disk -c 12 -s 3G -t 8 -C -L 2 '-Q+'
+
+Examples:
+---------
+
+In the example folder you can find two bash scripts which can help you to
+install km with all dependency and run it one sample of leucegene.
+
+------
+Tools:
+------
+
+find_mutation:
+--------------
 
 Usage:
 ******
@@ -110,7 +129,7 @@ Using the -g argument, one can also obtain a coverage graph for the two variants
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/figure_1.png
 
-find_report tool:
+find_report:
 -------------------
 
 Usage:
