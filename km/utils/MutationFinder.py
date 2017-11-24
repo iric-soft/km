@@ -51,16 +51,9 @@ class MutationFinder:
 
         self.max_stack = max_stack
 
-        # if (self.jf.query(self.first_seq) == 0 or
-        #         self.jf.query(self.last_seq) == 0):
-        #     log.debug("Endpoint kmers from the reference were not found.")
-        #     return
-
         # register all k-mers from the ref
         for s in self.ref_set:
             self.node_data[s] = self.jf.query(s)
-
-        # self.genome_jf = Jellyfish("/ssd/home/gendrop/hg19")
 
         # kmer walking from each k-mer of ref_seq
         self.done.update(self.ref_set)
@@ -68,34 +61,8 @@ class MutationFinder:
             if seq == self.last_seq:
                 continue
             self.__extend([seq], 0, 0)
-            # self.__extend_best ([seq], 0, 0)
-
-        # kmer walking from start only
-        # self.__extend_depth_first ([first_seq], 0, 0)
 
         self.graph_analysis(graphical)
-
-    def __grow(self, max_dist):
-        """Building graphs with counts: Breadth first search
-        max_dist: maximum distance from the ref
-        """
-        for i in range(max_dist):
-            if i == 0:
-                stage = set()
-                for s in self.ref_set:
-                    stage.add(s)
-            next_stage = set()
-            for cur_seq in stage:
-                if cur_seq in self.done:
-                    continue
-
-                child = self.jf.get_child(cur_seq, forward=True)
-
-                next_stage.update(child)
-                self.done.add(cur_seq)
-                self.node_data[cur_seq] = self.jf.query(cur_seq)
-
-            stage = next_stage
 
     def __extend(self, stack, breaks, found):
         """ Recursive depth first search """
@@ -119,73 +86,6 @@ class MutationFinder:
                 found += 1
             else:
                 self.__extend(stack + [child], breaks, found)
-
-    def __extend_best(self, stack, breaks, found):
-        """Recursive depth first search of the best branch only"""
-        if len(stack) > self.max_stack:
-            return
-        cur_seq = stack[-1]
-        childs = self.jf.get_best_child(cur_seq, forward=True)
-
-        # if len (child) > 1:
-        #     breaks += 1
-        #     if breaks > 10:
-        #         return
-
-        for child in childs:
-            if child in self.done:
-                self.done.update(stack)
-                self.done.add(child)
-                for p in stack:
-                    self.node_data[p] = self.jf.query(p)
-                self.node_data[cur_seq] = self.jf.query(cur_seq)
-                found += 1
-            else:
-                self.__extend(stack + [child], breaks, found)
-
-    def __extend_depth_first(self, stack, breaks, found):
-        """Depth first search"""
-        sys.stderr.write(
-            "Branch length: %6d - Breaks: %3d - Paths: %3d\r" % (
-                len(stack), breaks, found
-            )
-        )
-        if len(stack) == 1:
-            self.done.update(self.ref_seq)
-            for s in self.ref_set:
-                self.node_data[s] = self.jf.query(s)
-
-        if len(stack) > (len(self.ref_seq) * 2):
-            return
-        cur_seq = stack[-1]
-        childs = self.jf.get_child(cur_seq, forward=True)
-
-        if len(childs) > 1:
-            breaks += 1
-            if breaks > 10:
-                return
-
-        for child in childs:
-            # if self.genome_jf.query(c) > 5:
-            #     print "skipping", child, self.genome_jf.query(child)
-            #     continue
-            # print child, self.jf.query(child), self.genome_jf.query(child)
-
-            if child in self.done:
-                self.done.update(stack)
-                self.done.add(child)
-                for p in stack:
-                    self.node_data[p] = self.jf.query(p)
-                self.node_data[cur_seq] = self.jf.query(cur_seq)
-                found += 1
-                sys.stderr.write(
-                    "Branch length: %6d %3d\r" % (len(stack), found)
-                )
-                continue
-            else:
-                sys.stderr.write("ERROR: MutationFinder has no __extend2")
-                exit(0)
-                # self.__extend2(stack + [c], breaks, found)
 
     def graph_analysis(self, graphical=False):
         self.paths = []
@@ -296,7 +196,6 @@ class MutationFinder:
                     variant,
                     diff[0] + k + offset,
                     (string.lower(del_seq) + "/" + ins_seq),
-                    # diff[0] + k + offset)
                     diff[1] + 1 + offset)
 
         def get_counts(path, kmer):
@@ -437,23 +336,14 @@ class MutationFinder:
 
                     start = var_gr[0]
                     stop = var_gr[1]
-                    # print start, stop
                     var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
                     offset = max(0, start - var_size)
                     ref_path = ref_i[offset:stop]
                     clipped_paths = [ref_path]
                     for var in var_gr[2]:
-                        # print variant_diffs[v]
                         start_off = offset
                         stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
                         clipped_paths += [short_paths[var][start_off:stop_off]]
-
-                    # print offset
-                    # for c in clipped_paths:
-                    #     print c
-
-                    # for c in clipped_paths:
-                    #     print get_seq (c, kmer, skip_prefix=False)
 
                     quant = upq.PathQuant(all_path=clipped_paths,
                                           counts=self.node_data.values())
