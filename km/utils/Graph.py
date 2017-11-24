@@ -108,29 +108,6 @@ class Graph:
                 all_paths.add(tuple(path))
         return list(all_paths)
 
-    def diff_path(self, ref, seq, k):
-        # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
-        i = 0
-
-        while i < len(ref) and i < len(seq) and ref[i] == seq[i]:
-            i += 1
-
-        j_ref = len(ref)
-        j_seq = len(seq)
-        while j_ref > i and j_seq > i and ref[j_ref - 1] == seq[j_seq - 1]:
-            j_ref -= 1
-            j_seq -= 1
-
-        k_ref = j_ref
-        k_seq = j_seq
-        while k_ref > i and ref[k_ref - 1] == seq[k_seq - 1]:
-            k_ref -= 1
-            k_seq -= 1
-
-        # log.debug("diffpath : " + " ".join(str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
-
-        return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
-
     def diff_path_without_overlap(self, ref, seq, k):
         # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
         i = 0
