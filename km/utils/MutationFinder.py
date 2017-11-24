@@ -233,44 +233,45 @@ class MutationFinder:
         def get_name(a, b, offset=0):
             k = self.jf.k
             diff = graph.diff_path_without_overlap(a, b, k)
-            de = diff[3]
+            deletion = diff[3]
             ins = diff[4]
 
-            if (len(a)-len(de)+len(ins)) != len(b):
+            if (len(a)-len(deletion)+len(ins)) != len(b):
                 sys.stderr.write(
                     "WARNING: %s %d != %d" % (
                         "mutation identification could be incorrect",
-                        len(a) - len(de) + len(ins),
+                        len(a) - len(deletion) + len(ins),
                         len(b)
                     )
                 )
 
                 # Fixes cases where we look at two copies of the same sequence
-                de = diff[3]
+                deletion = diff[3]
                 raise Exception()
 
-            old_de = diff[3][:-(k - 1)]
+            old_del = diff[3][:-(k - 1)]
             old_ins = diff[4][:-(k - 1)]
-            old_de_seq = get_seq(old_de, kmer, True)
+            old_del_seq = get_seq(old_del, kmer, True)
             old_ins_seq = get_seq(old_ins, kmer, True)
 
             # Trim end sequence when in both del and ins:
-            de_seq = get_seq(de, kmer, True)
+            del_seq = get_seq(deletion, kmer, True)
             ins_seq = get_seq(ins, kmer, True)
 
             trim = 1
-            while (len(de_seq[-trim:]) > 0 and
-                    de_seq[-trim:] == ins_seq[-trim:]):
+            while (len(del_seq[-trim:]) > 0 and
+                    del_seq[-trim:] == ins_seq[-trim:]):
                 trim += 1
             trim -= 1
             if trim != 0:
-                de_seq = de_seq[:-trim]
+                del_seq = del_seq[:-trim]
                 ins_seq = ins_seq[:-trim]
 
-            if old_de_seq != de_seq or old_ins_seq != ins_seq:
-                sys.stderr.write("INCOHERENCE IN NAMING")
-                sys.stderr.write("DE %s %s" % (old_de_seq, de_seq))
-                sys.stderr.write("INS %s %s" % (old_ins_seq, ins_seq))
+            if old_del_seq != del_seq or old_ins_seq != ins_seq:
+                sys.stderr.write("### WARNING: INCOHERENCE IN NAMING ###\n")
+                sys.stderr.write("DEL %s %s\n" % (old_del_seq, del_seq))
+                sys.stderr.write("INS %s %s\n" % (old_ins_seq, ins_seq))
+                sys.stderr.write("### END WARNING ###\n")
                 # raise Exception()
 
             if diff[0] == diff[1] and not diff[4]:
@@ -286,15 +287,15 @@ class MutationFinder:
                 # garbage between repeats.
                 elif diff[0] == diff[5]:
                     variant = "ITD"
-                elif len(de_seq) == 0 and len(ins_seq) != 0:
+                elif len(del_seq) == 0 and len(ins_seq) != 0:
                     variant = "Insertion"
-                elif len(de_seq) != 0 and len(ins_seq) == 0:
+                elif len(del_seq) != 0 and len(ins_seq) == 0:
                     variant = "Deletion"
 
                 return "{}\t{}:{}:{}".format(
                     variant,
                     diff[0] + k + offset,
-                    (string.lower(de_seq) + "/" + ins_seq),
+                    (string.lower(del_seq) + "/" + ins_seq),
                     # diff[0] + k + offset)
                     diff[1] + 1 + offset)
 

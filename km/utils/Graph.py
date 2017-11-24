@@ -127,7 +127,7 @@ class Graph:
             k_ref -= 1
             k_seq -= 1
 
-        #log.debug("diffpath : " + " ".join(str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
+        # log.debug("diffpath : " + " ".join(str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
 
         return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
 
@@ -150,6 +150,6 @@ class Graph:
             k_ref -= 1
             k_seq -= 1
 
-        #log.debug("diffpath : " + " ".join (str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
+        # log.debug("diffpath : " + " ".join (str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
 
         return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)

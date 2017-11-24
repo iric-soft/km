@@ -1,8 +1,8 @@
 
 # NEED:
-# - rsatoolkit: https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
+# - sratoolkit: https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
 # - jellyfish and km: https://github.com/iric-soft/km/blob/master/example/all_install.sh
-# - 46G without --gzip
+# - 46GB available space (without --gzip in fastq-dump cmd)
 
 ## Move to km directory
 # cd path_to_km
@@ -29,5 +29,6 @@ for file in ../../catalog/GRCh38/*.fa
 do
   filename=$(basename "$file")
   filename="${filename%.*}"
+  echo "Run on $filename"
   km find_mutation $file ./${sample}.jf | km find_report -t $file > ./${filename}.xls
 done
