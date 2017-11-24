@@ -2,7 +2,15 @@
 ===================================================================
 km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
-.. image:: https://img.shields.io/badge/python-2.7-blue.svg .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg
+.. image:: https://img.shields.io/badge/python-2.7-blue.svg
+.. image:: https://travis-ci.org/iric-soft/km.svg?branch=master
+.. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg
+
+<p align="center">
+  <a href="https://www.python.org/download/releases/2.7.6/"><img src="https://img.shields.io/badge/python-2.7-blue.svg" alt="Python Version"></a>
+  <a href="https://travis-ci.org/iric-soft/km"><img src="https://travis-ci.org/iric-soft/km.svg?branch=master" alt="Build Status"></a>
+  <a href="https://codecov.io/gh/iric-soft/km/"><img src="https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg" alt="Code Cov"></a>
+</p>
 
 -------------
 Introduction:
