@@ -25,7 +25,7 @@ jellyfish count -m 31 --disk -o ./${sample}.jf -c 12 -s 3G -t 8 -C -L 2 '-Q+' <(
 # Load the count table in RAM to improve the execution time of find_mutation
 wc -l ./${sample}.jf
 
-for file in ../catalog/GRCh38/*.fa
+for file in ../../catalog/GRCh38/*.fa
 do
   filename=$(basename "$file")
   filename="${filename%.*}"
