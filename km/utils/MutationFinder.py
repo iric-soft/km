@@ -23,8 +23,9 @@ class MutationFinder:
             kmer = ref_seq[i:(i + jf.k)]
             if kmer in ref_mer:
                 sys.stderr.write(
-                    "WARNING: %s found multiple times in reference %s %d",
-                    kmer, ref_name, i
+                    "WARNING: %s found multiple times in reference %s %d" % (
+                        kmer, ref_name, i
+                    )
                 )
 
             ref_mer.append(kmer)
@@ -145,8 +146,10 @@ class MutationFinder:
     def __extend_depth_first(self, stack, breaks, found):
         """Depth first search"""
         sys.stderr.write(
-            "Branch length: %6d - Breaks: %3d - Paths: %3d\r",
-            len(stack), breaks, found)
+            "Branch length: %6d - Breaks: %3d - Paths: %3d\r" % (
+                len(stack), breaks, found
+            )
+        )
         if len(stack) == 1:
             self.done.update(self.ref_seq)
             for s in self.ref_set:
@@ -176,8 +179,8 @@ class MutationFinder:
                 self.node_data[cur_seq] = self.jf.query(cur_seq)
                 found += 1
                 sys.stderr.write(
-                    "Branch length: %6d %3d\r",
-                    len(stack), found)
+                    "Branch length: %6d %3d\r" % (len(stack), found)
+                )
                 continue
             else:
                 sys.stderr.write("ERROR: MutationFinder has no __extend2")
@@ -235,8 +238,12 @@ class MutationFinder:
 
             if (len(a)-len(de)+len(ins)) != len(b):
                 sys.stderr.write(
-                    "WARNING: mutation identification could be incorrect %d != %d",
-                    len(a)-len(de)+len(ins), len(b))
+                    "WARNING: %s %d != %d" % (
+                        "mutation identification could be incorrect",
+                        len(a) - len(de) + len(ins),
+                        len(b)
+                    )
+                )
 
                 # Fixes cases where we look at two copies of the same sequence
                 de = diff[3]
@@ -262,8 +269,8 @@ class MutationFinder:
 
             if old_de_seq != de_seq or old_ins_seq != ins_seq:
                 sys.stderr.write("INCOHERENCE IN NAMING")
-                sys.stderr.write("DE %s %s", old_de_seq, de_seq)
-                sys.stderr.write("INS %s %s", old_ins_seq, ins_seq)
+                sys.stderr.write("DE %s %s" % (old_de_seq, de_seq))
+                sys.stderr.write("INS %s %s" % (old_ins_seq, ins_seq))
                 # raise Exception()
 
             if diff[0] == diff[1] and not diff[4]:
