@@ -23,10 +23,11 @@ class MutationFinder:
             kmer = ref_seq[i:(i + jf.k)]
             if kmer in ref_mer:
                 sys.stderr.write(
-                    "WARNING: %s found multiple times in reference %s %d" % (
+                    "ERROR: %s found multiple times in reference %s %d" % (
                         kmer, ref_name, i
                     )
                 )
+                raise Exception()
 
             ref_mer.append(kmer)
         ref_set = set(ref_mer)
@@ -138,7 +139,7 @@ class MutationFinder:
 
             if (len(a)-len(deletion)+len(ins)) != len(b):
                 sys.stderr.write(
-                    "WARNING: %s %d != %d" % (
+                    "ERROR: %s %d != %d" % (
                         "mutation identification could be incorrect",
                         len(a) - len(deletion) + len(ins),
                         len(b)
@@ -148,11 +149,6 @@ class MutationFinder:
                 # Fixes cases where we look at two copies of the same sequence
                 deletion = diff[3]
                 raise Exception()
-
-            old_del = diff[3][:-(k - 1)]
-            old_ins = diff[4][:-(k - 1)]
-            old_del_seq = get_seq(old_del, kmer, True)
-            old_ins_seq = get_seq(old_ins, kmer, True)
 
             # Trim end sequence when in both del and ins:
             del_seq = get_seq(deletion, kmer, True)
@@ -166,13 +162,6 @@ class MutationFinder:
             if trim != 0:
                 del_seq = del_seq[:-trim]
                 ins_seq = ins_seq[:-trim]
-
-            if old_del_seq != del_seq or old_ins_seq != ins_seq:
-                sys.stderr.write("### WARNING: INCOHERENCE IN NAMING ###\n")
-                sys.stderr.write("DEL %s %s\n" % (old_del_seq, del_seq))
-                sys.stderr.write("INS %s %s\n" % (old_ins_seq, ins_seq))
-                sys.stderr.write("### END WARNING ###\n")
-                # raise Exception()
 
             if diff[0] == diff[1] and not diff[4]:
                 return "Reference\t"
@@ -206,36 +195,6 @@ class MutationFinder:
             print("min counts: " + str(min(counts)))
 
             return counts
-
-        # Consider all paths at once
-        whole = False
-        if whole:
-            quant = upq.PathQuant(all_path=short_paths,
-                                  counts=self.node_data.values())
-
-            quant.compute_coef()
-            quant.refine_coef()
-            quant.get_ratio()
-
-            self.paths_quant = quant.get_paths(
-                db_f=self.jf.filename,
-                ref_name=self.ref_name,
-                name_f=lambda path: get_name(ref_i, path),
-                seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                ref_path=ref_i, info="whole sequence",
-                get_min_f=lambda path: min(get_counts(path, kmer)))
-
-            self.paths += self.paths_quant
-
-            # if graphical:
-            #     import matplotlib.pyplot as plt
-
-            #     plt.figure(figsize=(10, 6))
-            #     for path, ratio in zip(short_paths, quant.get_ratio()):
-            #         plt.plot(get_counts(path, kmer),# * ratio,
-            #                   label=get_name(ref_i, path).split("\t")[0])
-            #     plt.legend()
-            #     plt.show()
 
         # Quantify all paths independently
         individual = True
