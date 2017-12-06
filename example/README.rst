@@ -46,7 +46,7 @@ This script will:
 * made a km analysis on the 7 mutations from the `catalog`_
 
 .. _Leucegene: https://leucegene.ca/
-.. _catalog: https://github.com/iric-soft/km/tree/master/catalog/GRCh38
+.. _catalog: https://github.com/iric-soft/km/tree/master/data/catalog/GRCh38
 
 Need:
 -----
