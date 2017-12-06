@@ -57,15 +57,6 @@ After setup install:
 
   $ km -h
 
-Count table:
-------------
-
-For your studies, we use these parameters to create count tables with jellyfish.
-
-.. code:: shell
-
-  $ jellyfish count -m 31 --disk -c 12 -s 3G -t 8 -C -L 2 '-Q+'
-
 Examples:
 ---------
 

@@ -18,9 +18,12 @@ fastq-dump -I --split-files SRR949078
 # fastq-dump -I --split-files --gzip SRR949078
 
 ## Execute Jellyfish and km
-jellyfish count -m 31 --disk -o ./${sample}.jf -c 12 -s 3G -t 8 -C -L 2 '-Q+' <(cat ./*.fastq)
+# -s = (0.50 * (8 * 1073741824 * [RAM]) / ([k_len] + [-c]))
+# 799063683 = (0.50 * (8 * 1073741824 * 8) / (31 + 12))
+# On a macbook pro with 8Go, we need used -s 499414802
+jellyfish count -m 31 -o ./${sample}.jf -c 12 -s 799063683 -t 4 -C -L 2 '-Q+' <(cat ./*.fastq)
 # execute jellyfish with fastq.gz files
-# jellyfish count -m 31 --disk -o ./${sample}.jf -c 12 -s 3G -t 8 -C -L 2 '-Q+' <(zcat ./*.fastq.gz)
+# jellyfish count -m 31 -o ./${sample}.jf -c 12 -s 799063683 -t 8 -C -L 2 '-Q+' <(zcat ./*.fastq.gz)
 
 # Load the count table in RAM to improve the execution time of find_mutation
 wc -l ./${sample}.jf
