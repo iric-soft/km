@@ -1,3 +1,5 @@
+#cmd to run test: coverage run -m unittest discover ./km/tests
+
 import unittest
 
 import os
@@ -120,6 +122,18 @@ class kmMuttaionTest(unittest.TestCase):
                          # "ATGACCGGCCCAGCAGTCTCTGCCTCGCCAAGCGGCTCATGTTGGAGACGTCAGTATAGTGGACT",
                          "TGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGA",
                          "Test fail: DNMT3A -> sequence")
+
+    def test_not_linear(self):
+        ref_seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        k_len = 31
+        ref_name = "not_linear"
+        jf = Jellyfish("./data/jf/02H033_DNMT3A_sub.jf")
+
+        finder = umf.MutationFinder("", "", jf, False, 500)
+
+        with self.assertRaises(ValueError):
+            finder.get_ref_kmer(ref_seq, 31, ref_name)
+
 
 def runTests():
     unittest.main()

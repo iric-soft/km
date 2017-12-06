@@ -17,29 +17,14 @@ class MutationFinder:
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
 
-        # Load reference kmers.
-        ref_mer = []
-        for i in range(len(ref_seq) - (jf.k) + 1):
-            kmer = ref_seq[i:(i + jf.k)]
-            if kmer in ref_mer:
-                sys.stderr.write(
-                    "ERROR: %s found multiple times in reference %s %d" % (
-                        kmer, ref_name, i
-                    )
-                )
-                raise Exception()
+        self.ref_mer = MutationFinder.get_ref_kmer(ref_seq, jf.k, ref_name)
+        self.ref_set = set(self.ref_mer)
+        log.debug("Ref. set contains %d kmers.", len(self.ref_set))
 
-            ref_mer.append(kmer)
-        ref_set = set(ref_mer)
-
-        log.debug("Ref. set contains %d kmers.", len(ref_set))
-
-        self.ref_set = ref_set
         self.ref_seq = ref_seq
         self.jf = jf
         self.node_data = {}
         self.done = set()
-        self.ref_mer = ref_mer
         self.ref_name = ref_name
 
         self.done.add(self.first_seq)
@@ -58,7 +43,7 @@ class MutationFinder:
 
         # kmer walking from each k-mer of ref_seq
         self.done.update(self.ref_set)
-        for seq in ref_set:
+        for seq in self.ref_set:
             if seq == self.last_seq:
                 continue
             self.__extend([seq], 0, 0)
@@ -337,12 +322,28 @@ class MutationFinder:
                         plt.legend()
                         plt.show()
 
-    @staticmethod
-    def output_header():
-        upq.PathQuant.output_header()
-
     def get_paths(self):
         return self.paths
 
     def get_paths_quant(self):
         return self.paths_quant
+
+    @staticmethod
+    def output_header():
+        upq.PathQuant.output_header()
+
+    @staticmethod
+    def get_ref_kmer(ref_seq, k_len, ref_name):
+        """ Load reference kmers. """
+        ref_mer = []
+        for i in range(len(ref_seq) - k_len + 1):
+            kmer = ref_seq[i:(i + k_len)]
+            if kmer in ref_mer:
+                raise ValueError(
+                    "%s found multiple times in reference %s, at pos. %d" % (
+                        kmer, ref_name, i)
+                )
+
+            ref_mer.append(kmer)
+
+        return(ref_mer)

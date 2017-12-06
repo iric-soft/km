@@ -4,10 +4,6 @@
 
 import os
 import sys
-# import math
-# import glob
-# import re
-# import subprocess
 import logging as log
 import jellyfish
 
