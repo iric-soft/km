@@ -1,6 +1,6 @@
 
 ===================================================================
-km : a software for RNA-seq investigation using k-mer decomposition
+km examples script
 ===================================================================
 Here you can found some script that you can use as an example,
 that you can use and modify to fit your aims
@@ -41,9 +41,9 @@ Description:
 
 This script will:
 
-* download all fastq files of sample 03H041 from `Leucegene`_
-* Create the a k-mer count table of 31bp length from fastq downloaded with jellyfish
-* made a km analysis on the 7 mutations from the `catalog`_
+* Download all fastq files of sample 03H041 of `Leucegene`_ from GEO
+* Create a k-mer count table of 31bp length from fastq files downloaded, using Jellyfish
+* Run km to annotate 03H041 on the 7 mutations from the `catalog`_
 
 .. _Leucegene: https://leucegene.ca/
 .. _catalog: https://github.com/iric-soft/km/tree/master/data/catalog/GRCh38
@@ -52,11 +52,11 @@ Need:
 -----
 This script is designed to run on a computer with 8 Go and 4 thread and need
 46GB available space. Also km need to be installed and directly accessible
-with the command "*km*".
+with the command *km*.
 
 To go futher:
 -------------
 To optimize this script on computer with less or more 8Go of RAM, you need to
-change "**-s**" parameter of "*jellyfish count*" command with this formule:
+change **-s** parameter of *jellyfish count* command with this formule:
 
- * -s = (0.50 * (8 * 1073741824 * [RAM]) / ([k_len] + [-c]))
+ * (0.50 * (8 * 1073741824 * [RAM]) / ([k_len] + [-c]))
