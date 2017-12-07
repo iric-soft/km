@@ -62,7 +62,7 @@ Runing km on a real sample:
 ---------------------------
 
 In the `example`_ folder you can find a bash script which can help you to
-run your first km analysis on a Leucegene sample (03H041).
+run your first km analysis on a Leucegene sample.
 
 .. _example: https://github.com/iric-soft/km/tree/master/example
 
