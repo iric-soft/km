@@ -58,6 +58,7 @@ Need:
 * To be execute in the km parent directory, with:
 
 .. code:: shell
+
   $ ./example/run_leucegene.sh
 
 .. _sratoolkit: https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
