@@ -10,7 +10,6 @@ km : a software for RNA-seq investigation using k-mer decomposition
 ---------
 Contents:
 ---------
-
 * `Introduction`_
 * `Requirements`_
 * `Install`_

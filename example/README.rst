@@ -5,6 +5,15 @@ km examples script
 These scripts are designed to work on general case, but you could have to
 modify some part to fit with your settings.
 
+--------
+Scripts:
+--------
+* `all_install.sh`_ : To install jellyfish and km
+* `run_leucegene.sh`_ : To run your first km analysis
+
+.. _all_install.sh: https://github.com/iric-soft/km/tree/master/example#all_installsh
+.. _run_leucegene.sh: https://github.com/iric-soft/km/tree/master/example#run_leucegenesh
+
 ---------------
 all_install.sh:
 ---------------
