@@ -7,6 +7,33 @@ km : a software for RNA-seq investigation using k-mer decomposition
 |    :target: https://www.python.org/download/releases/2.7.6/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 
+---------
+Contents:
+---------
+* `Introduction`_
+* `Requirements`_
+* `Install`_
+* `Usage`_
+
+  - `General`_
+  - `Runing km on a real sample`_
+
+* `Tools`_
+
+  - `find_mutation`_
+  - `find_report`_
+
+.. Introduction: https://github.com/iric-soft/km#introduction
+.. Requirements: https://github.com/iric-soft/km#requirements
+.. Install: https://github.com/iric-soft/km#install
+.. Usage: https://github.com/iric-soft/km#usage
+.. Tools: https://github.com/iric-soft/km#tools
+
+.. General: https://github.com/iric-soft/km#general
+.. Runing km on a real sample: https://github.com/iric-soft/km#runing-km-on-a-real-sample
+.. find_mutation: https://github.com/iric-soft/km#find_mutation
+.. find_report: https://github.com/iric-soft/km#find_report
+
 -------------
 Introduction:
 -------------
@@ -19,15 +46,15 @@ Given a reference sequence (typically a few hundred base pairs) around a known o
 Requirements:
 -------------
 * Python 2.7.6 or later
-* Jellyfish 2.2 or later **with Python `bindings`_**.
+* Jellyfish 2.2 or later **with** Python `bindings`_.
 * (Optional) Matplotlib
 
 --------
 Install:
 --------
 Before installing or using km, Jellyfish needs to be installed with Python `bindings`_.
-In case, a script is available in the `example`_ folder, to help you to install Jellyfish with bindings.
-When it's done, km may be executed directly from source code or installed using the setup script:
+Should you need it, a script is available in the `example`_ folder, to help you to install Jellyfish with bindings.
+When jellyfish is installed, km may be executed directly from source code or installed using the setup script:
 
 .. code:: shell
 
