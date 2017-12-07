@@ -53,7 +53,7 @@ This script will:
 Need:
 -----
 * `sratoolkit`_ installed to download fastq from GEO
-* 8 Go of RAM, 4 thread and 46GB available space.
+* 8 Go of RAM, 4 thread and 46GB available space (for fastq).
 * Km and Jellyfish need to be installed and directly accessible (into your PATH).
 * To be execute in the km parent directory, with:
 
