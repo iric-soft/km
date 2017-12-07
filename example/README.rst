@@ -2,7 +2,6 @@
 ===================================================================
 km examples script
 ===================================================================
-Here you can found some scripts, that you can use as an example.
 These scripts are designed to work on general case, but you could have to
 modify some part to fit with your settings.
 
@@ -28,8 +27,7 @@ Usage:
 ------
 
 * Copy/past each line (and modify) in a terminal.
-* The virtual environment need to loaded each time you open a new terminal,
-with this command:
+* The virtual environment need to loaded each time you open a new terminal, with this command:
 
 .. code:: shell
 
@@ -54,8 +52,8 @@ This script will:
 
 Need:
 -----
+* `sratoolkit`_ installed to download fastq from GEO
 * This script is designed to run on a computer with 8 Go and 4 thread and need 46GB available space. Also km and Jellyfish need to be installed and directly accessible (into your PATH).
-* `sratoolkit`_ insatlled to download fastq from GEO
 
 .. _sratoolkit: https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
 
