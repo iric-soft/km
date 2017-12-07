@@ -53,7 +53,12 @@ This script will:
 Need:
 -----
 * `sratoolkit`_ installed to download fastq from GEO
-* This script is designed to run on a computer with 8 Go and 4 thread and need 46GB available space. Also km and Jellyfish need to be installed and directly accessible (into your PATH).
+* 8 Go of RAM, 4 thread and 46GB available space.
+* Km and Jellyfish need to be installed and directly accessible (into your PATH).
+* To be execute in the km parent directory, with:
+
+.. code:: shell
+  $ ./example/run_leucegene.sh
 
 .. _sratoolkit: https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
 
