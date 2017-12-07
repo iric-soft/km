@@ -19,14 +19,15 @@ Given a reference sequence (typically a few hundred base pairs) around a known o
 Requirements:
 -------------
 * Python 2.7.6 or later
-* Jellyfish 2.2 or later (http://www.genome.umd.edu/jellyfish.html)
+* Jellyfish 2.2 or later **with Python `bindings`_**.
 * (Optional) Matplotlib
 
 --------
 Install:
 --------
 Before installing or using km, Jellyfish needs to be installed with Python `bindings`_.
-When it's done, the software may be executed directly from source code or installed using the setup script:
+In case, a script is available in the `example`_ folder, to help you to install Jellyfish with bindings.
+When it's done, km may be executed directly from source code or installed using the setup script:
 
 .. code:: shell
 
@@ -57,11 +58,11 @@ After setup install:
 
   $ km -h
 
-Examples:
----------
+Runing km on a real sample:
+---------------------------
 
-In the `example`_ folder you can find two bash scripts which can help you to
-install km with all dependency and run it on one Leucegene sample (03H041).
+In the `example`_ folder you can find a bash script which can help you to
+run your first km analysis on a Leucegene sample (03H041).
 
 .. _example: https://github.com/iric-soft/km/tree/master/example
 
