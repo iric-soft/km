@@ -3,7 +3,7 @@
 km examples script
 ===================================================================
 Here you can found some scripts, that you can use as an example.
-These scripts are designed to work on general case, but you could to have to
+These scripts are designed to work on general case, but you could have to
 modify some part to fit with your settings.
 
 ---------------
@@ -54,9 +54,7 @@ This script will:
 
 Need:
 -----
-* This script is designed to run on a computer with 8 Go and 4 thread and need
-46GB available space. Also km and Jellyfish need to be installed and directly
-accessible (into your PATH).
+* This script is designed to run on a computer with 8 Go and 4 thread and need 46GB available space. Also km and Jellyfish need to be installed and directly accessible (into your PATH).
 * `sratoolkit`_ insatlled to download fastq from GEO
 
 .. _sratoolkit: https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?cmd=show&f=software&m=software&s=software
@@ -71,4 +69,3 @@ the value who fit with your setting:
 
    $ jellyfish mem -m 31 -s 799063683 -c 12
    7158303656 (6G)
-   
