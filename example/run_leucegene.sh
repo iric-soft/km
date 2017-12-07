@@ -19,8 +19,6 @@ fastq-dump -I --split-files SRR949078
 
 ## Execute Jellyfish and km
 # -s = (0.50 * (8 * 1073741824 * [RAM]) / ([k_len] + [-c]))
-# 799063683 = (0.50 * (8 * 1073741824 * 8) / (31 + 12))
-# On a macbook pro with 8Go, we need used -s 499414802
 jellyfish count -m 31 -o ./${sample}.jf -c 12 -s 799063683 -t 4 -C -L 2 '-Q+' <(cat ./*.fastq)
 # execute jellyfish with fastq.gz files
 # jellyfish count -m 31 -o ./${sample}.jf -c 12 -s 799063683 -t 8 -C -L 2 '-Q+' <(zcat ./*.fastq.gz)
