@@ -10,6 +10,7 @@ km : a software for RNA-seq investigation using k-mer decomposition
 ---------
 Contents:
 ---------
+
 * `Introduction`_
 * `Requirements`_
 * `Install`_
@@ -23,16 +24,16 @@ Contents:
   - `find_mutation`_
   - `find_report`_
 
-.. Introduction: https://github.com/iric-soft/km#introduction
-.. Requirements: https://github.com/iric-soft/km#requirements
-.. Install: https://github.com/iric-soft/km#install
-.. Usage: https://github.com/iric-soft/km#usage
-.. Tools: https://github.com/iric-soft/km#tools
+.. _Introduction: https://github.com/iric-soft/km#introduction
+.. _Requirements: https://github.com/iric-soft/km#requirements
+.. _Install: https://github.com/iric-soft/km#install
+.. _Usage: https://github.com/iric-soft/km#usage
+.. _Tools: https://github.com/iric-soft/km#tools
 
-.. General: https://github.com/iric-soft/km#general
-.. Runing km on a real sample: https://github.com/iric-soft/km#runing-km-on-a-real-sample
-.. find_mutation: https://github.com/iric-soft/km#find_mutation
-.. find_report: https://github.com/iric-soft/km#find_report
+.. _General: https://github.com/iric-soft/km#general
+.. _Runing km on a real sample: https://github.com/iric-soft/km#runing-km-on-a-real-sample
+.. _find_mutation: https://github.com/iric-soft/km#find_mutation
+.. _find_report: https://github.com/iric-soft/km#find_report
 
 -------------
 Introduction:
