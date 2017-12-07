@@ -43,7 +43,7 @@ Usage:
 General:
 --------
 
-From the source:
+From source:
 ****************
 
 .. code:: shell
