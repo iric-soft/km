@@ -84,6 +84,62 @@ class kmMuttaionTest(unittest.TestCase):
                          "AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
                          "Test fail: NPM1 -> report sequence")
 
+    def testFLT3_IandI(self):
+        target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
+        args = Namespace(
+            count=5,
+            graphical=False,
+            jellyfish_fn='./data/jf/03H112_IandI.jf',
+            ratio=0.05,
+            steps=500,
+            target_fn=[target],
+            verbose=False
+        )
+
+        with captured_output() as (out, err):
+            fm.main_find_mut(args, None)
+
+        output = out.getvalue()
+        find_output = output.split("\n")
+        find_output = find_output[16].split("\t")
+
+        self.assertEqual(find_output[2],
+                         "ITD",
+                         "Test fail: FLT3-ITD -> find type")
+        self.assertEqual(find_output[3],
+                         "152:/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTC:152",
+                         "Test fail: FLT3-ITD -> find variant")
+        self.assertEqual(find_output[7],
+                         "TTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTC",
+                         "Test fail: FLT3-ITD -> find sequence")
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(output),
+            info="vs_ref",
+            min_cov=1
+        )
+
+        with captured_output() as (out, err):
+            fr.main_find_report(args, None)
+
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[1].split("\t")
+
+        self.assertEqual(report_output[2],
+                         "chr13:28034128",
+                         "Test fail: FLT3-ITD -> report pos")
+        self.assertEqual(report_output[3],
+                         "I&I",
+                         "Test fail: FLT3-ITD -> report type")
+        self.assertEqual(report_output[10],
+                         "/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTC",
+                         "Test fail: FLT3-ITD -> report variant")
+        self.assertEqual(report_output[13],
+                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
+                         "Test fail: FLT3-ITD -> report sequence")
+
     def testFLT3_ITD(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
