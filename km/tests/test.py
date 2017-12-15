@@ -7,6 +7,8 @@ import sys
 
 from argparse import Namespace
 from km.tools import find_mutation as fm
+from km.tools import find_report as fr
+
 from km.utils.Jellyfish import Jellyfish
 from km.utils import MutationFinder as umf
 
@@ -27,113 +29,228 @@ def captured_output():
 
 class kmMuttaionTest(unittest.TestCase):
     def testNPM1(self):
+        target = "./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa"
         args = Namespace(
             count=5,
             graphical=False,
             jellyfish_fn='./data/jf/02H025_NPM1.jf',
             ratio=0.05,
             steps=500,
-            target_fn=["./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa"],
+            target_fn=[target],
             verbose=False
         )
 
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue().split("\n")
-        output = output[16].split("\t")
+        output = out.getvalue()
+        find_output = output.split("\n")
+        find_output = find_output[16].split("\t")
 
-        self.assertEqual(output[2],
+        self.assertEqual(find_output[2],
                          "Insertion",
-                         "Test fail: NPM1 -> type")
-        self.assertEqual(output[3],
+                         "Test fail: NPM1 -> find type")
+        self.assertEqual(find_output[3],
                          "45:/TCTG:45",
-                         "Test fail: NPM1 -> variant")
-        self.assertEqual(output[7],
+                         "Test fail: NPM1 -> find variant")
+        self.assertEqual(find_output[7],
                          "CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG",
-                         "Test fail: NPM1 -> sequence")
-        # AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
+                         "Test fail: NPM1 -> find sequence")
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(output),
+            info="vs_ref",
+            min_cov=1
+        )
+
+        with captured_output() as (out, err):
+            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[1].split("\t")
+
+        self.assertEqual(report_output[2],
+                         "chr5:171410544",
+                         "Test fail: NPM1 -> report pos")
+        self.assertEqual(report_output[3],
+                         "ITD",
+                         "Test fail: NPM1 -> report type")
+        self.assertEqual(report_output[10],
+                         "/TCTG",
+                         "Test fail: NPM1 -> report variant")
+        self.assertEqual(report_output[13],
+                         "AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
+                         "Test fail: NPM1 -> report sequence")
 
     def testFLT3_ITD(self):
+        target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
             count=5,
             graphical=False,
             jellyfish_fn='./data/jf/03H116_ITD.jf',
             ratio=0.05,
             steps=500,
-            target_fn=["./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"],
+            target_fn=[target],
             verbose=False
         )
 
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue().split("\n")
-        output = output[16].split("\t")
+        output = out.getvalue()
+        find_output = output.split("\n")
+        find_output = find_output[16].split("\t")
 
-        self.assertEqual(output[2],
+        self.assertEqual(find_output[2],
                          "ITD",
-                         "Test fail: FLT3-ITD -> type")
-        self.assertEqual(output[3],
+                         "Test fail: FLT3-ITD -> find type")
+        self.assertEqual(find_output[3],
                          "204:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:204",
-                         "Test fail: FLT3-ITD -> variant")
-        self.assertEqual(output[7],
+                         "Test fail: FLT3-ITD -> find variant")
+        self.assertEqual(find_output[7],
                          "TACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
-                         "Test fail: FLT3-ITD -> sequence")
+                         "Test fail: FLT3-ITD -> find sequence")
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(output),
+            info="vs_ref",
+            min_cov=1
+        )
+
+        with captured_output() as (out, err):
+            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[2].split("\t")
+
+        self.assertEqual(report_output[2],
+                         "chr13:28034180",
+                         "Test fail: FLT3-ITD -> report pos")
+        self.assertEqual(report_output[3],
+                         "ITD",
+                         "Test fail: FLT3-ITD -> report type")
+        self.assertEqual(report_output[10],
+                         "/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC",
+                         "Test fail: FLT3-ITD -> report variant")
+        self.assertEqual(report_output[13],
+                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
+                         "Test fail: FLT3-ITD -> report sequence")
 
     def testFLT3_TKD(self):
+        target = "./data/catalog/GRCh38/FLT3-TKD_exon_20.fa"
         args = Namespace(
             count=5,
             graphical=False,
             jellyfish_fn='./data/jf/05H094_FLT3-TKD_del.jf',
             ratio=0.05,
             steps=500,
-            target_fn=["./data/catalog/GRCh38/FLT3-TKD_exon_20.fa"],
+            target_fn=[target],
             verbose=False
         )
 
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue().split("\n")
-        output = output[16].split("\t")
+        output = out.getvalue()
+        find_output = output.split("\n")
+        find_output = find_output[16].split("\t")
 
-        self.assertEqual(output[2],
+        self.assertEqual(find_output[2],
                          "Deletion",
-                         "Test fail: FLT3-TKD -> type")
-        self.assertEqual(output[3],
+                         "Test fail: FLT3-TKD -> find type")
+        self.assertEqual(find_output[3],
                          "32:gat/:35",
-                         "Test fail: FLT3-TKD -> variant")
-        self.assertEqual(output[7],
+                         "Test fail: FLT3-TKD -> find variant")
+        self.assertEqual(find_output[7],
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTT",
-                         "Test fail: FLT3-TKD -> sequence")
+                         "Test fail: FLT3-TKD -> find sequence")
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(output),
+            info="vs_ref",
+            min_cov=1
+        )
+
+        with captured_output() as (out, err):
+            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[2].split("\t")
+
+        self.assertEqual(report_output[2],
+                         "",
+                         "Test fail: FLT3-TKD -> report pos")
+        self.assertEqual(report_output[3],
+                         "Deletion",
+                         "Test fail: FLT3-TKD -> report type")
+        self.assertEqual(report_output[10],
+                         "gat/",
+                         "Test fail: FLT3-TKD -> report variant")
+        self.assertEqual(report_output[13],
+                         "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTTCACC",
+                         "Test fail: FLT3-TKD -> report sequence")
 
     def testDNMT3A(self):
+        target = "./data/catalog/GRCh38/DNMT3A_R882_exon_23.fa"
         args = Namespace(
             count=5,
             graphical=False,
             jellyfish_fn="./data/jf/02H033_DNMT3A_sub.jf",
             ratio=0.05,
             steps=500,
-            target_fn=["./data/catalog/GRCh38/DNMT3A_R882_exon_23.fa"],
+            target_fn=[target],
             verbose=False
         )
 
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue().split("\n")
-        output = output[16].split("\t")
+        output = out.getvalue()
+        find_output = output.split("\n")
+        find_output = find_output[16].split("\t")
 
-        self.assertEqual(output[2],
+        self.assertEqual(find_output[2],
                          "Substitution",
-                         "Test fail: DNMT3A -> type")
-        self.assertEqual(output[3],
+                         "Test fail: DNMT3A -> find type")
+        self.assertEqual(find_output[3],
                          "33:c/T:34",
-                         "Test fail: DNMT3A -> variant")
-        self.assertEqual(output[7],
+                         "Test fail: DNMT3A -> find variant")
+        self.assertEqual(find_output[7],
                          "TGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGA",
-                         "Test fail: DNMT3A -> sequence")
+                         "Test fail: DNMT3A -> find sequence")
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(output),
+            info="vs_ref",
+            min_cov=1
+        )
+
+        with captured_output() as (out, err):
+            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[1].split("\t")
+
+        self.assertEqual(report_output[2],
+                         "chr2:25234373",
+                         "Test fail: DNMT3A -> report pos")
+        self.assertEqual(report_output[3],
+                         "Substitution",
+                         "Test fail: DNMT3A -> report type")
+        self.assertEqual(report_output[10],
+                         "c/T",
+                         "Test fail: DNMT3A -> report variant")
+        self.assertEqual(report_output[13],
+                         "ATGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGACT",
+                         "Test fail: DNMT3A -> report sequence")
 
     def test_not_linear(self):
         ref_seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
