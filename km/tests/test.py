@@ -1,125 +1,137 @@
-#cmd to run test: coverage run -m unittest discover ./km/tests
+# cmd to run test: coverage run -m unittest discover ./km/tests
 
 import unittest
 
 import os
-from km.utils import MutationFinder as umf
+import sys
+
+from argparse import Namespace
+from km.tools import find_mutation as fm
 from km.utils.Jellyfish import Jellyfish
+from km.utils import MutationFinder as umf
+
+from contextlib import contextmanager
+from StringIO import StringIO
+
+
+@contextmanager
+def captured_output():
+    new_out, new_err = StringIO(), StringIO()
+    old_out, old_err = sys.stdout, sys.stderr
+    try:
+        sys.stdout, sys.stderr = new_out, new_err
+        yield sys.stdout, sys.stderr
+    finally:
+        sys.stdout, sys.stderr = old_out, old_err
 
 
 class kmMuttaionTest(unittest.TestCase):
     def testNPM1(self):
-        seq_f = "./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa"
-        base_name = os.path.basename(seq_f)
-        (ref_name, ext) = os.path.splitext(base_name)
-        jf = Jellyfish("./data/jf/02H025_NPM1.jf", cutoff=0.05, n_cutoff=5)
-
-        ref_seq = []
-        for line in open(seq_f, "r"):
-            line = line.strip()
-            if line[0] == '>':
-                continue
-            ref_seq.append(line)
-        ref_seq = ''.join(ref_seq)
-
-        finder = umf.MutationFinder(
-            ref_name, ref_seq, jf,
-            False, 500
+        args = Namespace(
+            count=5,
+            graphical=False,
+            jellyfish_fn='./data/jf/02H025_NPM1.jf',
+            ratio=0.05,
+            steps=500,
+            target_fn=["./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa"],
+            verbose=False
         )
 
-        paths_quant = finder.get_paths_quant()
-        paths_quant = paths_quant[len(paths_quant)-1]
-        self.assertEqual(str(paths_quant.get_variant_name()),
-                         "Insertion\t45:/TCTG:45",
-                         "Test fail: NPM1 -> variant name")
-        self.assertEqual(paths_quant.get_sequence(),
+        with captured_output() as (out, err):
+            fm.main_find_mut(args, None)
+
+        output = out.getvalue().split("\n")
+        output = output[16].split("\t")
+
+        self.assertEqual(output[2],
+                         "Insertion",
+                         "Test fail: NPM1 -> type")
+        self.assertEqual(output[3],
+                         "45:/TCTG:45",
+                         "Test fail: NPM1 -> variant")
+        self.assertEqual(output[7],
                          "CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG",
                          "Test fail: NPM1 -> sequence")
         # AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
 
     def testFLT3_ITD(self):
-        seq_f = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
-        base_name = os.path.basename(seq_f)
-        (ref_name, ext) = os.path.splitext(base_name)
-        jf = Jellyfish("./data/jf/03H116_ITD.jf", cutoff=0.05, n_cutoff=5)
-
-        ref_seq = []
-        for line in open(seq_f, "r"):
-            line = line.strip()
-            if line[0] == '>':
-                continue
-            ref_seq.append(line)
-        ref_seq = ''.join(ref_seq)
-
-        finder = umf.MutationFinder(
-            ref_name, ref_seq, jf,
-            False, 500
+        args = Namespace(
+            count=5,
+            graphical=False,
+            jellyfish_fn='./data/jf/03H116_ITD.jf',
+            ratio=0.05,
+            steps=500,
+            target_fn=["./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"],
+            verbose=False
         )
 
-        paths_quant = finder.get_paths_quant()
-        paths_quant = paths_quant[len(paths_quant)-1]
-        self.assertEqual(str(paths_quant.get_variant_name()),
-                         "ITD\t204:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:204",
-                         "Test fail: FLT3-ITD -> variant name")
-        self.assertEqual(paths_quant.get_sequence(),
+        with captured_output() as (out, err):
+            fm.main_find_mut(args, None)
+
+        output = out.getvalue().split("\n")
+        output = output[16].split("\t")
+
+        self.assertEqual(output[2],
+                         "ITD",
+                         "Test fail: FLT3-ITD -> type")
+        self.assertEqual(output[3],
+                         "204:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:204",
+                         "Test fail: FLT3-ITD -> variant")
+        self.assertEqual(output[7],
                          "TACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
                          "Test fail: FLT3-ITD -> sequence")
 
     def testFLT3_TKD(self):
-        seq_f = "./data/catalog/GRCh38/FLT3-TKD_exon_20.fa"
-        base_name = os.path.basename(seq_f)
-        (ref_name, ext) = os.path.splitext(base_name)
-        jf = Jellyfish("./data/jf/05H094_FLT3-TKD_del.jf", cutoff=0.05, n_cutoff=5)
-
-        ref_seq = []
-        for line in open(seq_f, "r"):
-            line = line.strip()
-            if line[0] == '>':
-                continue
-            ref_seq.append(line)
-        ref_seq = ''.join(ref_seq)
-
-        finder = umf.MutationFinder(
-            ref_name, ref_seq, jf,
-            False, 500
+        args = Namespace(
+            count=5,
+            graphical=False,
+            jellyfish_fn='./data/jf/05H094_FLT3-TKD_del.jf',
+            ratio=0.05,
+            steps=500,
+            target_fn=["./data/catalog/GRCh38/FLT3-TKD_exon_20.fa"],
+            verbose=False
         )
 
-        paths_quant = finder.get_paths_quant()
-        paths_quant = paths_quant[len(paths_quant)-1]
-        self.assertEqual(str(paths_quant.get_variant_name()),
-                         "Deletion\t32:gat/:35",
-                         "Test fail: FLT3-TKD -> variant name")
-        self.assertEqual(paths_quant.get_sequence(),
-                         # "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTTCACC",
+        with captured_output() as (out, err):
+            fm.main_find_mut(args, None)
+
+        output = out.getvalue().split("\n")
+        output = output[16].split("\t")
+
+        self.assertEqual(output[2],
+                         "Deletion",
+                         "Test fail: FLT3-TKD -> type")
+        self.assertEqual(output[3],
+                         "32:gat/:35",
+                         "Test fail: FLT3-TKD -> variant")
+        self.assertEqual(output[7],
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTT",
                          "Test fail: FLT3-TKD -> sequence")
 
     def testDNMT3A(self):
-        seq_f = "./data/catalog/GRCh38/DNMT3A_R882_exon_23.fa"
-        base_name = os.path.basename(seq_f)
-        (ref_name, ext) = os.path.splitext(base_name)
-        jf = Jellyfish("./data/jf/02H033_DNMT3A_sub.jf", cutoff=0.05, n_cutoff=5)
-
-        ref_seq = []
-        for line in open(seq_f, "r"):
-            line = line.strip()
-            if line[0] == '>':
-                continue
-            ref_seq.append(line)
-        ref_seq = ''.join(ref_seq)
-
-        finder = umf.MutationFinder(
-            ref_name, ref_seq, jf,
-            False, 500
+        args = Namespace(
+            count=5,
+            graphical=False,
+            jellyfish_fn="./data/jf/02H033_DNMT3A_sub.jf",
+            ratio=0.05,
+            steps=500,
+            target_fn=["./data/catalog/GRCh38/DNMT3A_R882_exon_23.fa"],
+            verbose=False
         )
 
-        paths_quant = finder.get_paths_quant()
-        paths_quant = paths_quant[len(paths_quant)-1]
-        self.assertEqual(str(paths_quant.get_variant_name()),
-                         "Substitution\t33:c/T:34",
-                         "Test fail: DNMT3A -> variant name")
-        self.assertEqual(paths_quant.get_sequence(),
-                         # "ATGACCGGCCCAGCAGTCTCTGCCTCGCCAAGCGGCTCATGTTGGAGACGTCAGTATAGTGGACT",
+        with captured_output() as (out, err):
+            fm.main_find_mut(args, None)
+
+        output = out.getvalue().split("\n")
+        output = output[16].split("\t")
+
+        self.assertEqual(output[2],
+                         "Substitution",
+                         "Test fail: DNMT3A -> type")
+        self.assertEqual(output[3],
+                         "33:c/T:34",
+                         "Test fail: DNMT3A -> variant")
+        self.assertEqual(output[7],
                          "TGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGA",
                          "Test fail: DNMT3A -> sequence")
 
