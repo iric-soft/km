@@ -2,19 +2,7 @@ import sys
 import re
 
 
-def main_find_report(args, argparser):
-
-    if args.infile.isatty() or args.target is None:
-        argparser.print_help()
-        sys.exit()
-
-    arg_ref = args.target
-    infile = args.infile
-
-    variants = {}
-    samples = {}
-    data = {}
-
+def init_ref_seq(arg_ref):
     # BE 1-based
     nts = [-1]
     ref_seq = []
@@ -31,6 +19,16 @@ def main_find_report(args, argparser):
                     nts += [i]
         ref_seq = "X" + ''.join(ref_seq)
 
+    return(nts, ref_seq, chro)
+
+
+def create_report(arg_ref, infile, args_info, args_min_cov):
+    variants = {}
+    samples = {}
+    data = {}
+
+    (nts, ref_seq, chro) = init_ref_seq(arg_ref)
+
     print "\t".join(['Sample', 'Region', 'Location', 'Type', 'Removed',
                      'Added', 'Abnormal', 'Normal', 'Ratio', 'Min coverage',
                      'Variant', 'Target', 'Info', 'Variant sequence',
@@ -43,7 +41,7 @@ def main_find_report(args, argparser):
             continue
 
         # filter on info column
-        if not re.search(args.info, line):
+        if not re.search(args_info, line):
             # sys.stderr.write("Filtred: " + line)
             continue
 
@@ -77,7 +75,7 @@ def main_find_report(args, argparser):
             alt_seq = tok[7]
             refSeq = tok[10]
 
-            if int(min_cov) <= args.min_cov:
+            if int(min_cov) <= args_min_cov:
                 continue
 
             if variant[0] == 'Reference':
@@ -88,10 +86,6 @@ def main_find_report(args, argparser):
 
             start, mod, stop = variant[1].split(":")
             delet, insert = mod.split("/")
-            # sys.stderr.write("start: " + str(start) + "\n")
-            # sys.stderr.write("stop: " + str(stop) + "\n")
-            # sys.stderr.write("delet: " + str(delet) + "\n")
-            # sys.stderr.write("insert: " + str(insert) + "\n")
 
             if int(start) == len(nts) or int(stop) == len(nts):
                 sys.stderr.write("WARNING: Mutation point outside reference range")
@@ -166,3 +160,11 @@ def main_find_report(args, argparser):
                                      str(len(insert)), alt_ratio, ref_ratio,
                                      ratio, min_cov, mod, query, tok[-1],
                                      alt_seq, refSeq])
+
+def main_find_report(args, argparser):
+
+    if args.infile.isatty() or args.target is None:
+        argparser.print_help()
+        sys.exit()
+
+    create_report(args.target, args.infile, args.info, args.min_cov)
