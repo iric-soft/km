@@ -76,7 +76,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     setup_requires=['numpy', 'matplotlib'],
-    install_requires=['numpy==1.13.3', 'matplotlib=2.0.2'],
+    install_requires=['numpy==1.13.3', 'matplotlib==2.0.2'],
     python_requires='>=2.7, <3',
 
     # List additional groups of dependencies here (e.g. development
