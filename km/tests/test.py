@@ -65,7 +65,7 @@ class kmMuttaionTest(unittest.TestCase):
         )
 
         with captured_output() as (out, err):
-            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+            fr.main_find_report(args, None)
 
         output = out.getvalue()
         report_output = output.split("\n")
@@ -121,7 +121,7 @@ class kmMuttaionTest(unittest.TestCase):
         )
 
         with captured_output() as (out, err):
-            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+            fr.main_find_report(args, None)
 
         output = out.getvalue()
         report_output = output.split("\n")
@@ -177,7 +177,7 @@ class kmMuttaionTest(unittest.TestCase):
         )
 
         with captured_output() as (out, err):
-            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+            fr.main_find_report(args, None)
 
         output = out.getvalue()
         report_output = output.split("\n")
@@ -233,7 +233,7 @@ class kmMuttaionTest(unittest.TestCase):
         )
 
         with captured_output() as (out, err):
-            fr.create_report(args.target, args.infile, args.info, args.min_cov)
+            fr.main_find_report(args, None)
 
         output = out.getvalue()
         report_output = output.split("\n")

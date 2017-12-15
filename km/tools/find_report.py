@@ -2,6 +2,15 @@ import sys
 import re
 
 
+def print_line(sample, region, location, type_var, removed,
+               added, abnormal, normal, ratio, min_cov,
+               variant, target, info, var_seq, ref_seq):
+    line = "\t".join([sample, region, location, type_var, removed,
+                      added, abnormal, normal, ratio, min_cov,
+                      variant, target, info, var_seq, ref_seq])
+    sys.stdout.write(line + "\n")
+
+
 def init_ref_seq(arg_ref):
     # BE 1-based
     nts = [-1]
@@ -29,10 +38,10 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
 
     (nts, ref_seq, chro) = init_ref_seq(arg_ref)
 
-    print "\t".join(['Sample', 'Region', 'Location', 'Type', 'Removed',
-                     'Added', 'Abnormal', 'Normal', 'Ratio', 'Min coverage',
-                     'Variant', 'Target', 'Info', 'Variant sequence',
-                     'Reference sequence'])
+    print_line("Sample", "Region", "Location", "Type", "Removed",
+               "Added", "Abnormal", "Normal", "Ratio", "Min coverage",
+               "Variant", "Target", "Info", "Variant sequence",
+               "Reference sequence")
 
     for line in infile:
         # filter header
@@ -79,87 +88,60 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
                 continue
 
             if variant[0] == 'Reference':
-                print "\t".join([samp[1], samp[0], '-', variant[0], '0', '0',
-                                 '0.0', alt_ratio, tok[4], min_cov, '-', query,
-                                 tok[-1], "", ""])
+                print_line(samp[1], samp[0], '-', variant[0], '0', '0',
+                            '0.0', alt_ratio, tok[4], min_cov, '-', query,
+                            tok[-1], "", "")
                 continue
 
             start, mod, stop = variant[1].split(":")
             delet, insert = mod.split("/")
 
-            if int(start) == len(nts) or int(stop) == len(nts):
-                sys.stderr.write("WARNING: Mutation point outside reference range")
-                sys.stderr.write("WARNING: " + "\t".join([samp[1], samp[0],
-                                                          chro + ":" + str(nts[int(stop)-1] + 1),
-                                                          variant[0],
-                                                          str(len(delet)),
-                                                          str(len(insert)),
-                                                          alt_ratio,
-                                                          ref_ratio, tok[4],
-                                                          mod, query]))
-                print "\t".join([samp[1], samp[0],
-                                 chro + ":" + str(nts[int(stop)-1]+1),
-                                 variant[0], str(len(delet)), str(len(insert)),
-                                 alt_ratio, ref_ratio, ratio, min_cov, mod,
-                                 query, tok[-1], tok[7], refSeq])
+            added = str(len(insert))
+
+            # Reinterpret mutation for small ITD.
+            # INSERTIONS
+            if len(delet) == 0 and len(insert) != 0:
+                pos = int(start)-1
+                upstream = alt_seq[pos-len(insert):pos]
+                match = 0
+                # careful, going upstream may put us outside the reference.
+                if pos-len(insert) >= 0:
+                    for i in xrange(0, len(insert)):
+                        if insert[i] == upstream[i]:
+                            match += 1
+                    match = float(match)/len(insert)
+
+                insert_type = "Insertion"
+                region = chro + ":" + str(nts[int(pos-1)]) + "-" + str(nts[int(stop)-1])
+                if pos-len(insert) >= 0 and len(insert) >= 3 and insert == upstream:
+                    insert_type = "ITD"
+                    region = chro + ":" + str(nts[int(pos-len(insert)+1)]) + "-" + str(nts[int(stop)-1])
+                    added += " | " + str(nts[int(stop)-1] - nts[int(pos-len(insert)+1)] + 1)
+                elif pos-len(insert) >= 0 and len(insert) >= 3 and match > 0.5:
+                    insert_type = "I&I"
+                    region = chro + ":" + str(nts[int(pos-len(insert)+1)]) + "-" + str(nts[int(stop)-1])
+                    added += " | " + str(nts[int(stop)-1] - nts[int(pos-len(insert)+1)] + 1)
+
+                location = chro + ":" + str(nts[int(stop)])
+
+            elif variant[0] == 'Deletion':
+                region = chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1])
+                location = ""
+                insert_type = variant[0]
+            # SNP
+            elif variant[0] == 'Substitution':
+                region = chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1])
+                location = chro + ":" + str(nts[int(stop)-1])
+                insert_type = variant[0]
             else:
-                # Reinterpret mutation for small ITD.
-                # INSERTIONS
-                if len(delet) == 0 and len(insert) != 0:
-                    pos = int(start)-1
-                    upstream = alt_seq[pos-len(insert):pos]
-                    match = 0
-                    # careful, going upstream may put us outside the reference.
-                    if pos-len(insert) >= 0:
-                        for i in xrange(0, len(insert)):
-                            if insert[i] == upstream[i]:
-                                match += 1
-                        match = float(match)/len(insert)
+                sys.stderr.write("WARNING: This case isn't take account")
+                sys.exit()
 
-                    insert_type = "Insertion"
-                    region = chro + ":" + str(nts[int(pos-1)]) + "-" + str(nts[int(stop)-1])
-                    added = str(len(insert))
-                    if pos-len(insert) >= 0 and len(insert) >= 3 and insert == upstream:
-                        insert_type = "ITD"
-                        region = chro + ":" + str(nts[int(pos-len(insert)+1)]) + "-" + str(nts[int(stop)-1])
-                        added += " | " + str(nts[int(stop)-1] - nts[int(pos-len(insert)+1)] + 1)
-                    elif pos-len(insert) >= 0 and len(insert) >= 3 and match > 0.5:
-                        insert_type = "I&I"
-                        region = chro + ":" + str(nts[int(pos-len(insert)+1)]) + "-" + str(nts[int(stop)-1])
-                        added += " | " + str(nts[int(stop)-1] - nts[int(pos-len(insert)+1)] + 1)
+            print_line(samp[1], region, location, insert_type,
+                       str(len(delet)), added, alt_ratio,
+                       ref_ratio, ratio, min_cov, mod, query, tok[-1],
+                       alt_seq, refSeq)
 
-                    print "\t".join([samp[1],
-                                     region,
-                                     chro + ":" + str(nts[int(stop)]),
-                                     insert_type, str(len(delet)),
-                                     added,
-                                     alt_ratio, ref_ratio, ratio, min_cov, mod,
-                                     query, tok[-1], alt_seq, refSeq])
-
-                elif variant[0] == 'Deletion':
-                    print "\t".join([samp[1],
-                                     chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1]),
-                                     "", variant[0], str(len(delet)),
-                                     str(len(insert)), alt_ratio, ref_ratio,
-                                     ratio, min_cov, mod, query, tok[-1],
-                                     alt_seq, refSeq])
-                # SNP
-                elif variant[0] == 'Substitution':
-                    print "\t".join([samp[1],
-                                     chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1]),
-                                     chro + ":" + str(nts[int(stop)-1]),
-                                     variant[0], str(len(delet)),
-                                     str(len(insert)), alt_ratio, ref_ratio,
-                                     ratio, min_cov, mod, query, tok[-1],
-                                     alt_seq, refSeq])
-                else:
-                    print "\t".join([samp[1],
-                                     chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1]),
-                                     chro + ":" + str(nts[int(stop)]),
-                                     variant[0], str(len(delet)),
-                                     str(len(insert)), alt_ratio, ref_ratio,
-                                     ratio, min_cov, mod, query, tok[-1],
-                                     alt_seq, refSeq])
 
 def main_find_report(args, argparser):
 
