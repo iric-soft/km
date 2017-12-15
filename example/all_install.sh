@@ -32,3 +32,5 @@ python setup.py install
 # Need to reload the virtual environment each time you open a new terminal
 # with: source $HOME/.virtualenvs/km/bin/activate
 km find_mutation $HOME/software/km/data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa $HOME/software/km/data/jf/02H025_NPM1.jf | km find_report -t $HOME/software/km/data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
+# run with graphical option
+# km find_mutation $HOME/software/km/data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa $HOME/software/km/data/jf/02H025_NPM1.jf -g
