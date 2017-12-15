@@ -10,13 +10,12 @@ from .. utils.Jellyfish import Jellyfish
 
 # ###########################################################################
 # Main function
-def main_find_mut(args, argv, argparser):
+def main_find_mut(args, argparser):
     time_start = time.time()
 
     if args.verbose:
         log.basicConfig(level=log.DEBUG, format="VERBOSE: %(message)s")
 
-    print '#', " ".join(argv)
     for k, v in vars(args).iteritems():
         print '#', k, ':', v
 

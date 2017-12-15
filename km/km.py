@@ -1,4 +1,3 @@
-import sys
 import argparse
 
 from .argparser.find_mutation import *
@@ -39,4 +38,4 @@ def main():
     args = argparser.parse_args()
 
     # execute the command
-    args.func(args, sys.argv, argparser)
+    args.func(args, argparser)

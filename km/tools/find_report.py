@@ -2,7 +2,7 @@ import sys
 import re
 
 
-def main_find_report(args, argv, argparser):
+def main_find_report(args, argparser):
 
     if args.infile.isatty() or args.target is None:
         argparser.print_help()
