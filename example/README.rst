@@ -5,18 +5,18 @@ km examples script
 These scripts are designed to work on general case, but you could have to
 modify some part to fit with your settings.
 
---------
-Scripts:
---------
+---------
+Contents:
+---------
 * `all_install`_ : To install jellyfish and km
 * `run_leucegene`_ : To run your first km analysis
 
-.. _all_install: https://github.com/iric-soft/km/tree/master/example#all_installsh
-.. _run_leucegene: https://github.com/iric-soft/km/tree/master/example#run_leucegenesh
+.. _all_install: https://github.com/iric-soft/km/tree/master/example#all_install
+.. _run_leucegene: https://github.com/iric-soft/km/tree/master/example#run_leucegene
 
----------------
-all_install.sh:
----------------
+------------
+all_install:
+------------
 
 Description:
 ------------
@@ -42,9 +42,9 @@ Usage:
 
   $ source $HOME/.virtualenvs/km/bin/activate
 
------------------
-run_leucegene.sh:
------------------
+--------------
+run_leucegene:
+--------------
 
 Description:
 ------------
