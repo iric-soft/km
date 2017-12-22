@@ -53,7 +53,7 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "45:/TCTG:45",
                          "Test fail: NPM1 -> find variant")
-        self.assertEqual(find_output[7],
+        self.assertEqual(find_output[8],
                          "CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG",
                          "Test fail: NPM1 -> find sequence")
 
@@ -109,7 +109,7 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "152:/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTC:152",
                          "Test fail: FLT3-ITD -> find variant")
-        self.assertEqual(find_output[7],
+        self.assertEqual(find_output[8],
                          "TTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTC",
                          "Test fail: FLT3-ITD -> find sequence")
 
@@ -165,7 +165,7 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "204:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:204",
                          "Test fail: FLT3-ITD -> find variant")
-        self.assertEqual(find_output[7],
+        self.assertEqual(find_output[8],
                          "TACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
                          "Test fail: FLT3-ITD -> find sequence")
 
@@ -221,7 +221,7 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "32:gat/:35",
                          "Test fail: FLT3-TKD -> find variant")
-        self.assertEqual(find_output[7],
+        self.assertEqual(find_output[8],
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTT",
                          "Test fail: FLT3-TKD -> find sequence")
 
@@ -277,7 +277,7 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "33:c/T:34",
                          "Test fail: DNMT3A -> find variant")
-        self.assertEqual(find_output[7],
+        self.assertEqual(find_output[8],
                          "TGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGA",
                          "Test fail: DNMT3A -> find sequence")
 

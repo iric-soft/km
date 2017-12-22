@@ -79,12 +79,13 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
             query = tok[1]
             ratio = tok[4]
             alt_ratio = tok[5]
-            ref_ratio = tok[9]
+            ref_ratio = tok[10]
             min_cov = tok[6]
-            alt_seq = tok[7]
-            refSeq = tok[10]
+            start_off = tok[7]
+            alt_seq = tok[8]
+            refSeq = tok[11]
 
-            if int(min_cov) <= args_min_cov:
+            if int(min_cov) < args_min_cov:
                 continue
 
             if variant[0] == 'Reference':
@@ -102,6 +103,7 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
             # INSERTIONS
             if len(delet) == 0 and len(insert) != 0:
                 pos = int(start)-1
+                pos -= int(start_off)
                 upstream = alt_seq[pos-len(insert):pos]
                 match = 0
                 # careful, going upstream may put us outside the reference.

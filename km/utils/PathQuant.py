@@ -7,7 +7,7 @@ import logging as log
 
 class Path:
     def __init__(self, db_f, ref_name, variant_name, ratio, expression,
-                 min_coverage, sequence, ref_ratio, ref_expression,
+                 min_coverage, start_off, sequence, ref_ratio, ref_expression,
                  ref_sequence, note):
         self.db_name = db_f
         self.ref_name = ref_name
@@ -15,6 +15,7 @@ class Path:
         self.ratio = ratio
         self.expression = expression
         self.min_coverage = min_coverage
+        self.start_off = start_off
         self.sequence = sequence
         self.ref_ratio = ref_ratio
         self.ref_expression = ref_expression
@@ -22,13 +23,14 @@ class Path:
         self.note = note
 
     def __str__(self):
-        return "%s\t%s\t%s\t%.3f\t%.1f\t%d\t%s\t%.3f\t%.1f\t%s\t%s" % (
+        return "%s\t%s\t%s\t%.3f\t%.1f\t%d\t%d\t%s\t%.3f\t%.1f\t%s\t%s" % (
             self.db_name,
             self.ref_name,
             self.variant_name,
             self.ratio,
             self.expression,
             self.min_coverage,
+            self.start_off,
             self.sequence,
             self.ref_ratio,
             self.ref_expression,
@@ -121,7 +123,7 @@ class PathQuant:
 
     @staticmethod
     def output_header():
-        print "Database\tQuery\tType\tVariant name\tRatio\tExpression\tMin coverage\tSequence\tReference ratio\tReference expression\tReference sequence\tInfo"
+        print "Database\tQuery\tType\tVariant name\tRatio\tExpression\tMin coverage\tStart offset\tSequence\tReference ratio\tReference expression\tReference sequence\tInfo"
 
     def output(self, db_f, ref_name, name_f, seq_f):
         for i in range(self.nb_seq):
@@ -133,7 +135,7 @@ class PathQuant:
                                                   seq_f(self.all_path[i]))
 
     def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
-                  get_min_f=lambda path: 0):
+                  get_min_f=lambda path: 0, start_off=0):
         paths = []
         ref_i = -1
         for i in range(self.nb_seq):
@@ -145,6 +147,7 @@ class PathQuant:
                          name_f(self.all_path[i]),
                          self.ratio[i], self.coef[i],
                          get_min_f(self.all_path[i]),
+                         start_off,
                          seq_f(self.all_path[i]),
                          self.ratio[ref_i], self.coef[ref_i],
                          seq_f(self.all_path[ref_i]), info)

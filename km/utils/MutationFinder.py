@@ -220,8 +220,54 @@ class MutationFinder:
         # considering overlapping mutations as a cluster
         cluster = True
         if cluster:
-            if len(short_paths) == 1 and list(short_paths[0]) == ref_i:
-                quant = upq.PathQuant(all_path=short_paths,
+            variant_diffs = []
+            variant_set = set(range(0, len(short_paths)))
+            for variant in short_paths:
+                diff = graph.diff_path_without_overlap(
+                    ref_i, variant, self.jf.k)
+                variant_diffs += [diff]
+
+            def get_intersect(start, stop):
+                for var in variant_set:
+                    if (variant_diffs[var][1] >= start and
+                            variant_diffs[var][0] <= stop):
+                        return var
+                return -1
+
+            variant_groups = []
+            while len(variant_set) > 0:
+                seed = variant_set.pop()
+                grp = [seed]
+                start = variant_diffs[seed][0]
+                stop = variant_diffs[seed][1]
+                variant = get_intersect(start, stop)
+                while variant != -1:
+                    variant_set.remove(variant)
+                    grp += [variant]
+                    start = min(start, variant_diffs[variant][0])
+                    stop = max(stop, variant_diffs[variant][1])
+                    variant = get_intersect(start, stop)
+                variant_groups += [(start, stop, grp)]
+
+            num_cluster = 0
+            for var_gr in variant_groups:
+                if (len(var_gr[2]) == 1 and
+                        list(short_paths[var_gr[2][0]]) == ref_i):
+                    continue
+                num_cluster += 1
+
+                start = var_gr[0]
+                stop = var_gr[1]
+                var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
+                offset = max(0, start - var_size)
+                ref_path = ref_i[offset:stop]
+                clipped_paths = [ref_path]
+                for var in var_gr[2]:
+                    start_off = offset
+                    stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
+                    clipped_paths += [short_paths[var][start_off:stop_off]]
+
+                quant = upq.PathQuant(all_path=clipped_paths,
                                       counts=self.node_data.values())
 
                 quant.compute_coef()
@@ -229,98 +275,33 @@ class MutationFinder:
 
                 quant.get_ratio()
 
-                if 0 in get_counts(short_paths[0], kmer):
-                    quant.ratio = quant.coef * 0
-
                 self.paths_quant = quant.get_paths(
                     db_f=self.jf.filename,
                     ref_name=self.ref_name,
-                    name_f=lambda path: get_name(ref_i, path),
+                    name_f=lambda path: get_name(ref_path, path, offset),
                     seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                    ref_path=short_paths, info="cluster 0",
-                    get_min_f=lambda path: min(get_counts(path, kmer)))
+                    ref_path=ref_path,
+                    info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
+                    get_min_f=lambda path: min(get_counts(path, kmer)),
+                    start_off=start_off)
+
+                self.paths_quant
 
                 self.paths += self.paths_quant
-            else:
-                variant_diffs = []
-                variant_set = set(range(0, len(short_paths)))
-                for variant in short_paths:
-                    diff = graph.diff_path_without_overlap(
-                        ref_i, variant, self.jf.k)
-                    variant_diffs += [diff]
 
-                def get_intersect(start, stop):
-                    for var in variant_set:
-                        if (variant_diffs[var][1] >= start and
-                                variant_diffs[var][0] <= stop):
-                            return var
-                    return -1
+                if graphical:
+                    import matplotlib.pyplot as plt
 
-                variant_groups = []
-                while len(variant_set) > 0:
-                    seed = variant_set.pop()
-                    grp = [seed]
-                    start = variant_diffs[seed][0]
-                    stop = variant_diffs[seed][1]
-                    variant = get_intersect(start, stop)
-                    while variant != -1:
-                        variant_set.remove(variant)
-                        grp += [variant]
-                        start = min(start, variant_diffs[variant][0])
-                        stop = max(stop, variant_diffs[variant][1])
-                        variant = get_intersect(start, stop)
-                    variant_groups += [(start, stop, grp)]
-
-                num_cluster = 0
-                for var_gr in variant_groups:
-                    if (len(var_gr[2]) == 1 and
-                            list(short_paths[var_gr[2][0]]) == ref_i):
-                        continue
-                    num_cluster += 1
-
-                    start = var_gr[0]
-                    stop = var_gr[1]
-                    var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
-                    offset = max(0, start - var_size)
-                    ref_path = ref_i[offset:stop]
-                    clipped_paths = [ref_path]
-                    for var in var_gr[2]:
-                        start_off = offset
-                        stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
-                        clipped_paths += [short_paths[var][start_off:stop_off]]
-
-                    quant = upq.PathQuant(all_path=clipped_paths,
-                                          counts=self.node_data.values())
-
-                    quant.compute_coef()
-                    quant.refine_coef()
-
-                    quant.get_ratio()
-
-                    self.paths_quant = quant.get_paths(
-                        db_f=self.jf.filename,
-                        ref_name=self.ref_name,
-                        name_f=lambda path: get_name(ref_path, path, offset),
-                        seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                        ref_path=ref_path,
-                        info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                        get_min_f=lambda path: min(get_counts(path, kmer)))
-
-                    self.paths += self.paths_quant
-
-                    if graphical:
-                        import matplotlib.pyplot as plt
-
-                        plt.figure(figsize=(10, 6))
-                        for path, ratio in zip(clipped_paths, quant.get_ratio()):
-                            if path == ref_path:
-                                plt.plot(get_counts(path, kmer),
-                                         label="Reference")
-                            else:
-                                plt.plot(get_counts(path, kmer),
-                                         label=get_name(ref_path, path, offset).split("\t")[0])
-                        plt.legend()
-                        plt.show()
+                    plt.figure(figsize=(10, 6))
+                    for path, ratio in zip(clipped_paths, quant.get_ratio()):
+                        if path == ref_path:
+                            plt.plot(get_counts(path, kmer),
+                                     label="Reference")
+                        else:
+                            plt.plot(get_counts(path, kmer),
+                                     label=get_name(ref_path, path, offset).split("\t")[0])
+                    plt.legend()
+                    plt.show()
 
     def get_paths(self):
         return self.paths
