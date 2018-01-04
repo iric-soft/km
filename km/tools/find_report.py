@@ -78,8 +78,8 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
 
             query = tok[1]
             ratio = tok[4]
-            alt_ratio = tok[5]
-            ref_ratio = tok[10]
+            alt_exp = tok[5]
+            ref_exp = tok[10]
             min_cov = tok[6]
             start_off = tok[7]
             alt_seq = tok[8]
@@ -90,7 +90,7 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
 
             if variant[0] == 'Reference':
                 print_line(samp[1], samp[0], '-', variant[0], '0', '0',
-                            '0.0', alt_ratio, tok[4], min_cov, '-', query,
+                            '0.0', alt_exp, tok[4], min_cov, '-', query,
                             tok[-1], "", "")
                 continue
 
@@ -140,8 +140,8 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
                 sys.exit()
 
             print_line(samp[1], region, location, insert_type,
-                       str(len(delet)), added, alt_ratio,
-                       ref_ratio, ratio, min_cov, mod, query, tok[-1],
+                       str(len(delet)), added, alt_exp,
+                       ref_exp, ratio, min_cov, mod, query, tok[-1],
                        alt_seq, refSeq)
 
 
