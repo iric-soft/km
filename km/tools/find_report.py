@@ -140,8 +140,8 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
                 insert_type = variant[0]
             else:
                 sys.stderr.write("WARNING: This variant isn't take account\n")
-                sys.stderr.write(" * variant: " + str(variant[0]) + "\n")
-                sys.stderr.write(" * line: " + line + "\n")
+                sys.stderr.write(" - variant: " + str(variant[0]) + "\n")
+                sys.stderr.write(" - line: " + line)
                 sys.exit()
 
             print_line(samp[1], region, location, insert_type,
