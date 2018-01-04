@@ -132,18 +132,19 @@ Output description:
 *******************
 Each line represents a path of the local assembly constructed from the target sequence.
 
-* Database: name of the Jellyfish kmer table queried
-* Query: name of the target sequence examined
-* Type: type of mutation found (Insertion, Deletion or Substitution).  A Reference type used to identify path without mutation
+* Database: Name of the Jellyfish kmer table queried
+* Query: Name of the target sequence examined
+* Type: Type of mutation found (Insertion, Deletion or Substitution).  A Reference type used to identify path without mutation
 * Variant name: A description of the modification in the format start_position:deleted_bases/inserted_bases:end_position
-* Ratio: estimated ratio for the mutated allele represented by this path
-* Expression: estimated expression level for the mutated allele (coverage)
+* Ratio: Estimated ratio for the mutated allele represented by this path
+* Expression: Estimated expression level for the mutated allele (coverage)
 * Min coverage: Min k-mer count of all k-mers in the path
-* Sequence: sequence of the mutated path
-* Reference ratio: estimated ratio of the target allele
-* Reference expression: estimated expression level for the target
-* Reference sequence: target sequence used
-* Info: supplementary information regarding the quantification method.
+* Start offset: Starting position of sequences. Usefull for cluster quantification method (see Info column).
+* Sequence: Sequence of the mutated path
+* Reference ratio: Estimated ratio of the target allele
+* Reference expression: Estimated expression level for the target
+* Reference sequence: Target sequence used
+* Info: Supplementary information regarding the quantification method.
 
   - vs_ref: means that each alternate path is compared in expression with the whole target sequence.
   - cluster: indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
