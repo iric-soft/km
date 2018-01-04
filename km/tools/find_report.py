@@ -90,8 +90,8 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
 
             if variant[0] == 'Reference':
                 print_line(samp[1], samp[0], '-', variant[0], '0', '0',
-                            '0.0', alt_exp, tok[4], min_cov, '-', query,
-                            tok[-1], "", "")
+                           '0.0', alt_exp, tok[4], min_cov, '-', query,
+                           tok[-1], "", "")
                 continue
 
             start, mod, stop = variant[1].split(":")
