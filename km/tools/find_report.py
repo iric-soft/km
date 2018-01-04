@@ -130,13 +130,18 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
                 region = chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1])
                 location = ""
                 insert_type = variant[0]
-            # SNP
             elif variant[0] == 'Substitution':
                 region = chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1])
                 location = chro + ":" + str(nts[int(stop)-1])
                 insert_type = variant[0]
+            elif variant[0] == 'Indel':
+                region = chro + ":" + str(nts[int(start)-1]+1) + "-" + str(nts[int(stop)-1])
+                location = chro + ":" + str(nts[int(stop)])
+                insert_type = variant[0]
             else:
-                sys.stderr.write("WARNING: This case isn't take account")
+                sys.stderr.write("WARNING: This case isn't take account\n")
+                sys.stderr.write(" * variant: " + str(variant[0]) + "\n")
+                sys.stderr.write(" * line: " + line + "\n")
                 sys.exit()
 
             print_line(samp[1], region, location, insert_type,
