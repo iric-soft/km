@@ -8,20 +8,21 @@ Contents:
 ---------
 * `find_mutation`_
 
-  - `find_mutation usage`_
+  - `fm-usage`_
   - `find_mutation output`_
   - `find_mutation output description`_
 
 * `find_report`_
 
-  - `find_report usage`_
+  - `fr-usage`_
   - `find_report output`_
   - `find_report output description`_
 
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
 
-.. _find_mutation usage: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
+.. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
+.. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-2
 
 --------------
 find_mutation:
@@ -29,8 +30,8 @@ find_mutation:
 This is the main tool of km, to identify and quantify mutations from
 a target sequence and a k-mer database.
 
-find_mutation usage:
---------------------
+Usage:
+------
 
 .. code:: shell
 
@@ -38,8 +39,8 @@ find_mutation usage:
   $ km find_mutation [your_fasta_targetSeq] [your_jellyfish_count_table]
   $ km find_mutation [your_catalog_directory] [your_jellyfish_count_table]
 
-find_mutation output:
----------------------
+Output:
+-------
 
 Here we are looking for a common 4-bp duplication that occurs in some
 leukemias, and that is especially troublesome to detect since it occurs
@@ -62,8 +63,8 @@ The last line is the same as the first one with local calculation of Ratio,
 Expression and Min coverage. It's a try to allowed long target sequence
 which can found several variants.
 
-find_mutation output description:
----------------------------------
+Output description:
+-------------------
 
 Each line represents a path of the local assembly constructed from the
 target sequence.
