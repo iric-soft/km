@@ -114,9 +114,6 @@ find_mutation:
 This is the main tool of km, to identify and quantify mutations from
 a target sequence and a k-mer jellyfish database.
 
-Usage:
-******
-
 .. code:: shell
 
   $ km find_mutation -h
@@ -127,9 +124,6 @@ find_report:
 ------------
 This tool parse find_mutation output to reformat it in tabulated file
 more user friendly.
-
-Usage:
-******
 
 .. code:: shell
 
