@@ -8,7 +8,7 @@ Contents:
 ---------
 * `find_mutation`_
 
-  - `fm-usage`_
+  - |fm-usage|_
   - `find_mutation output`_
   - `find_mutation output description`_
 
@@ -24,6 +24,7 @@ Contents:
 .. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
 .. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
 
+.. |fm-usage| replace:: Usage
 
 --------------
 find_mutation:
