@@ -9,14 +9,14 @@ Contents:
 * `find_mutation`_
 
   - |fm-usage|_
-  - `find_mutation output`_
-  - `find_mutation output description`_
+  - |fm-output|_
+  - |fm-output-desc|_
 
 * `find_report`_
 
-  - `fr-usage`_
-  - `find_report output`_
-  - `find_report output description`_
+  - |fr-usage|_
+  - |fr-output|_
+  - |fr-output-desc|_
 
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
@@ -24,7 +24,20 @@ Contents:
 .. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
 .. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
 
+.. _fm-output: https://github.com/iric-soft/km/tree/master/km/tools#output
+.. _fr-output: https://github.com/iric-soft/km/tree/master/km/tools#output-1
+
+.. _fm-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description
+.. _fr-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-1
+
 .. |fm-usage| replace:: Usage
+.. |fr-usage| replace:: Usage
+
+.. |fm-output| replace:: Output
+.. |fr-output| replace:: Output
+
+.. |fm-output-desc| replace:: Output description
+.. |fr-output-desc| replace:: Output description
 
 --------------
 find_mutation:
@@ -96,6 +109,9 @@ variants, for example:
 ------------
 find_report:
 ------------
+
+This tool parse find_mutation output to reformat it in tabulated file
+more user friendly.
 
 Usage:
 ------
