@@ -21,8 +21,9 @@ Contents:
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
 
-.. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
-.. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-2
+.. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
+.. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
+
 
 --------------
 find_mutation:
