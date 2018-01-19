@@ -138,8 +138,8 @@ linear_kmin:
 
 Length of k-mers is a central parameter:
 
-  * To produce a linear directed graph from the target sequence.
-  * To avoid false-positive. `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
+* To produce a linear directed graph from the target sequence.
+* To avoid false-positive. `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
 
 linear_kmin tool is design to give you the minimun k length to allow a
 decomposition of a target sequence in a linear graph.
