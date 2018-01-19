@@ -202,8 +202,9 @@ Output:
   KMT2A-PTD_8-2 7
   NPM1_4ins_exons_10-11utr 7
 
-This output shows that `find_mutation`_ need to be run on jellyfish
-count tables build with k >= 10 bp, for this catalog of target sequences.
+For this catalog of target sequences, the output shows that
+`find_mutation`_ need to be run on jellyfish count tables build
+with k >= 10 bp.
 Which is under the threshold to avoid the detection of false-positive
 mutations. This is not always the case, especially on large target sequence
 (like a transcript), where k need to be more longer than sequenced read
