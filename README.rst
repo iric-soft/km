@@ -22,6 +22,7 @@ Contents:
 
   - `find_mutation`_
   - `find_report`_
+  - `linear_kmin`_
 
 .. _Introduction: https://github.com/iric-soft/km#introduction
 .. _Requirements: https://github.com/iric-soft/km#requirements
@@ -33,6 +34,7 @@ Contents:
 .. _Runing km on a real sample: https://github.com/iric-soft/km#runing-km-on-a-real-sample
 .. _find_mutation: https://github.com/iric-soft/km#find_mutation
 .. _find_report: https://github.com/iric-soft/km#find_report
+.. _linear_kmin: https://github.com/iric-soft/km#linear_kmin
 
 -------------
 Introduction:
@@ -130,3 +132,19 @@ more user friendly.
   $ km find_report -h
   $ km find_report -t [your_fasta_targetSeq] [find_mutation_output]
   $ km find_mutation [your_fasta_targetSeq] [your_jellyfish_count_table] | km find_report -t [your_fasta_targetSeq]
+
+linear_kmin:
+------------
+
+Length of k-mers is a central parameter:
+
+  * To produce a linear directed graph from the target sequence.
+  * To avoid false-positive. `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
+
+linear_kmin tool is design to give you the minimun k length to allow a
+decomposition of a target sequence in a linear graph.
+
+.. code:: shell
+
+  $ km linear_kmin -h
+  $ km linear_kmin [your_catalog_directory]

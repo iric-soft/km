@@ -18,26 +18,39 @@ Contents:
   - |fr-output|_
   - |fr-output-desc|_
 
+* `linear_kmin`_
+
+  - |lk-usage|_
+  - |lk-output|_
+  - |lk-output-desc|_
+
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
+.. linear_kmin: https://github.com/iric-soft/km/tree/master/km/tools#linear_kmin
 
 .. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
 .. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
+.. _lk-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-2
 
 .. _fm-output: https://github.com/iric-soft/km/tree/master/km/tools#output
 .. _fr-output: https://github.com/iric-soft/km/tree/master/km/tools#output-1
+.. _lk-output: https://github.com/iric-soft/km/tree/master/km/tools#output-2
 
 .. _fm-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description
 .. _fr-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-1
+.. _lk-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-2
 
 .. |fm-usage| replace:: Usage
 .. |fr-usage| replace:: Usage
+.. |lk-usage| replace:: Usage
 
 .. |fm-output| replace:: Output
 .. |fr-output| replace:: Output
+.. |lk-output| replace:: Output
 
 .. |fm-output-desc| replace:: Output description
 .. |fr-output-desc| replace:: Output description
+.. |lk-output-desc| replace:: Output description
 
 --------------
 find_mutation:
@@ -154,3 +167,51 @@ Each line represents a path that was constructed from the target sequence.
 * Info: supplementary information regarding the quantification method.
 * Sequence: sequence of the mutated path
 * Reference sequence: target sequence used
+
+------------
+linear_kmin:
+------------
+Length of k-mers is a central parameter:
+
+  * To produce a linear directed graph from the target sequence.
+  * To avoid false-positive. `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
+
+linear_kmin tool is design to give you the minimun k length to allow a
+decomposition of a target sequence in a linear graph.
+
+Usage:
+------
+
+.. code:: shell
+
+  $ km linear_kmin -h
+  $ km linear_kmin [your_catalog_directory]
+
+Output:
+-------
+
+.. code:: shell
+
+  $ km linear_kmin -s 5 ./data/catalog/GRCH38/
+  target_name linear_kmin
+  FLT3-TKD_exon_20  8
+  MYC_T58A_P59R_exon2 7
+  NSD1_exon6-NUP98_exon13 9
+  NUP98_exon11-NSD1_exon7 7
+  DNMT3A_R882_exon_23 6
+  FLT3-ITD_exons_13-15  10
+  KMT2A-PTD_8-2 7
+  NPM1_4ins_exons_10-11utr 7
+
+This output shows that `find_mutation`_ need to be run on jellyfish
+count tables build with k >= 10 bp, for this catalog of target sequences.
+Which is under the threshold to avoid the detection of false-positive
+mutations. This is not always the case, especially on large target sequence
+(like a transcript), where k need to be more longer than sequenced read
+length (100 bp, Like ENST00000621744_NBPF19 need a k >= 3472 pb).
+
+Output description:
+-------------------
+
+* target_name: name of target sequence.
+* linear_kmin: minimum k length to decompose the target sequence in linear graph.
