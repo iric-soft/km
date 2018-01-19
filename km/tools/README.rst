@@ -26,7 +26,7 @@ Contents:
 
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
-.. linear_kmin: https://github.com/iric-soft/km/tree/master/km/tools#linear_kmin
+.. _linear_kmin: https://github.com/iric-soft/km/tree/master/km/tools#linear_kmin
 
 .. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
 .. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1

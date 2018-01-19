@@ -46,7 +46,7 @@ nucleotide variants, insertions, deletions and duplications in RNA-seq data.  Co
 Given a reference sequence (typically a few hundred base pairs) around a
 known or suspected mutation in a gene of interest, all possible sequences
 that can be be created between the two end k-mers according to the
-sequenced reads will be reported.  A ratio of variant allele vs WT will be
+sequenced reads will be reported. A ratio of variant allele vs WT will be
 computed for each possible sequence constructed.
 
 -------------
