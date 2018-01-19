@@ -8,9 +8,11 @@ import sys
 from argparse import Namespace
 from km.tools import find_mutation as fm
 from km.tools import find_report as fr
+from km.tools import linear_kmin as lk
 
 from km.utils.Jellyfish import Jellyfish
 from km.utils import MutationFinder as umf
+from km.utils import common as uc
 
 from contextlib import contextmanager
 from StringIO import StringIO
@@ -312,12 +314,27 @@ class kmMuttaionTest(unittest.TestCase):
         ref_seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         k_len = 31
         ref_name = "not_linear"
-        jf = Jellyfish("./data/jf/02H033_DNMT3A_sub.jf")
-
-        finder = umf.MutationFinder("", "", jf, False, 500)
 
         with self.assertRaises(ValueError):
-            finder.get_ref_kmer(ref_seq, 31, ref_name)
+            uc.get_ref_kmer(ref_seq, 31, ref_name)
+
+    def test_linear_kmin(self):
+        target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
+        args = Namespace(
+            start=5,
+            target_fn=[target]
+        )
+
+        with captured_output() as (out, err):
+            lk.main_linear_kmin(args, None)
+
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[1].split("\t")
+
+        self.assertEqual(report_output[1],
+                         "10",
+                         "Test fail: linear_kmin -> wrong kmin")
 
 
 def runTests():

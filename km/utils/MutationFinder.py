@@ -8,6 +8,7 @@ import logging as log
 
 from . import Graph as ug
 from . import PathQuant as upq
+from .. utils import common as uc
 
 
 class MutationFinder:
@@ -17,7 +18,7 @@ class MutationFinder:
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
 
-        self.ref_mer = MutationFinder.get_ref_kmer(ref_seq, jf.k, ref_name)
+        self.ref_mer = uc.get_ref_kmer(ref_seq, jf.k, ref_name)
         self.ref_set = set(self.ref_mer)
         log.debug("Ref. set contains %d kmers.", len(self.ref_set))
 
@@ -312,19 +313,3 @@ class MutationFinder:
     @staticmethod
     def output_header():
         upq.PathQuant.output_header()
-
-    @staticmethod
-    def get_ref_kmer(ref_seq, k_len, ref_name):
-        """ Load reference kmers. """
-        ref_mer = []
-        for i in range(len(ref_seq) - k_len + 1):
-            kmer = ref_seq[i:(i + k_len)]
-            if kmer in ref_mer:
-                raise ValueError(
-                    "%s found multiple times in reference %s, at pos. %d" % (
-                        kmer, ref_name, i)
-                )
-
-            ref_mer.append(kmer)
-
-        return(ref_mer)

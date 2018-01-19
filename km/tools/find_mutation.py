@@ -2,9 +2,11 @@
 #
 #   Usage:  find_mutation <region_fasta or directory> <jellyfish_db>
 import os
+import sys
 import time
 import logging as log
 from .. utils import MutationFinder as umf
+from .. utils import common as uc
 from .. utils.Jellyfish import Jellyfish
 
 
@@ -17,20 +19,11 @@ def main_find_mut(args, argparser):
         log.basicConfig(level=log.DEBUG, format="VERBOSE: %(message)s")
 
     for k, v in vars(args).iteritems():
-        print '#', k, ':', v
+        sys.stdout.write("#" + str(k) + ':' + str(v) + "\n")
 
     jf = Jellyfish(args.jellyfish_fn, cutoff=args.ratio, n_cutoff=args.count)
 
-    # Gather file names for ref. sequences.
-    if len(args.target_fn) > 1:
-        seq_files = args.target_fn
-    else:
-        if os.path.isdir(args.target_fn[0]):
-            seq_files = map(
-                lambda f: os.path.join(args.target_fn[0], f),
-                os.listdir(args.target_fn[0]))
-        else:
-            seq_files = args.target_fn
+    seq_files = uc.target_2_seqfiles(args.target_fn)
 
     umf.MutationFinder.output_header()
 
@@ -38,13 +31,7 @@ def main_find_mut(args, argparser):
 
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
-        ref_seq = []
-        for line in open(seq_f, "r"):
-            line = line.strip()
-            if line[0] == '>':
-                continue
-            ref_seq.append(line)
-        ref_seq = ''.join(ref_seq)
+        ref_seq = uc.file_2_seq(seq_f)
 
         finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
@@ -52,6 +39,6 @@ def main_find_mut(args, argparser):
         )
 
         for path in finder.get_paths():
-            print path
+            sys.stdout.write(str(path) + "\n")
 
-    print "#Elapsed time:", time.time() - time_start
+    sys.stdout.write("#Elapsed time:" + str(time.time() - time_start) + "\n")
