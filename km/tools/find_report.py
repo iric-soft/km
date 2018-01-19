@@ -39,9 +39,9 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
     (nts, ref_seq, chro) = init_ref_seq(arg_ref)
 
     print_line("Sample", "Region", "Location", "Type", "Removed",
-               "Added", "Abnormal", "Normal", "Ratio", "Min coverage",
-               "Variant", "Target", "Info", "Variant sequence",
-               "Reference sequence")
+               "Added", "Abnormal", "Normal", "Ratio", "Min_coverage",
+               "Variant", "Target", "Info", "Variant_sequence",
+               "Reference_sequence")
 
     for line in infile:
         # filter header

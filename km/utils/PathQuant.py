@@ -123,7 +123,7 @@ class PathQuant:
 
     @staticmethod
     def output_header():
-        print "Database\tQuery\tType\tVariant name\tRatio\tExpression\tMin coverage\tStart offset\tSequence\tReference ratio\tReference expression\tReference sequence\tInfo"
+        print "Database\tQuery\tType\tVariant_name\tRatio\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_ratio\tReference_expression\tReference_sequence\tInfo"
 
     def output(self, db_f, ref_name, name_f, seq_f):
         for i in range(self.nb_seq):

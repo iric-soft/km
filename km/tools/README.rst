@@ -77,7 +77,7 @@ command takes a few seconds and returns an output similar to this:
 
 .. code:: shell
 
-  Database	Query	Type	Variant name	Ratio	Expression	Min coverage	Start offset  Sequence	Reference ratio	Reference expression	Reference sequence	Info
+  Database	Query	Type	Variant_name	Ratio	Expression	Min_coverage	Start_offset  Sequence	Reference_ratio	Reference_expression	Reference_sequence	Info
   ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2870.6	2428	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	0.516	3055.2	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
   ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Reference		1.000	2379.0	2379	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	1.000	2379.0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
   ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2972.6	2428	9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	0.516	3172.9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	cluster 1 n=1
@@ -103,12 +103,12 @@ target sequence.
 * Variant name: A description of the modification in the format start_position:deleted_bases/inserted_bases:end_position
 * Ratio: Estimated ratio for the mutated allele represented by this path
 * Expression: Estimated expression level for the mutated allele (coverage)
-* Min coverage: Min k-mer count of all k-mers in the path
-* Start offset: Starting position of sequences. Usefull for cluster quantification method (see Info column).
+* Min_coverage: Min k-mer count of all k-mers in the path
+* Start_offset: Starting position of sequences. Usefull for cluster quantification method (see Info column).
 * Sequence: Sequence of the mutated path
-* Reference ratio: Estimated ratio of the target allele
-* Reference expression: Estimated expression level for the target
-* Reference sequence: Target sequence used
+* Reference_ratio: Estimated ratio of the target allele
+* Reference_expression: Estimated expression level for the target
+* Reference_sequence: Target sequence used
 * Info: Supplementary information regarding the quantification method.
 
   - vs_ref: means that each alternate path is compared in expression with the whole target sequence.
@@ -122,9 +122,8 @@ variants, for example:
 ------------
 find_report:
 ------------
-
-This tool parse find_mutation output to reformat it in tabulated file
-more user friendly.
+This tool parse find_mutation output to reformat it in more user friendly
+tabulated file.
 
 Usage:
 ------
@@ -140,7 +139,7 @@ Output:
 
 .. code:: shell
 
-  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min coverage	Variant	Target	Info	Variant sequence	Reference sequence
+  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Variant	Target	Info	Variant_sequence	Reference_sequence
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428	/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
   ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	-	NPM1_4ins_exons_10-11utr	vs_ref
 
@@ -161,12 +160,12 @@ Each line represents a path that was constructed from the target sequence.
 * Abnormal: estimated expression level for the mutated allele (coverage)
 * Normal: estimated expression level for the target
 * Ratio: estimated ratio for the mutated allele represented by this path
-* Min coverage: Min k-mer count of all k-mers in the path
+* Min_coverage: Min k-mer count of all k-mers in the path
 * Variant: A description of the variant in the format: deleted_bases/inserted_bases
 * Target: name of the target sequence examined
 * Info: supplementary information regarding the quantification method.
-* Sequence: sequence of the mutated path
-* Reference sequence: target sequence used
+* Variant_sequence: sequence of the mutated path
+* Reference_sequence: target sequence used
 
 ------------
 linear_kmin:

@@ -124,8 +124,8 @@ a target sequence and a k-mer jellyfish database.
 
 find_report:
 ------------
-This tool parse find_mutation output to reformat it in tabulated file
-more user friendly.
+This tool parse find_mutation output to reformat it in more user friendly
+tabulated file.
 
 .. code:: shell
 
