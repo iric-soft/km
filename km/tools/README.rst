@@ -207,8 +207,8 @@ For this catalog of target sequences, the output shows that
 with k >= 10 bp.
 Which is under the threshold to avoid the detection of false-positive
 mutations. This is not always the case, especially on large target sequence
-(like a transcript), where k need to be more longer than sequenced read
-length (100 bp, Like ENST00000621744_NBPF19 need a k >= 3472 pb).
+(like a transcript), where linear_kmin could be more longer than sequenced
+read length (100 bp, Like ENST00000621744_NBPF19 need a k >= 3472 pb).
 
 Output description:
 -------------------
