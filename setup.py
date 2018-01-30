@@ -75,8 +75,8 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    setup_requires=['numpy', 'matplotlib'],
-    install_requires=['numpy==1.13.3', 'matplotlib==2.1.1'],
+    setup_requires=['numpy'] #, 'matplotlib'],
+    install_requires=['numpy==1.13.3'] #, 'matplotlib==2.1.1'],
     python_requires='>=2.7, <3',
 
     # List additional groups of dependencies here (e.g. development
