@@ -191,7 +191,7 @@ Output:
 
 .. code:: shell
 
-  $ km linear_kmin -s 5 ./data/catalog/GRCH38/
+  $ km linear_kmin -s 5 ./data/catalog/GRCh38/
   target_name linear_kmin
   FLT3-TKD_exon_20  8
   MYC_T58A_P59R_exon2 7
