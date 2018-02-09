@@ -21,7 +21,7 @@ def file_2_seq(seq_f):
     ref_seq = []
     for line in open(seq_f, "r"):
         line = line.strip()
-        if line[0] == '>':
+        if len(line) > 0 and line[0] == '>':
             continue
         ref_seq.append(line)
     ref_seq = ''.join(ref_seq)
