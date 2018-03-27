@@ -177,8 +177,8 @@ class MutationFinder:
             counts = []
             for i in path:
                 counts += [self.node_data[kmer[i]]]
-            print("length counts: " + str(len(counts)))
-            print("min counts: " + str(min(counts)))
+            # print("length counts: " + str(len(counts)))
+            # print("min counts: " + str(min(counts)))
 
             return counts
 

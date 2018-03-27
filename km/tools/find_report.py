@@ -1,13 +1,21 @@
 import sys
 import re
 
+from .. utils import common as uc
+
 
 def print_line(sample, region, location, type_var, removed,
-               added, abnormal, normal, ratio, min_cov,
+               added, abnormal, normal, ratio, min_cov, min_ref,
                variant, target, info, var_seq, ref_seq):
-    line = "\t".join([sample, region, location, type_var, removed,
-                      added, abnormal, normal, ratio, min_cov,
-                      variant, target, info, var_seq, ref_seq])
+    if min_ref is None:
+        line = "\t".join([sample, region, location, type_var, removed,
+                          added, abnormal, normal, ratio, min_cov, "",
+                          variant, target, info, var_seq, ref_seq])
+    else:
+        line = "\t".join([sample, region, location, type_var, removed,
+                          added, abnormal, normal, ratio, min_cov, min_ref,
+                          variant, target, info, var_seq, ref_seq])
+
     sys.stdout.write(line + "\n")
 
 
@@ -31,26 +39,26 @@ def init_ref_seq(arg_ref):
     return(nts, ref_seq, chro)
 
 
-def create_report(arg_ref, infile, args_info, args_min_cov):
+def create_report(args):
     variants = {}
     samples = {}
     data = {}
 
-    (nts, ref_seq, chro) = init_ref_seq(arg_ref)
+    (nts, ref_seq, chro) = init_ref_seq(args.target)
 
     print_line("Sample", "Region", "Location", "Type", "Removed",
                "Added", "Abnormal", "Normal", "Ratio", "Min_coverage",
-               "Variant", "Target", "Info", "Variant_sequence",
+               "Min_ref_cov", "Variant", "Target", "Info", "Variant_sequence",
                "Reference_sequence")
 
-    for line in infile:
+    for line in args.infile:
         # filter header
         if line[0] == "#":
             # sys.stderr.write("Filtred: " + line)
             continue
 
         # filter on info column
-        if not re.search(args_info, line):
+        if not re.search(args.info, line):
             # sys.stderr.write("Filtred: " + line)
             continue
 
@@ -84,14 +92,19 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
             start_off = tok[7]
             alt_seq = tok[8]
             refSeq = tok[11]
+            min_ref = None
 
-            if int(min_cov) < args_min_cov:
+            if args.ref != "":
+                res = uc.get_cov(args.ref, alt_seq)
+                min_ref = str(res[2])
+
+            if int(min_cov) < args.min_cov:
                 continue
 
             if variant[0] == 'Reference':
                 print_line(samp[1], samp[0], '-', variant[0], '0', '0',
-                           '0.0', alt_exp, tok[4], min_cov, '-', query,
-                           tok[-1], "", "")
+                           '0.0', alt_exp, tok[4], min_cov, min_ref, '-',
+                           query, tok[-1], "", "")
                 continue
 
             start, mod, stop = variant[1].split(":")
@@ -145,8 +158,8 @@ def create_report(arg_ref, infile, args_info, args_min_cov):
                 sys.exit()
 
             print_line(samp[1], region, location, insert_type,
-                       str(len(delet)), added, alt_exp,
-                       ref_exp, ratio, min_cov, mod, query, tok[-1],
+                       str(len(delet)), added, alt_exp, ref_exp, ratio,
+                       min_cov, min_ref, mod, query, tok[-1],
                        alt_seq, refSeq)
 
 
@@ -156,4 +169,4 @@ def main_find_report(args, argparser):
         argparser.print_help()
         sys.exit()
 
-    create_report(args.target, args.infile, args.info, args.min_cov)
+    create_report(args)

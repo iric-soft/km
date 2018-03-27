@@ -32,3 +32,10 @@ def get_argparser_find_report(parser):
         help="Min coverage allowed (Default: 1)",
         default=1,
         type=int)
+
+    optional.add_argument(
+        "-r", "--ref_jf",
+        dest="ref",
+        help="Filename of the jellyfish database build from a reference",
+        default="",
+        type=str)
