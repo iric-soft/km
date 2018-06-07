@@ -5,15 +5,15 @@ from .. utils import common as uc
 
 
 def print_line(sample, region, location, type_var, removed,
-               added, abnormal, normal, ratio, min_cov, min_ref,
+               added, abnormal, normal, ratio, min_cov, min_exclu,
                variant, target, info, var_seq, ref_seq):
-    if min_ref is None:
+    if min_exclu is None:
         line = "\t".join([sample, region, location, type_var, removed,
                           added, abnormal, normal, ratio, min_cov, "",
                           variant, target, info, var_seq, ref_seq])
     else:
         line = "\t".join([sample, region, location, type_var, removed,
-                          added, abnormal, normal, ratio, min_cov, min_ref,
+                          added, abnormal, normal, ratio, min_cov, min_exclu,
                           variant, target, info, var_seq, ref_seq])
 
     sys.stdout.write(line + "\n")
@@ -48,7 +48,7 @@ def create_report(args):
 
     print_line("Sample", "Region", "Location", "Type", "Removed",
                "Added", "Abnormal", "Normal", "Ratio", "Min_coverage",
-               "Min_ref_cov", "Variant", "Target", "Info", "Variant_sequence",
+               "Exclu_min_cov", "Variant", "Target", "Info", "Variant_sequence",
                "Reference_sequence")
 
     for line in args.infile:
@@ -92,18 +92,18 @@ def create_report(args):
             start_off = tok[7]
             alt_seq = tok[8]
             refSeq = tok[11]
-            min_ref = None
+            min_exclu = None
 
-            if args.ref != "":
-                res = uc.get_cov(args.ref, alt_seq)
-                min_ref = str(res[2])
+            if args.exclu != "" and alt_seq != "":
+                res = uc.get_cov(args.exclu, alt_seq)
+                min_exclu = str(res[2])
 
             if int(min_cov) < args.min_cov:
                 continue
 
             if variant[0] == 'Reference':
                 print_line(samp[1], samp[0], '-', variant[0], '0', '0',
-                           '0.0', alt_exp, tok[4], min_cov, min_ref, '-',
+                           '0.0', alt_exp, tok[4], min_cov, min_exclu, '-',
                            query, tok[-1], "", "")
                 continue
 
@@ -159,7 +159,7 @@ def create_report(args):
 
             print_line(samp[1], region, location, insert_type,
                        str(len(delet)), added, alt_exp, ref_exp, ratio,
-                       min_cov, min_ref, mod, query, tok[-1],
+                       min_cov, min_exclu, mod, query, tok[-1],
                        alt_seq, refSeq)
 
 

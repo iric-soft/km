@@ -152,12 +152,12 @@ Output:
 
 .. code:: shell
 
-  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Min_cov_ref  Variant	Target	Info	Variant_sequence	Reference_sequence
+  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov  Variant	Target	Info	Variant_sequence	Reference_sequence
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428 0	/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
-  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	5 -	NPM1_4ins_exons_10-11utr	vs_ref
+  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	 -	NPM1_4ins_exons_10-11utr	vs_ref
 
 which shows that an ITD variant (TCTG insertion) was found at position
-chr5:171410544
+chr5:171410544.
 
 Output description:
 -------------------
@@ -174,7 +174,7 @@ Each line represents a path that was constructed from the target sequence.
 * Normal: estimated expression level for the target
 * Ratio: estimated ratio for the mutated allele represented by this path
 * Min_coverage: Min k-mer count of all k-mers in the path
-* Min_cov_ref: Min k-mer count of all k-mers in jellyfish database given as reference
+* Exclu_min_cov: Min k-mer count of all k-mers in the variant sequence from the jf database given with "-e".
 * Variant: A description of the variant in the format: deleted_bases/inserted_bases
 * Target: name of the target sequence examined
 * Info: supplementary information regarding the quantification method.
