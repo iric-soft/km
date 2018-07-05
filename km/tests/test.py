@@ -47,7 +47,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[16].split("\t")
+        find_output = find_output[10].split("\t")
 
         self.assertEqual(find_output[2],
                          "Insertion",
@@ -63,7 +63,8 @@ class kmMuttaionTest(unittest.TestCase):
             target=target,
             infile=StringIO(output),
             info="vs_ref",
-            min_cov=1
+            min_cov=1,
+            exclu=""
         )
 
         with captured_output() as (out, err):
@@ -79,10 +80,10 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "ITD",
                          "Test fail: NPM1 -> report type")
-        self.assertEqual(report_output[10],
+        self.assertEqual(report_output[11],
                          "/TCTG",
                          "Test fail: NPM1 -> report variant")
-        self.assertEqual(report_output[13],
+        self.assertEqual(report_output[14],
                          "AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
                          "Test fail: NPM1 -> report sequence")
 
@@ -103,7 +104,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[16].split("\t")
+        find_output = find_output[10].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
@@ -119,7 +120,8 @@ class kmMuttaionTest(unittest.TestCase):
             target=target,
             infile=StringIO(output),
             info="vs_ref",
-            min_cov=1
+            min_cov=1,
+            exclu=""
         )
 
         with captured_output() as (out, err):
@@ -135,10 +137,10 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "I&I",
                          "Test fail: FLT3-ITD -> report type")
-        self.assertEqual(report_output[10],
+        self.assertEqual(report_output[11],
                          "/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTC",
                          "Test fail: FLT3-ITD -> report variant")
-        self.assertEqual(report_output[13],
+        self.assertEqual(report_output[14],
                          "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
                          "Test fail: FLT3-ITD -> report sequence")
 
@@ -159,7 +161,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[16].split("\t")
+        find_output = find_output[10].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
@@ -175,7 +177,8 @@ class kmMuttaionTest(unittest.TestCase):
             target=target,
             infile=StringIO(output),
             info="vs_ref",
-            min_cov=1
+            min_cov=1,
+            exclu=""
         )
 
         with captured_output() as (out, err):
@@ -191,10 +194,10 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "ITD",
                          "Test fail: FLT3-ITD -> report type")
-        self.assertEqual(report_output[10],
+        self.assertEqual(report_output[11],
                          "/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC",
                          "Test fail: FLT3-ITD -> report variant")
-        self.assertEqual(report_output[13],
+        self.assertEqual(report_output[14],
                          "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
                          "Test fail: FLT3-ITD -> report sequence")
 
@@ -215,7 +218,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[16].split("\t")
+        find_output = find_output[10].split("\t")
 
         self.assertEqual(find_output[2],
                          "Deletion",
@@ -231,7 +234,8 @@ class kmMuttaionTest(unittest.TestCase):
             target=target,
             infile=StringIO(output),
             info="vs_ref",
-            min_cov=1
+            min_cov=1,
+            exclu=""
         )
 
         with captured_output() as (out, err):
@@ -247,10 +251,10 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "Deletion",
                          "Test fail: FLT3-TKD -> report type")
-        self.assertEqual(report_output[10],
+        self.assertEqual(report_output[11],
                          "gat/",
                          "Test fail: FLT3-TKD -> report variant")
-        self.assertEqual(report_output[13],
+        self.assertEqual(report_output[14],
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTTCACC",
                          "Test fail: FLT3-TKD -> report sequence")
 
@@ -271,7 +275,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[16].split("\t")
+        find_output = find_output[10].split("\t")
 
         self.assertEqual(find_output[2],
                          "Substitution",
@@ -287,7 +291,8 @@ class kmMuttaionTest(unittest.TestCase):
             target=target,
             infile=StringIO(output),
             info="vs_ref",
-            min_cov=1
+            min_cov=1,
+            exclu=""
         )
 
         with captured_output() as (out, err):
@@ -303,10 +308,10 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "Substitution",
                          "Test fail: DNMT3A -> report type")
-        self.assertEqual(report_output[10],
+        self.assertEqual(report_output[11],
                          "c/T",
                          "Test fail: DNMT3A -> report variant")
-        self.assertEqual(report_output[13],
+        self.assertEqual(report_output[14],
                          "ATGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGACT",
                          "Test fail: DNMT3A -> report sequence")
 
