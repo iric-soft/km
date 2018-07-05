@@ -22,6 +22,7 @@ Contents:
 
   - `find_mutation`_
   - `find_report`_
+  - `min_cov`_
   - `linear_kmin`_
 
 .. _Introduction: https://github.com/iric-soft/km#introduction
@@ -34,6 +35,7 @@ Contents:
 .. _Runing km on a real sample: https://github.com/iric-soft/km#runing-km-on-a-real-sample
 .. _find_mutation: https://github.com/iric-soft/km#find_mutation
 .. _find_report: https://github.com/iric-soft/km#find_report
+.. _min_cov: https://github.com/iric-soft/km#min_cov
 .. _linear_kmin: https://github.com/iric-soft/km#linear_kmin
 
 -------------
@@ -132,6 +134,16 @@ tabulated file.
   $ km find_report -h
   $ km find_report -t [your_fasta_targetSeq] [find_mutation_output]
   $ km find_mutation [your_fasta_targetSeq] [your_jellyfish_count_table] | km find_report -t [your_fasta_targetSeq]
+
+min_cov:
+--------------
+
+This tools display some k-mer's coverage stats of a target sequence and a list of jellyfish database.
+
+.. code:: shell
+
+  $ km min_cov -h
+  $ km min_cov [your_fasta_targetSeq] [[your_jellyfish_count_table]...]
 
 linear_kmin:
 ------------

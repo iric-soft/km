@@ -18,6 +18,12 @@ Contents:
   - |fr-output|_
   - |fr-output-desc|_
 
+* `min_cov`_
+
+  - |mc-usage|_
+  - |mc-output|_
+  - |mc-output-desc|_
+
 * `linear_kmin`_
 
   - |lk-usage|_
@@ -26,30 +32,37 @@ Contents:
 
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
+.. _min_cov: https://github.com/iric-soft/km/tree/master/km/tools#min_cov
 .. _linear_kmin: https://github.com/iric-soft/km/tree/master/km/tools#linear_kmin
 
 .. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
 .. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
-.. _lk-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-2
+.. _mc-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-2
+.. _lk-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-3
 
 .. _fm-output: https://github.com/iric-soft/km/tree/master/km/tools#output
 .. _fr-output: https://github.com/iric-soft/km/tree/master/km/tools#output-1
-.. _lk-output: https://github.com/iric-soft/km/tree/master/km/tools#output-2
+.. _mc-output: https://github.com/iric-soft/km/tree/master/km/tools#output-2
+.. _lk-output: https://github.com/iric-soft/km/tree/master/km/tools#output-3
 
 .. _fm-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description
 .. _fr-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-1
-.. _lk-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-2
+.. _mc-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-2
+.. _lk-output-desc: https://github.com/iric-soft/km/tree/master/km/tools#output-description-3
 
 .. |fm-usage| replace:: Usage
 .. |fr-usage| replace:: Usage
+.. |mc-usage| replace:: Usage
 .. |lk-usage| replace:: Usage
 
 .. |fm-output| replace:: Output
 .. |fr-output| replace:: Output
+.. |mc-output| replace:: Output
 .. |lk-output| replace:: Output
 
 .. |fm-output-desc| replace:: Output description
 .. |fr-output-desc| replace:: Output description
+.. |mc-output-desc| replace:: Output description
 .. |lk-output-desc| replace:: Output description
 
 --------------
@@ -139,12 +152,12 @@ Output:
 
 .. code:: shell
 
-  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Variant	Target	Info	Variant_sequence	Reference_sequence
-  ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428	/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
-  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	-	NPM1_4ins_exons_10-11utr	vs_ref
+  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov  Variant	Target	Info	Variant_sequence	Reference_sequence
+  ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428 0	/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
+  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	 -	NPM1_4ins_exons_10-11utr	vs_ref
 
 which shows that an ITD variant (TCTG insertion) was found at position
-chr5:171410544
+chr5:171410544.
 
 Output description:
 -------------------
@@ -161,11 +174,49 @@ Each line represents a path that was constructed from the target sequence.
 * Normal: estimated expression level for the target
 * Ratio: estimated ratio for the mutated allele represented by this path
 * Min_coverage: Min k-mer count of all k-mers in the path
+* Exclu_min_cov: Min k-mer count of all k-mers in the variant sequence from the jf database given with "-e".
 * Variant: A description of the variant in the format: deleted_bases/inserted_bases
 * Target: name of the target sequence examined
 * Info: supplementary information regarding the quantification method.
 * Variant_sequence: sequence of the mutated path
 * Reference_sequence: target sequence used
+
+--------
+min_cov:
+--------
+
+This tools display some k-mer's coverage stats of a target sequence and a list of jellyfish database.
+
+Usage:
+------
+.. code:: shell
+
+  $ km min_cov -h
+  $ km min_cov [your_fasta_targetSeq] [[your_jellyfish_count_table]...]
+
+Output:
+-------
+
+.. code:: shell
+
+  DB  count length  min max mean  kmer_nb kmer_nb_0
+  /dev/shm/02H053.jf  455387  8371  0 318 54.60 8341  4
+  /dev/shm/05H094.jf  58582 8371  0 36  7.02  8341  674
+  /dev/shm/05H143.jf  1302959 8371  7 450 156.21  8341  0
+
+Which shows that the sample 05H094 have at least one part of the target sequence not covered by k-mer count.
+
+Output description:
+-------------------
+
+* DB: name of the Jellyfish kmer table queried
+* cout: sum of k-mer count
+* length: number of nucleotide of target sequence
+* min: Minimum of k-mer count in the target sequence
+* max: Maximum of k-mer count in the target sequence
+* mean: Mean of k-mer count in the target sequence
+* kmer_nb: Number of kmer in the target sequence
+* kmer_nb_0: Number of kmer with 0 count in the target sequence
 
 ------------
 linear_kmin:

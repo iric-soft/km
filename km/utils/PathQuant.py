@@ -5,6 +5,7 @@
 import numpy as np
 import logging as log
 
+
 class Path:
     def __init__(self, db_f, ref_name, variant_name, ratio, expression,
                  min_coverage, start_off, sequence, ref_ratio, ref_expression,
@@ -46,6 +47,7 @@ class Path:
 
     def get_variant_name(self):
         return self.variant_name
+
 
 class PathQuant:
     def __init__(self, all_path, counts):

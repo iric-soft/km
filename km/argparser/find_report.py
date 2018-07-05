@@ -32,3 +32,10 @@ def get_argparser_find_report(parser):
         help="Min coverage allowed (Default: 1)",
         default=1,
         type=int)
+
+    optional.add_argument(
+        "-e", "--exclu",
+        dest="exclu",
+        help="Filename of a jf database, containing k-mers which can create false positive variants (as, a jf build on the transcriptome)",
+        default="",
+        type=str)
