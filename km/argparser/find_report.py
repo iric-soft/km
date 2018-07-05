@@ -34,8 +34,8 @@ def get_argparser_find_report(parser):
         type=int)
 
     optional.add_argument(
-        "-r", "--ref_jf",
-        dest="ref",
-        help="Filename of the jellyfish database build from a reference",
+        "-e", "--exclu",
+        dest="exclu",
+        help="Filename of a jf database, containing k-mers which can create false positive variants (as, a jf build on the transcriptome)",
         default="",
         type=str)
