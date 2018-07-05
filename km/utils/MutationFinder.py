@@ -78,24 +78,24 @@ class MutationFinder:
         self.paths = []
         kmer = self.node_data.keys()
 
-        k_len = len(kmer)
-        graph = ug.Graph(k_len)
+        num_k = len(kmer)
+        graph = ug.Graph(num_k)
         # The reference path, with node numbers
-        ref_i = map(lambda k: kmer.index(k), self.ref_mer)
+        ref_index = map(lambda k: kmer.index(k), self.ref_mer)
 
-        log.debug("k-mer graph contains %d nodes.", k_len)
+        log.debug("k-mer graph contains %d nodes.", num_k)
 
-        for i in range(k_len):
-            for j in range(k_len):
+        for i in range(num_k):
+            for j in range(num_k):
                 if i == j:
                     continue
                 if kmer[i][1:] == kmer[j][:-1]:
                     weight = 1
                     graph[i, j] = weight
 
-        for k in range(len(ref_i)-1):
-            i = ref_i[k]
-            j = ref_i[k+1]
+        for k in range(len(ref_index)-1):
+            i = ref_index[k]
+            j = ref_index[k+1]
             graph[i, j] = 0.01
 
         graph.init_paths(kmer.index(self.first_seq),
