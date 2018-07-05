@@ -186,7 +186,7 @@ class MutationFinder:
         individual = True
         if individual:
             for path in short_paths:
-                quant = upq.PathQuant(all_path=[path, ref_i],
+                quant = upq.PathQuant(all_path=[path, ref_index],
                                       counts=self.node_data.values())
 
                 quant.compute_coef()
@@ -194,15 +194,15 @@ class MutationFinder:
                 quant.get_ratio()
 
                 # Reference
-                if list(path) == ref_i:
+                if list(path) == ref_index:
                     quant.adjust_for_reference()
 
                 self.paths_quant = quant.get_paths(
                     db_f=self.jf.filename,
                     ref_name=self.ref_name,
-                    name_f=lambda path: get_name(ref_i, path),
+                    name_f=lambda path: get_name(ref_index, path),
                     seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                    ref_path=ref_i, info="vs_ref",
+                    ref_path=ref_index, info="vs_ref",
                     get_min_f=lambda path: min(get_counts(path, kmer)))
 
                 self.paths += self.paths_quant
@@ -213,7 +213,7 @@ class MutationFinder:
                 plt.figure(figsize=(10, 6))
                 for path in short_paths:
                     plt.plot(get_counts(path, kmer),
-                             label=get_name(ref_i, path).replace("\t", " "))
+                             label=get_name(ref_index, path).replace("\t", " "))
                 plt.legend()
                 plt.show()
 
@@ -225,7 +225,7 @@ class MutationFinder:
             variant_set = set(range(0, len(short_paths)))
             for variant in short_paths:
                 diff = graph.diff_path_without_overlap(
-                    ref_i, variant, self.jf.k)
+                    ref_index, variant, self.jf.k)
                 variant_diffs += [diff]
 
             def get_intersect(start, stop):
@@ -253,7 +253,7 @@ class MutationFinder:
             num_cluster = 0
             for var_gr in variant_groups:
                 if (len(var_gr[2]) == 1 and
-                        list(short_paths[var_gr[2][0]]) == ref_i):
+                        list(short_paths[var_gr[2][0]]) == ref_index):
                     continue
                 num_cluster += 1
 
@@ -261,7 +261,7 @@ class MutationFinder:
                 stop = var_gr[1]
                 var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
                 offset = max(0, start - var_size)
-                ref_path = ref_i[offset:stop]
+                ref_path = ref_index[offset:stop]
                 clipped_paths = [ref_path]
                 for var in var_gr[2]:
                     start_off = offset
