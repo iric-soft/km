@@ -35,7 +35,7 @@ def main_find_mut(args, argparser):
 
         finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
-            args.graphical, args.steps
+            args.graphical, args.steps, args.branchs
         )
 
         for path in finder.get_paths():

@@ -24,6 +24,13 @@ def get_argparser_find_mut(parser):
         default=500,
         type=int)
     parser.add_argument(
+        "-b", "--branchs",
+        help="Maximum branchs until getback to target sequence (default: -b 10)",
+        action="store",
+        nargs='?',
+        default=10,
+        type=int)
+    parser.add_argument(
         "-g", "--graphical",
         help="Display coverage graph.",
         action="store_true")
