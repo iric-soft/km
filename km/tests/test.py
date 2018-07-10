@@ -46,9 +46,9 @@ class kmMuttaionTest(unittest.TestCase):
             fm.main_find_mut(args, None)
 
         output = out.getvalue()
+        
         find_output = output.split("\n")
         find_output = find_output[10].split("\t")
-
         self.assertEqual(find_output[2],
                          "Insertion",
                          "Test fail: NPM1 -> find type")
@@ -105,7 +105,6 @@ class kmMuttaionTest(unittest.TestCase):
         output = out.getvalue()
         find_output = output.split("\n")
         find_output = find_output[10].split("\t")
-
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
@@ -162,7 +161,6 @@ class kmMuttaionTest(unittest.TestCase):
         output = out.getvalue()
         find_output = output.split("\n")
         find_output = find_output[10].split("\t")
-
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
@@ -219,7 +217,6 @@ class kmMuttaionTest(unittest.TestCase):
         output = out.getvalue()
         find_output = output.split("\n")
         find_output = find_output[10].split("\t")
-
         self.assertEqual(find_output[2],
                          "Deletion",
                          "Test fail: FLT3-TKD -> find type")
@@ -276,7 +273,6 @@ class kmMuttaionTest(unittest.TestCase):
         output = out.getvalue()
         find_output = output.split("\n")
         find_output = find_output[10].split("\t")
-
         self.assertEqual(find_output[2],
                          "Substitution",
                          "Test fail: DNMT3A -> find type")

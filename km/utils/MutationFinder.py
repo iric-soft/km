@@ -14,44 +14,52 @@ from .. utils import common as uc
 class MutationFinder:
     def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500):
         # Load the reference sequence and preparing ref k-mers
-
-        self.first_seq = ref_seq[0:(jf.k)]
-        self.last_seq = ref_seq[-(jf.k):]
-
-        self.ref_mer = uc.get_ref_kmer(ref_seq, jf.k, ref_name)
-        self.ref_set = set(self.ref_mer)
+        self.first_seq = []
+        self.last_seq = []
+        self.ref_mer = []
+        self.ref_set = []
+        for i in range(len(ref_seq)):
+            self.first_seq.append(ref_seq[i][0:(jf.k)])
+            self.last_seq.append(ref_seq[i][-(jf.k):])
+            self.ref_mer.append(uc.get_ref_kmer(ref_seq[i], jf.k, ref_name[i]))
+            self.ref_set.append(set(self.ref_mer[i]))
+        
         log.debug("Ref. set contains %d kmers.", len(self.ref_set))
 
         self.ref_seq = ref_seq
         self.jf = jf
-        self.node_data = {}
-        self.done = set()
+        self.node_data = [{} for i in range(len(self.ref_seq))]
+        self.done = [set() for i in range(len(self.ref_seq))]
         self.ref_name = ref_name
-
-        self.done.add(self.first_seq)
-        self.node_data[self.first_seq] = self.jf.query(self.first_seq)
-        self.done.add(self.last_seq)
-        self.node_data[self.last_seq] = self.jf.query(self.last_seq)
+        
+        for i in range(len(ref_seq)):
+            self.done[i].add(self.first_seq[i])
+            self.node_data[i][self.first_seq[i]] = self.jf.query(self.first_seq[i])
+            self.done[i].add(self.last_seq[i])
+            self.node_data[i][self.last_seq[i]] = self.jf.query(self.last_seq[i])
 
         # in case there aren't any
-        self.paths = []
+        self.paths = [[] for i in range(len(self.ref_seq))]
 
         self.max_stack = max_stack
 
         # register all k-mers from the ref
-        for s in self.ref_set:
-            self.node_data[s] = self.jf.query(s)
+        for i in range(0, len(self.ref_set)):
+            for s in self.ref_set[i]:
+                self.node_data[i][s] = self.jf.query(s)
 
         # kmer walking from each k-mer of ref_seq
-        self.done.update(self.ref_set)
-        for seq in self.ref_set:
-            if seq == self.last_seq:
-                continue
-            self.__extend([seq], 0, 0)
+        for i in range(len(self.ref_set)):
+            self.done[i].update(self.ref_set[i])
+            for seq in self.ref_set[i]:
+                if seq == self.last_seq:
+                    continue
+                self.__extend([seq], 0, 0, i)
 
+        
         self.graph_analysis(graphical)
 
-    def __extend(self, stack, breaks, found):
+    def __extend(self, stack, breaks, found, target_num):
         """ Recursive depth first search """
         if len(stack) > self.max_stack:
             return
@@ -64,43 +72,51 @@ class MutationFinder:
                 return
 
         for child in childs:
-            if child in self.done:
-                self.done.update(stack)
-                self.done.add(child)
+            if child in self.done[target_num]:
+                self.done[target_num].update(stack)
+                self.done[target_num].add(child)
                 for p in stack:
-                    self.node_data[p] = self.jf.query(p)
-                self.node_data[cur_seq] = self.jf.query(cur_seq)
+                    self.node_data[target_num][p] = self.jf.query(p)
+                self.node_data[target_num][cur_seq] = self.jf.query(cur_seq)
                 found += 1
             else:
-                self.__extend(stack + [child], breaks, found)
+                self.__extend(stack + [child], breaks, found, target_num)
 
     def graph_analysis(self, graphical=False):
-        self.paths = []
-        kmer = self.node_data.keys()
-
-        num_k = len(kmer)
-        graph = ug.Graph(num_k)
-        # The reference path, with node numbers
-        ref_index = map(lambda k: kmer.index(k), self.ref_mer)
+        self.paths = [[] for i in range(len(self.ref_seq))]
+        
+        kmers = []
+        num_k = []
+        graph = []
+        ref_index = []
+        for i in range(len(self.node_data)):
+            kmers.append(self.node_data[i].keys())
+            num_k.append(len(kmers[i]))
+            graph.append(ug.Graph(num_k[i]))
+            ref_index.append(list(map(lambda k: kmers[i].index(k), self.ref_mer[i])))
 
         log.debug("k-mer graph contains %d nodes.", num_k)
 
-        for i in range(num_k):
-            for j in range(num_k):
-                if i == j:
-                    continue
-                if kmer[i][1:] == kmer[j][:-1]:
-                    weight = 1
-                    graph[i, j] = weight
+        for i in range(len(num_k)):
+            for j in range(num_k[i]):
+                for k in range(num_k[i]):
+                    if j == k:
+                        continue
+                    if kmers[i][j][1:] == kmers[i][k][:-1]:
+                        weight = 1
+                        graph[i][j, k] = weight
+        
+        for l in range(len(ref_index)):
+            for k in range(len(ref_index[l])-1):
+                i = ref_index[l][k]
+                j = ref_index[l][k+1]
+                graph[l][i, j] = 0.01
 
-        for k in range(len(ref_index)-1):
-            i = ref_index[k]
-            j = ref_index[k+1]
-            graph[i, j] = 0.01
-
-        graph.init_paths(kmer.index(self.first_seq),
-                         kmer.index(self.last_seq))
-        short_paths = graph.all_shortest()
+        short_paths = []
+        for i in range(len(kmers)):
+            graph[i].init_paths(kmers[i].index(self.first_seq[i]),
+                            kmers[i].index(self.last_seq[i]))
+            short_paths.append(graph[i].all_shortest())
 
         def get_seq(path, kmer, skip_prefix=True):
             path = list(path)
@@ -117,9 +133,9 @@ class MutationFinder:
                 seq += kmer[i][-1]
             return seq
 
-        def get_name(a, b, offset=0):
+        def get_name(a, b, target_num, offset=0):
             k = self.jf.k
-            diff = graph.diff_path_without_overlap(a, b, k)
+            diff = graph[target_num].diff_path_without_overlap(a, b, k)
             deletion = diff[3]
             ins = diff[4]
 
@@ -137,8 +153,8 @@ class MutationFinder:
                 raise Exception()
 
             # Trim end sequence when in both del and ins:
-            del_seq = get_seq(deletion, kmer, True)
-            ins_seq = get_seq(ins, kmer, True)
+            del_seq = get_seq(deletion, kmers[target_num], True)
+            ins_seq = get_seq(ins, kmers[target_num], True)
 
             trim = 1
             while (len(del_seq[-trim:]) > 0 and
@@ -173,10 +189,10 @@ class MutationFinder:
                     (string.lower(del_seq) + "/" + ins_seq),
                     diff[1] + 1 + offset)
 
-        def get_counts(path, kmer):
+        def get_counts(path, kmer, target_num):
             counts = []
             for i in path:
-                counts += [self.node_data[kmer[i]]]
+                counts += [self.node_data[target_num][kmer[i]]]
             # print("length counts: " + str(len(counts)))
             # print("min counts: " + str(min(counts)))
 
@@ -185,130 +201,134 @@ class MutationFinder:
         # Quantify all paths independently
         individual = True
         if individual:
-            for path in short_paths:
-                quant = upq.PathQuant(all_path=[path, ref_index],
-                                      counts=self.node_data.values())
+            paths_quant = []
+            for fusion in range(len(short_paths)):
+                for path in short_paths[fusion]:            
+                    quant = (upq.PathQuant(all_path=[path, ref_index[fusion]],
+                                      counts=self.node_data[fusion].values()))
+                    
+                    quant.compute_coef()
+                    quant.refine_coef()
+                    quant.get_ratio()
 
-                quant.compute_coef()
-                quant.refine_coef()
-                quant.get_ratio()
+                    # Reference
+                    if list(path) == ref_index[fusion]:
+                        quant.adjust_for_reference()
 
-                # Reference
-                if list(path) == ref_index:
-                    quant.adjust_for_reference()
+                    paths_quant = quant.get_paths(
+                        db_f=self.jf.filename,
+                        ref_name= self.ref_name[fusion],
+                        name_f=lambda path: get_name(ref_index[fusion], path, fusion),
+                        seq_f=lambda path: get_seq(path, kmers[fusion], skip_prefix=False),
+                        ref_path=ref_index[fusion], info="vs_ref",
+                        get_min_f=lambda path: min(get_counts(path, kmers[fusion], fusion)))
+                    
+                    
+                    self.paths[fusion] += paths_quant
 
-                self.paths_quant = quant.get_paths(
-                    db_f=self.jf.filename,
-                    ref_name=self.ref_name,
-                    name_f=lambda path: get_name(ref_index, path),
-                    seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                    ref_path=ref_index, info="vs_ref",
-                    get_min_f=lambda path: min(get_counts(path, kmer)))
-
-                self.paths += self.paths_quant
-
-            if graphical:
-                import matplotlib.pyplot as plt
-
-                plt.figure(figsize=(10, 6))
-                for path in short_paths:
-                    plt.plot(get_counts(path, kmer),
-                             label=get_name(ref_index, path).replace("\t", " "))
-                plt.legend()
-                plt.show()
-
-        # Quantify by cutting the sequence around mutations,
-        # considering overlapping mutations as a cluster
-        cluster = True
-        if cluster:
-            variant_diffs = []
-            variant_set = set(range(0, len(short_paths)))
-            for variant in short_paths:
-                diff = graph.diff_path_without_overlap(
-                    ref_index, variant, self.jf.k)
-                variant_diffs += [diff]
-
-            def get_intersect(start, stop):
-                for var in variant_set:
-                    if (variant_diffs[var][1] >= start and
-                            variant_diffs[var][0] <= stop):
-                        return var
-                return -1
-
-            variant_groups = []
-            while len(variant_set) > 0:
-                seed = variant_set.pop()
-                grp = [seed]
-                start = variant_diffs[seed][0]
-                stop = variant_diffs[seed][1]
-                variant = get_intersect(start, stop)
-                while variant != -1:
-                    variant_set.remove(variant)
-                    grp += [variant]
-                    start = min(start, variant_diffs[variant][0])
-                    stop = max(stop, variant_diffs[variant][1])
-                    variant = get_intersect(start, stop)
-                variant_groups += [(start, stop, grp)]
-
-            num_cluster = 0
-            for var_gr in variant_groups:
-                if (len(var_gr[2]) == 1 and
-                        list(short_paths[var_gr[2][0]]) == ref_index):
-                    continue
-                num_cluster += 1
-
-                start = var_gr[0]
-                stop = var_gr[1]
-                var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
-                offset = max(0, start - var_size)
-                ref_path = ref_index[offset:stop]
-                clipped_paths = [ref_path]
-                for var in var_gr[2]:
-                    start_off = offset
-                    stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
-                    clipped_paths += [short_paths[var][start_off:stop_off]]
-
-                quant = upq.PathQuant(all_path=clipped_paths,
-                                      counts=self.node_data.values())
-
-                quant.compute_coef()
-                quant.refine_coef()
-
-                quant.get_ratio()
-
-                self.paths_quant = quant.get_paths(
-                    db_f=self.jf.filename,
-                    ref_name=self.ref_name,
-                    name_f=lambda path: get_name(ref_path, path, offset),
-                    seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                    ref_path=ref_path,
-                    info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                    get_min_f=lambda path: min(get_counts(path, kmer)),
-                    start_off=start_off)
-
-                self.paths_quant
-
-                self.paths += self.paths_quant
 
                 if graphical:
                     import matplotlib.pyplot as plt
 
                     plt.figure(figsize=(10, 6))
-                    for path, ratio in zip(clipped_paths, quant.get_ratio()):
-                        if path == ref_path:
-                            plt.plot(get_counts(path, kmer),
-                                     label="Reference")
-                        else:
-                            plt.plot(get_counts(path, kmer),
-                                     label=get_name(ref_path, path, offset).split("\t")[0])
+                    for path in short_paths:
+                            plt.plot(get_counts(path, kmers[fusion], fusion),
+                                label=get_name(ref_index[fusion], path).replace("\t", " "))
                     plt.legend()
                     plt.show()
 
-    def get_paths(self):
-        return self.paths
+        # Quantify by cutting the sequence around mutations,
+        # considering overlapping mutations as a cluster
+    '''    cluster = True
+        if cluster:
+            variant_diffs = []
+            diff = []
+            variant_diffs = []
+            for fusion in range(len(short_paths)):
+                variant_set = set(range(0, len(short_paths[fusion])))
+                for variant in short_paths[fusion]:
+                    diff.append(graph[fusion].diff_path_without_overlap(
+                        ref_index[fusion], variant, self.jf.k))
+                    variant_diffs += [diff[fusion]]
 
-    def get_paths_quant(self):
-        return self.paths_quant
+                def get_intersect(start, stop):
+                    for var in variant_set:
+                        if (variant_diffs[var][1] >= start and
+                                variant_diffs[var][0] <= stop):
+                            return var
+                    return -1
+
+                variant_groups = []
+                while len(variant_set) > 0:
+                    seed = variant_set.pop()
+                    grp = [seed]
+                    start = variant_diffs[seed][0]
+                    stop = variant_diffs[seed][1]
+                    variant = get_intersect(start, stop)
+                    while variant != -1:
+                        variant_set.remove(variant)
+                        grp += [variant]
+                        start = min(start, variant_diffs[variant][0])
+                        stop = max(stop, variant_diffs[variant][1])
+                        variant = get_intersect(start, stop)
+                    variant_groups += [(start, stop, grp)]
+
+                num_cluster = 0
+                for var_gr in variant_groups:
+                    if (len(var_gr[2]) == 1 and
+                            list(short_paths[var_gr[2][0]]) == ref_index):
+                        continue
+                    num_cluster += 1
+
+                    start = var_gr[0]
+                    stop = var_gr[1]
+                    var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
+                    offset = max(0, start - var_size)
+                    ref_path = ref_index[offset:stop]
+                    clipped_paths = [ref_path]
+                    for var in var_gr[2]:
+                        start_off = offset
+                        stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
+                        clipped_paths += [short_paths[var][start_off:stop_off]]
+
+                    quant = upq.PathQuant(all_path=clipped_paths,
+                                      counts=self.node_data.values())
+
+                    quant.compute_coef()
+                    quant.refine_coef()
+
+                    quant.get_ratio()
+
+                    for i in range(self.ref_name):
+                        paths_quant.append(quant.get_paths(
+                        db_f=self.jf.filename,
+                        ref_name=self.ref_name[i],
+                        name_f=lambda path: get_name(ref_path, path, offset),
+                        seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
+                        ref_path=ref_path,
+                        info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
+                        get_min_f=lambda path: min(get_counts(path, kmer, i)),
+                        start_off=start_off))
+                        paths_quant[i]
+                        self.paths[i] += paths_quant[i]
+
+                    if graphical:
+                        import matplotlib.pyplot as plt
+
+                        plt.figure(figsize=(10, 6))
+                        for i in range(self.get_paths):
+                            for path, ratio in zip(clipped_paths, quant.get_ratio()):
+                                if path == ref_path:
+                                    plt.plot(get_counts(path, kmer, i),
+                                        label="Reference")
+                                else:
+                                    plt.plot(get_counts(path, kmer, i),
+                                        label=get_name(ref_path, path, offset).split("\t")[0])
+                        plt.legend()
+                        plt.show()
+'''
+    def get_paths(self, target_num):
+        return self.paths[target_num]
 
     @staticmethod
     def output_header():
