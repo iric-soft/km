@@ -12,7 +12,8 @@ from .. utils import common as uc
 
 
 class MutationFinder:
-    def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500):
+    def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500,
+                 max_break=10):
         # Load the reference sequence and preparing ref k-mers
 
         self.first_seq = ref_seq[0:(jf.k)]
@@ -37,6 +38,7 @@ class MutationFinder:
         self.paths = []
 
         self.max_stack = max_stack
+        self.max_break = max_break
 
         # register all k-mers from the ref
         for s in self.ref_set:
@@ -60,7 +62,7 @@ class MutationFinder:
 
         if len(childs) > 1:
             breaks += 1
-            if breaks > 10:
+            if breaks > self.max_break:
                 return
 
         for child in childs:
