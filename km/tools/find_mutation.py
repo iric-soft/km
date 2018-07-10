@@ -29,7 +29,7 @@ def main_find_mut(args, argparser):
 
     for seq_f in seq_files:
 
-        #this will have to be switched to an agr parser 
+        # this will have to be switched to an agr parser
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
         temp = ref_name
@@ -42,13 +42,11 @@ def main_find_mut(args, argparser):
         for i in range(0, 5):
             ref_seq.append(uc.file_2_seq(seq_f))
 
-        
         finder = umf.MutationFinder(
                 ref_name, ref_seq, jf,
                 args.graphical, args.steps
-            )
+        )
 
-        
         for i in range(0, 2):
             for path in finder.get_paths(target_num = i):
                 sys.stdout.write(str(path) + "\n")

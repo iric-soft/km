@@ -38,6 +38,7 @@ class kmMuttaionTest(unittest.TestCase):
             jellyfish_fn='./data/jf/02H025_NPM1.jf',
             ratio=0.05,
             steps=500,
+            branchs=10,
             target_fn=[target],
             verbose=False
         )
@@ -46,9 +47,10 @@ class kmMuttaionTest(unittest.TestCase):
             fm.main_find_mut(args, None)
 
         output = out.getvalue()
-        
+
         find_output = output.split("\n")
-        find_output = find_output[10].split("\t")
+        find_output = find_output[11].split("\t")
+
         self.assertEqual(find_output[2],
                          "Insertion",
                          "Test fail: NPM1 -> find type")
@@ -95,6 +97,7 @@ class kmMuttaionTest(unittest.TestCase):
             jellyfish_fn='./data/jf/03H112_IandI.jf',
             ratio=0.05,
             steps=500,
+            branchs=10,
             target_fn=[target],
             verbose=False
         )
@@ -104,7 +107,8 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[10].split("\t")
+        find_output = find_output[11].split("\t")
+
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
@@ -151,6 +155,7 @@ class kmMuttaionTest(unittest.TestCase):
             jellyfish_fn='./data/jf/03H116_ITD.jf',
             ratio=0.05,
             steps=500,
+            branchs=10,
             target_fn=[target],
             verbose=False
         )
@@ -160,7 +165,8 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[10].split("\t")
+        find_output = find_output[11].split("\t")
+
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
@@ -207,6 +213,7 @@ class kmMuttaionTest(unittest.TestCase):
             jellyfish_fn='./data/jf/05H094_FLT3-TKD_del.jf',
             ratio=0.05,
             steps=500,
+            branchs=10,
             target_fn=[target],
             verbose=False
         )
@@ -216,7 +223,8 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[10].split("\t")
+        find_output = find_output[11].split("\t")
+
         self.assertEqual(find_output[2],
                          "Deletion",
                          "Test fail: FLT3-TKD -> find type")
@@ -263,6 +271,7 @@ class kmMuttaionTest(unittest.TestCase):
             jellyfish_fn="./data/jf/02H033_DNMT3A_sub.jf",
             ratio=0.05,
             steps=500,
+            branchs=10,
             target_fn=[target],
             verbose=False
         )
@@ -272,7 +281,8 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         find_output = output.split("\n")
-        find_output = find_output[10].split("\t")
+        find_output = find_output[11].split("\t")
+
         self.assertEqual(find_output[2],
                          "Substitution",
                          "Test fail: DNMT3A -> find type")
