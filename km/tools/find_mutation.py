@@ -1,4 +1,4 @@
-# find_mutation ---
+# find mutation ---
 #
 #   Usage:  find_mutation <region_fasta or directory> <jellyfish_db>
 import os
@@ -29,26 +29,16 @@ def main_find_mut(args, argparser):
 
     for seq_f in seq_files:
 
-        # this will have to be switched to an agr parser
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
-        temp = ref_name
-        ref_name = []
-
-        for i in range(0, 5):
-            ref_name.append(temp)
-
-        ref_seq = []
-        for i in range(0, 5):
-            ref_seq.append(uc.file_2_seq(seq_f))
+        ref_seq = uc.file_2_seq(seq_f)
 
         finder = umf.MutationFinder(
-                ref_name, ref_seq, jf,
-                args.graphical, args.steps
+            [ref_name], [ref_seq], jf,
+            args.graphical, args.steps, args.branchs
         )
 
-        for i in range(0, 2):
-            for path in finder.get_paths(target_num = i):
-                sys.stdout.write(str(path) + "\n")
+        for path in finder.get_paths():
+            sys.stdout.write(str(path) + "\n")
 
     sys.stdout.write("#Elapsed time:" + str(time.time() - time_start) + "\n")
