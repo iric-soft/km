@@ -13,19 +13,19 @@ def find_kmin(ref_name, ref_seq, start):
         k_len += 1
 
         try:
-            ref_mer = uc.get_ref_kmer(ref_seq, k_len, ref_name)
+            target_kmers = uc.get_target_kmers(ref_seq, k_len, ref_name)
             uniq = True
         except ValueError:
             continue
 
         cpt_kmer = 0
-        for i in range(len(ref_mer)):
+        for i in range(len(target_kmers)):
             cpt_forward = 0
             cpt_backward = 0
-            for j in range(len(ref_mer)):
+            for j in range(len(target_kmers)):
                 if i != j:
-                    kmer_i = ref_mer[i]
-                    kmer_j = ref_mer[j]
+                    kmer_i = target_kmers[i]
+                    kmer_j = target_kmers[j]
 
                     if kmer_i[1:len(kmer_i)] == kmer_j[0:(len(kmer_j)-1)]:
                         cpt_forward += 1
@@ -40,7 +40,7 @@ def find_kmin(ref_name, ref_seq, start):
             else:
                 cpt_kmer += 1
 
-        if cpt_kmer == len(ref_mer):
+        if cpt_kmer == len(target_kmers):
             linear = True
 
     sys.stdout.write(ref_name + "\t" + str(k_len) + "\n")

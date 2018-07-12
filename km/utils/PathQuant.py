@@ -7,35 +7,35 @@ import logging as log
 
 
 class Path:
-    def __init__(self, db_f, ref_name, variant_name, ratio, expression,
-                 min_coverage, start_off, sequence, ref_ratio, ref_expression,
-                 ref_sequence, note):
+    def __init__(self, db_f, target_name, variant_name, ratio, expression,
+                 min_coverage, start_off, sequence, target_ratio,
+                 target_expression, target_sequence, note):
         self.db_name = db_f
-        self.ref_name = ref_name
+        self.target_name = target_name
         self.variant_name = variant_name
         self.ratio = ratio
         self.expression = expression
         self.min_coverage = min_coverage
         self.start_off = start_off
         self.sequence = sequence
-        self.ref_ratio = ref_ratio
-        self.ref_expression = ref_expression
-        self.ref_sequence = ref_sequence
+        self.target_ratio = target_ratio
+        self.target_expression = target_expression
+        self.target_sequence = target_sequence
         self.note = note
 
     def __str__(self):
         return "%s\t%s\t%s\t%.3f\t%.1f\t%d\t%d\t%s\t%.3f\t%.1f\t%s\t%s" % (
             self.db_name,
-            self.ref_name,
+            self.target_name,
             self.variant_name,
             self.ratio,
             self.expression,
             self.min_coverage,
             self.start_off,
             self.sequence,
-            self.ref_ratio,
-            self.ref_expression,
-            self.ref_sequence,
+            self.target_ratio,
+            self.target_expression,
+            self.target_sequence,
             self.note)
 
     @staticmethod
@@ -127,31 +127,31 @@ class PathQuant:
     def output_header():
         print "Database\tQuery\tType\tVariant_name\tRatio\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_ratio\tReference_expression\tReference_sequence\tInfo"
 
-    def output(self, db_f, ref_name, name_f, seq_f):
+    def output(self, db_f, target_name, name_f, seq_f):
         for i in range(self.nb_seq):
             # if self.ratio[i] > 0:
             print "%s\t%s\t%s\t%.3f\t%.1f\t%s" % (db_f,
-                                                  ref_name,
+                                                  target_name,
                                                   name_f(self.all_path[i]),
                                                   self.ratio[i], self.coef[i],
                                                   seq_f(self.all_path[i]))
 
-    def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
+    def get_paths(self, db_f, target_name, name_f, seq_f, target_path, info="",
                   get_min_f=lambda path: 0, start_off=0):
         paths = []
-        ref_i = -1
+        target_i = -1
         for i in range(self.nb_seq):
-            if list(self.all_path[i]) == list(ref_path):
-                ref_i = i
+            if list(self.all_path[i]) == list(target_path):
+                target_i = i
         for i in range(self.nb_seq):
-            if i != ref_i:
-                p = Path(db_f, ref_name,
+            if i != target_i:
+                p = Path(db_f, target_name,
                          name_f(self.all_path[i]),
                          self.ratio[i], self.coef[i],
                          get_min_f(self.all_path[i]),
                          start_off,
                          seq_f(self.all_path[i]),
-                         self.ratio[ref_i], self.coef[ref_i],
-                         seq_f(self.all_path[ref_i]), info)
+                         self.ratio[target_i], self.coef[target_i],
+                         seq_f(self.all_path[target_i]), info)
                 paths += [p]
         return paths

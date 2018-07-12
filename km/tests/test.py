@@ -326,7 +326,7 @@ class kmMuttaionTest(unittest.TestCase):
         ref_name = "not_linear"
 
         with self.assertRaises(ValueError):
-            uc.get_ref_kmer(ref_seq, 31, ref_name)
+            uc.get_target_kmers(ref_seq, 31, ref_name)
 
     def test_linear_kmin(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"

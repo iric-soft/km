@@ -23,31 +23,31 @@ def target_2_seqfiles(target_fn):
 
 
 def file_2_seq(seq_f):
-    ref_seq = []
+    target_seq = []
     for line in open(seq_f, "r"):
         line = line.strip()
         if len(line) > 0 and line[0] == '>':
             continue
-        ref_seq.append(line)
-    ref_seq = ''.join(ref_seq)
+        target_seq.append(line)
+    target_seq = ''.join(target_seq)
 
-    return(ref_seq)
+    return(target_seq)
 
 
-def get_ref_kmer(ref_seq, k_len, ref_name):
+def get_target_kmers(target_seq, k_len, target_name):
     """ Load reference kmers. """
-    ref_mer = []
-    for i in range(len(ref_seq) - k_len + 1):
-        kmer = ref_seq[i:(i + k_len)]
-        if kmer in ref_mer:
+    target_kmers = []
+    for i in range(len(target_seq) - k_len + 1):
+        kmer = target_seq[i:(i + k_len)]
+        if kmer in target_kmers:
             raise ValueError(
                 "%s found multiple times in reference %s, at pos. %d" % (
-                    kmer, ref_name, i)
+                    kmer, target_name, i)
             )
 
-        ref_mer.append(kmer)
+        target_kmers.append(kmer)
 
-    return(ref_mer)
+    return(target_kmers)
 
 
 def mean(v):
@@ -57,15 +57,15 @@ def mean(v):
         return float(sum(v))/len(v)
 
 
-def get_cov(db, ref_seq):
+def get_cov(db, target_seq):
     jf = Jellyfish(db)
     cnt_stack = []
 
     i = 0
     count = 0
     cpt_count_0 = 0
-    while i <= (len(ref_seq) - jf.k):
-        kmer = ref_seq[i:i+jf.k]
+    while i <= (len(target_seq) - jf.k):
+        kmer = target_seq[i:i+jf.k]
         cnt = jf.query(kmer)
         cnt_stack += [int(cnt)]
         count += int(cnt)
@@ -74,6 +74,6 @@ def get_cov(db, ref_seq):
 
         # print kmer, cnt
         i += 1
-        
-    return(count, len(ref_seq), min(cnt_stack), max(cnt_stack),
+
+    return(count, len(target_seq), min(cnt_stack), max(cnt_stack),
             mean(cnt_stack), len(cnt_stack), cpt_count_0)
