@@ -103,13 +103,11 @@ class MutationFinder:
                     weight = 1
                     graph[i, j] = weight
 
-
         for l in range(len(target_index)):
             for k in range(len(target_index[l])-1):
                 i = target_index[l][k]
                 j = target_index[l][k+1]
                 graph[i, j] = 0.01
-
 
         short_paths = []
         for i in range(len(self.first_kmer)):
@@ -117,7 +115,6 @@ class MutationFinder:
                              kmer.index(self.last_kmer[i]))
 
             short_paths.append(graph.all_shortest())
-
 
         def get_seq(path, kmer, skip_prefix=True):
             path = list(path)
@@ -205,7 +202,7 @@ class MutationFinder:
             for target_id in range(len(short_paths)):
                 for path in short_paths[target_id]:
                     quant = upq.PathQuant(all_path=[path, target_index[target_id]],
-                                        counts=self.node_data.values())
+                                          counts=self.node_data.values())
 
                     quant.compute_coef()
                     quant.refine_coef()
@@ -217,7 +214,7 @@ class MutationFinder:
 
                     paths_quant = quant.get_paths(
                         db_f=self.jf.filename,
-                        target_name= self.target_name[target_id],
+                        target_name=self.target_name[target_id],
                         name_f=lambda path: get_name(target_index[target_id], path),
                         seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
                         target_path=target_index[target_id], info="vs_ref",
@@ -230,8 +227,8 @@ class MutationFinder:
 
                     plt.figure(figsize=(10, 6))
                     for path in short_paths:
-                            plt.plot(get_counts(path, kmer),
-                            label=get_name(target_index[target_id], path).replace("\t", " "))
+                        plt.plot(get_counts(path, kmer),
+                                 label=get_name(target_index[target_id], path).replace("\t", " "))
                     plt.legend()
                     plt.show()
 
