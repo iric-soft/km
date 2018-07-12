@@ -12,32 +12,32 @@ from .. utils import common as uc
 
 
 class MutationFinder:
-    def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500,
+    def __init__(self, ref_name, target_seq, jf, graphical, max_stack=500,
                  max_break=10):
         # Load the reference sequence and preparing ref k-mers
-        self.first_seq = []
-        self.last_seq = []
-        self.ref_mer = []
-        self.ref_set = set()
-        for i in range(len(ref_seq)):
-            self.first_seq.append(ref_seq[i][0:(jf.k)])
-            self.last_seq.append(ref_seq[i][-(jf.k):])
-            self.ref_mer.append(uc.get_ref_kmer(ref_seq[i], jf.k, ref_name[i]))
-            self.ref_set.update(set(self.ref_mer[i]))
+        self.first_kmer = []
+        self.last_kmer = []
+        self.target_kmer = []
+        self.target_set = set()
+        for i in range(len(target_seq)):
+            self.first_kmer.append(target_seq[i][0:(jf.k)])
+            self.last_kmer.append(target_seq[i][-(jf.k):])
+            self.target_kmer.append(uc.get_ref_kmer(target_seq[i], jf.k, ref_name[i]))
+            self.target_set.update(set(self.target_kmer[i]))
 
-        log.debug("Ref. set contains %d kmers.", len(self.ref_set))
+        log.debug("Ref. set contains %d kmers.", len(self.target_set))
 
-        self.ref_seq = ref_seq
+        self.target_seq = target_seq
         self.jf = jf
         self.node_data = {}
         self.done = set()
         self.ref_name = ref_name
 
-        for i in range(len(self.first_seq)):
-            self.done.add(self.first_seq[i])
-            self.node_data[self.first_seq[i]] = self.jf.query(self.first_seq[i])
-            self.done.add(self.last_seq[i])
-            self.node_data[self.last_seq[i]] = self.jf.query(self.last_seq[i])
+        for i in range(len(self.first_kmer)):
+            self.done.add(self.first_kmer[i])
+            self.node_data[self.first_kmer[i]] = self.jf.query(self.first_kmer[i])
+            self.done.add(self.last_kmer[i])
+            self.node_data[self.last_kmer[i]] = self.jf.query(self.last_kmer[i])
 
         # in case there aren't any
         self.paths = []
@@ -46,14 +46,14 @@ class MutationFinder:
         self.max_break = max_break
 
         # register all k-mers from the ref
-        for s in self.ref_set:
+        for s in self.target_set:
             self.node_data[s] = self.jf.query(s)
 
         # kmer walking from each k-mer of ref_seq
-        self.done.update(self.ref_set)
-        for i in range(len(self.last_seq)):
-            for seq in self.ref_set:
-                if seq == self.last_seq[i]:
+        self.done.update(self.target_set)
+        for seq in self.target_set:
+            for i in range(len(self.last_kmer)):
+                if seq == self.last_kmer[i]:
                     continue
                 self.__extend([seq], 0, 0)
 
@@ -63,8 +63,8 @@ class MutationFinder:
         """ Recursive depth first search """
         if len(stack) > self.max_stack:
             return
-        cur_seq = stack[-1]
-        childs = self.jf.get_child(cur_seq, forward=True)
+        cur_kmer = stack[-1]
+        childs = self.jf.get_child(cur_kmer, forward=True)
 
         if len(childs) > 1:
             breaks += 1
@@ -77,7 +77,7 @@ class MutationFinder:
                 self.done.add(child)
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
-                self.node_data[cur_seq] = self.jf.query(cur_seq)
+                self.node_data[cur_kmer] = self.jf.query(cur_kmer)
                 found += 1
             else:
                 self.__extend(stack + [child], breaks, found)
@@ -90,8 +90,8 @@ class MutationFinder:
         graph = ug.Graph(num_k)
         # The reference path, with node numbers
         ref_index = []
-        for i in range(len(self.ref_mer)):
-            ref_index.append(map(lambda k: kmer.index(k), self.ref_mer[i]))
+        for i in range(len(self.target_kmer)):
+            ref_index.append(map(lambda k: kmer.index(k), self.target_kmer[i]))
 
         log.debug("k-mer graph contains %d nodes.", num_k)
 
@@ -102,16 +102,22 @@ class MutationFinder:
                 if kmer[i][1:] == kmer[j][:-1]:
                     weight = 1
                     graph[i, j] = weight
+        
+        
         for l in range(len(ref_index)):
-            for k in range(len(ref_index[0])-1):
-                i = ref_index[0][k]
-                j = ref_index[0][k+1]
+            for k in range(len(ref_index[l])-1):
+                i = ref_index[l][k]
+                j = ref_index[l][k+1]
                 graph[i, j] = 0.01
 
-        for i in range(len(self.first_seq)):
-            graph.init_paths(kmer.index(self.first_seq[i]),
-                             kmer.index(self.last_seq[i]))
-            short_paths = graph.all_shortest()
+        
+        short_paths = []
+        for i in range(len(self.first_kmer)):
+            graph.init_paths(kmer.index(self.first_kmer[i]),
+                             kmer.index(self.last_kmer[i]))
+        
+            short_paths.append(graph.all_shortest())
+            
 
         def get_seq(path, kmer, skip_prefix=True):
             path = list(path)
@@ -196,25 +202,25 @@ class MutationFinder:
         # Quantify all paths independently
         individual = True
         if individual:
-            for fusion in range(len(ref_index)):
-                for path in short_paths:
-                    quant = upq.PathQuant(all_path=[path, ref_index[fusion]],
-                                                counts=self.node_data.values())
-
+            for ref_id in range(len(short_paths)):
+                for path in short_paths[ref_id]:
+                    quant = upq.PathQuant(all_path=[path, ref_index[ref_id]],
+                                        counts=self.node_data.values())
+                    
                     quant.compute_coef()
                     quant.refine_coef()
                     quant.get_ratio()
 
                     # Reference
-                    if list(path) == ref_index[fusion]:
+                    if list(path) == ref_index[ref_id]:
                         quant.adjust_for_reference()
 
                     paths_quant = quant.get_paths(
                         db_f=self.jf.filename,
-                        ref_name= self.ref_name[fusion],
-                        name_f=lambda path: get_name(ref_index[fusion], path),
+                        ref_name= self.ref_name[ref_id],
+                        name_f=lambda path: get_name(ref_index[ref_id], path),
                         seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
-                        ref_path=ref_index[fusion], info="vs_ref",
+                        ref_path=ref_index[ref_id], info="vs_ref",
                         get_min_f=lambda path: min(get_counts(path, kmer)))
 
                     self.paths += paths_quant
@@ -225,7 +231,7 @@ class MutationFinder:
                     plt.figure(figsize=(10, 6))
                     for path in short_paths:
                             plt.plot(get_counts(path, kmer),
-                                label=get_name(ref_index[fusion], path).replace("\t", " "))
+                            label=get_name(ref_index[ref_id], path).replace("\t", " "))
                     plt.legend()
                     plt.show()
 
@@ -234,12 +240,12 @@ class MutationFinder:
         #
         cluster = True
         if cluster:
-            for fusion in range(len(ref_index)):
-                variant_set = set(range(0, len(short_paths)))
+            for ref_id in range(len(short_paths)):
+                variant_set = set(range(0, len(short_paths[ref_id])))
                 variant_diffs = []
-                for variant in short_paths:
+                for variant in short_paths[ref_id]:
                     diff = graph.diff_path_without_overlap(
-                        ref_index[fusion], variant, self.jf.k)
+                        ref_index[ref_id], variant, self.jf.k)
                     variant_diffs += [diff]
 
                 def get_intersect(start, stop):
@@ -267,7 +273,7 @@ class MutationFinder:
                 num_cluster = 0
                 for var_gr in variant_groups:
                     if (len(var_gr[2]) == 1 and
-                          list(short_paths[var_gr[2][0]]) == ref_index[fusion]):
+                          list(short_paths[ref_id][var_gr[2][0]]) == ref_index[ref_id]):
                         continue
                     num_cluster += 1
 
@@ -275,12 +281,12 @@ class MutationFinder:
                     stop = var_gr[1]
                     var_size = max([abs(x[2]-x[1]+1) for x in [variant_diffs[v] for v in var_gr[2]]])
                     offset = max(0, start - var_size)
-                    ref_path = ref_index[fusion][offset:stop]
+                    ref_path = ref_index[ref_id][offset:stop]
                     clipped_paths = [ref_path]
                     for var in var_gr[2]:
                         start_off = offset
                         stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
-                        clipped_paths += [short_paths[var][start_off:stop_off]]
+                        clipped_paths += [short_paths[ref_id][var][start_off:stop_off]]
 
                     quant = upq.PathQuant(all_path=clipped_paths,
                                       counts=self.node_data.values())
@@ -292,7 +298,7 @@ class MutationFinder:
 
                     paths_quant = (quant.get_paths(
                             db_f=self.jf.filename,
-                            ref_name=self.ref_name[fusion],
+                            ref_name=self.ref_name[ref_id],
                             name_f=lambda path: get_name(ref_path, path, offset),
                             seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
                             ref_path=ref_path,
