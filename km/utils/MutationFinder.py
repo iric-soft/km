@@ -103,14 +103,14 @@ class MutationFinder:
                     weight = 1
                     graph[i, j] = weight
         for l in range(len(ref_index)):
-            for k in range(len(ref_index[l])-1):
-                i = ref_index[l][k]
-                j = ref_index[l][k+1]
+            for k in range(len(ref_index[0])-1):
+                i = ref_index[0][k]
+                j = ref_index[0][k+1]
                 graph[i, j] = 0.01
 
         for i in range(len(self.first_seq)):
             graph.init_paths(kmer.index(self.first_seq[i]),
-                            kmer.index(self.last_seq[i]))
+                             kmer.index(self.last_seq[i]))
             short_paths = graph.all_shortest()
 
         def get_seq(path, kmer, skip_prefix=True):
@@ -211,7 +211,7 @@ class MutationFinder:
 
                     paths_quant = quant.get_paths(
                         db_f=self.jf.filename,
-                        ref_name= self.ref_name,
+                        ref_name= self.ref_name[fusion],
                         name_f=lambda path: get_name(ref_index[fusion], path),
                         seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
                         ref_path=ref_index[fusion], info="vs_ref",
