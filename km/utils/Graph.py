@@ -80,6 +80,14 @@ class Graph:
             last_cur = cur
         self.ref_path = path
 
+    def get_path_score(self, path):
+        # Returns the shortest path passing through edge (a, b)
+        score = 0
+        for i in range(len(path)-1):
+            score += self.w[path[i], path[i+1]]
+
+        return(score)
+
     def get_shortest(self, a, b):
         # Returns the shortest path passing through edge (a, b)
         path = [b, a]
