@@ -5,8 +5,9 @@
 import logging as log
 import numpy as np
 
+
 class Graph:
-    ## Nodes are identified by 0..(n-1)
+    # Nodes are identified by 0..(n-1)
 
     def __init__(self, n):
         self.n = n
@@ -60,7 +61,7 @@ class Graph:
             unvisited.remove(i)
             visit(i)
 
-        return prev
+        return(prev)
 
     def init_paths(self, first_node, last_node):
         self.first_node = first_node
@@ -101,10 +102,12 @@ class Graph:
         follow(a, self.before)
         path.reverse()
         follow(b, self.after)
-        ## Only keep paths from source to sink
+
+        # Only keep paths from source to sink
         if path[0] != self.first_node or path[-1] != self.last_node:
             return None
-        return path
+
+        return(path)
 
     def all_shortest(self):
         all_paths = set()
@@ -112,12 +115,20 @@ class Graph:
         for (i, j) in self.edge_set:
             log.debug("Computing shortest path through edge: (%d, %d)", i, j)
             path = self.get_shortest(i, j)
+
             if path:
                 all_paths.add(tuple(path))
-        return list(all_paths)
+
+        return(list(all_paths))
 
     def diff_path_without_overlap(self, ref, seq, k):
-        # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
+        # Returns:
+        #  - start
+        #  - stop_ref
+        #  - stop_variant
+        #  - kmers_ref
+        #  - kmers_variant
+        #  - stop_ref_fully_trimmed
         i = 0
 
         while i < len(ref) and i < len(seq) and ref[i] == seq[i]:
@@ -137,4 +148,4 @@ class Graph:
 
         # log.debug("diffpath : " + " ".join (str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
 
-        return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
+        return(i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
