@@ -4,11 +4,13 @@ from .argparser.find_mutation import *
 from .argparser.find_report import *
 from .argparser.linear_kmin import *
 from .argparser.min_cov import *
+from .argparser.find_fusion import *
 
 from .tools.find_mutation import main_find_mut
 from .tools.find_report import main_find_report
 from .tools.linear_kmin import main_linear_kmin
 from .tools.min_cov import main_min_cov
+from .tools.find_fusion import main_find_fus
 
 
 # ###########################################################################
@@ -50,10 +52,17 @@ def main():
     min_cov = subparsers.add_parser(
         'min_cov',
         help='Compute coverage of target sequences.'
-    )
+        )
     min_cov.set_defaults(func=main_min_cov)
     get_argparser_min_cov(min_cov)
 
+    # create the argparser for the "find_fusion" command
+    find_fus = subparsers.add_parser(
+        'find_fusion',
+        help='Finds fusions between two genes'
+        )
+    find_fus.set_defaults(func=main_find_fus)
+    get_argparser_find_fus(find_fus)
     # recover arguments
     args = argparser.parse_args()
 
