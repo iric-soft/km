@@ -18,14 +18,16 @@ class MutationFinder:
         self.first_kmer = []
         self.last_kmer = []
         self.target_kmers = []
-        self.target_set = set()
+        self.target_set = []
+        sum_kmers = 0
         for i in range(len(target_seq)):
             self.first_kmer.append(target_seq[i][0:(jf.k)])
             self.last_kmer.append(target_seq[i][-(jf.k):])
             self.target_kmers.append(uc.get_target_kmers(target_seq[i], jf.k, target_name[i]))
-            self.target_set.update(set(self.target_kmers[i]))
+            self.target_set.append(set(self.target_kmers[i]))
+            sum_kmers += len(self.target_kmers[i])
 
-        log.debug("Ref. set contains %d kmers.", len(self.target_set))
+        log.debug("Ref. set contains %d kmers.", sum_kmers)
 
         self.target_seq = target_seq
         self.jf = jf
@@ -46,20 +48,21 @@ class MutationFinder:
         self.max_break = max_break
 
         # register all k-mers from the ref
-        for s in self.target_set:
-            self.node_data[s] = self.jf.query(s)
+        for target in self.target_set:
+            # kmer walking from each k-mer of target_seq
+            self.done.update(target)
+            for kmer in target:
+                self.node_data[kmer] = self.jf.query(kmer)
 
-        # kmer walking from each k-mer of target_seq
-        self.done.update(self.target_set)
-        for seq in self.target_set:
-            for i in range(len(self.last_kmer)):
-                if seq == self.last_kmer[i]:
+        for i in range(len(self.last_kmer)):
+            for kmer in self.target_set[i]:
+                if kmer == self.last_kmer[i]:
                     continue
-                self.__extend([seq], 0, 0)
+                self.__extend([kmer], 0)
 
         self.graph_analysis(graphical)
 
-    def __extend(self, stack, breaks, found ):
+    def __extend(self, stack, breaks):
         """ Recursive depth first search """
         if len(stack) > self.max_stack:
             return
@@ -78,9 +81,8 @@ class MutationFinder:
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
                 self.node_data[cur_kmer] = self.jf.query(cur_kmer)
-                found += 1
             else:
-                self.__extend(stack + [child], breaks, found)
+                self.__extend(stack + [child], breaks)
 
     def graph_analysis(self, graphical=False):
         self.paths = []
