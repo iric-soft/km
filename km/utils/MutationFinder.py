@@ -52,10 +52,9 @@ class MutationFinder:
         # kmer walking from each k-mer of target_seq
         self.done.update(self.target_set)
         for seq in self.target_set:
-            for i in range(len(self.last_kmer)):
-                if seq == self.last_kmer[i]:
-                    continue
-                self.__extend([seq], 0, 0)
+            if seq in self.last_kmer:
+                continue
+            self.__extend([seq], 0, 0)
 
         self.graph_analysis(graphical)
 
