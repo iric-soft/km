@@ -76,10 +76,11 @@ class Graph:
             cur = self.after[cur]
             path.append(cur)
             if last_cur:
-                self.edge_set.remove((last_cur, cur))
-                log.debug("Removing (%d, %d)", last_cur, cur)
+                if (last_cur, cur) in self.edge_set:
+                    self.edge_set.remove((last_cur, cur))
+                    log.debug("Removing(%d, %d)", last_cur, cur)
             last_cur = cur
-        self.ref_path = path
+        self.ref_path.append(path)
 
     def get_path_score(self, path):
         # Returns the shortest path passing through edge (a, b)

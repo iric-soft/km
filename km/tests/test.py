@@ -165,7 +165,6 @@ class kmMuttaionTest(unittest.TestCase):
         output = out.getvalue()
         find_output = output.split("\n")
         find_output = find_output[11].split("\t")
-        print output
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
