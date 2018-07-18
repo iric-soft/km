@@ -79,6 +79,8 @@ def get_cov(db, target_seq):
             mean(cnt_stack), len(cnt_stack), cpt_count_0)
 
 def file_2_fus_names(name_list):
+    if (len(name_list) == 1):
+        return name_list
     start_name = os.path.basename(name_list[0])
     end_name = os.path.basename(name_list[1])
     start_name = start_name[:-3]

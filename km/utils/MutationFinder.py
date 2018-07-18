@@ -32,13 +32,13 @@ class MutationFinder:
         self.target_seq = target_seq
         self.jf = jf
         self.node_data = {}
-        self.done = [set() for i in range(len(target_seq))]
+        self.done = set()
         self.target_name = target_name
 
         for i in range(len(self.first_kmer)):
-            self.done[i].add(self.first_kmer[i])
+            self.done.add(self.first_kmer[i])
             self.node_data[self.first_kmer[i]] = self.jf.query(self.first_kmer[i])
-            self.done[i].add(self.last_kmer[i])
+            self.done.add(self.last_kmer[i])
             self.node_data[self.last_kmer[i]] = self.jf.query(self.last_kmer[i])
 
         # in case there aren't any
@@ -48,21 +48,21 @@ class MutationFinder:
         self.max_break = max_break
 
         # register all k-mers from the ref
-        for target in range(len(self.target_set)):
+        for target in self.target_set:
             # kmer walking from each k-mer of target_seq
-            self.done[target].update(self.target_set[target])
-            for kmer in self.target_set[target]:
+            self.done.update(target)
+            for kmer in target:
                 self.node_data[kmer] = self.jf.query(kmer)
 
         for i in range(len(self.last_kmer)):
             for kmer in self.target_set[i]:
                 if kmer == self.last_kmer[i]:
                     continue
-                self.__extend([kmer], 0, i)
+                self.__extend([kmer], 0 )
 
         self.graph_analysis(graphical)
 
-    def __extend(self, stack, breaks, target):
+    def __extend(self, stack, breaks):
         """ Recursive depth first search """
         if len(stack) > self.max_stack:
             return
@@ -75,12 +75,13 @@ class MutationFinder:
                 return
 
         for child in childs:
-            if child in self.done[target]:
-                self.done[target].update(stack)
+            if child in self.done:
+                self.done.update(stack)
+                self.done.add(child)
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
             else:
-                self.__extend(stack + [child], breaks, target)
+                self.__extend(stack + [child], breaks )
 
     def graph_analysis(self, graphical=False):
         self.paths = []
@@ -200,7 +201,6 @@ class MutationFinder:
         if individual:
             for target_id in range(len(short_paths)):
                 for path in short_paths[target_id]:
-                    print path
                     quant = upq.PathQuant(all_path=[path, target_index[target_id]],
                                           counts=self.node_data.values())
 

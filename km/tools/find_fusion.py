@@ -29,9 +29,6 @@ def main_find_fus(args, argparser):
 
     ref_name= uc.file_2_fus_names(seq_files)
 
-    for name in ref_name:
-        sys.stdout.write(str(name) + "\n")
-
     ref_seq = uc.exons_2_fusion_seq(seq_files)
 
     for seq in ref_seq:
