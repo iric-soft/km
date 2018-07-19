@@ -88,7 +88,7 @@ def file_2_fus_names(name_list):
     fus_names = []
     for i in range(len(file_2_exon_list(name_list[0]))):
         for j in range(len(file_2_exon_list(name_list[1]))):
-            fus_names.append("%s_exon%d-%s_exon%d" % (start_name, i, end_name, j))
+            fus_names.append("%s_target%d-%s_target%d" % (start_name, i, end_name, j))
     return fus_names
 
 def file_2_exon_list(seq_f):
@@ -111,7 +111,7 @@ def file_2_exon_list(seq_f):
 
     return target_list
 
-def exons_2_fusion_seq(seq_list, reverse_compliment = True):
+def exons_2_fusion_seq(seq_list, reverse_compliment = False):
     start_list = file_2_exon_list(seq_list[0])
     end_list = file_2_exon_list(seq_list[1])
     fusion_seq = []

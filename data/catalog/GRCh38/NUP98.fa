@@ -2,3 +2,7 @@
 CAAAGAGCCCGCCACTGGTTGTACCAAATGA
 >hg38_dna range=chr11:3735191-3735221 5'pad=0 3'pad=0 strand=+ repeatMasking=none
 CTCTTCCTTCTTCTTAGGGTCTGACATCGGA
+>hg38_dna range=chr11:3753316-3753346 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+CTGTTCCAAATCCTGCACCAAGCCCAGTTCC
+>hg38_dna range=chr11:3744509-3744539 5'pad=0 3'pad=0 strand=+ repeatMasking=none
+CTACTGGGGCCTGGGGGGCTCCAAAGCCCAA
