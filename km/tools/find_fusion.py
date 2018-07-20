@@ -31,13 +31,11 @@ def main_find_fus(args, argparser):
 
     ref_seq = uc.exons_2_fusion_seq(seq_files)
 
-    for seq in ref_seq:
-        sys.stdout.write(str(seq) + "\n")
-
+    first_gene_ref = uc.file_2_exon_list(seq_files[0])
 
     finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
-            args.graphical, args.steps, args.branchs
+            args.graphical, first_gene_ref, args.steps, args.branchs
         )
 
     for path in finder.get_paths():

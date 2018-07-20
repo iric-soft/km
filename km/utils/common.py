@@ -133,3 +133,4 @@ def get_compliment(seq):
     new_seq = ''.join(new_seq)
     new_seq = new_seq[::-1]
     return new_seq
+

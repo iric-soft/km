@@ -15,8 +15,8 @@ class Graph:
         self.w.fill(np.inf)
         self.edge_set = set()
 
-        self.first_node = 0
-        self.last_node = 0
+        self.first_node = []
+        self.last_node = []
         self.before = None
         self.after = None
 
@@ -63,14 +63,14 @@ class Graph:
 
         return(prev)
 
-    def init_paths(self, first_node, last_node):
-        self.first_node = first_node
-        self.last_node = last_node
-        self.before = self._get_paths(self.first_node, self.w)
-        self.after = self._get_paths(self.last_node, self.w.transpose())
+    def init_paths(self, first_node, last_node, i):
+        self.first_node.append(first_node)
+        self.last_node.append(last_node)
+        self.before = self._get_paths(self.first_node[i], self.w)
+        self.after = self._get_paths(self.last_node[i], self.w.transpose())
         # Load up and remove edges from the ref path
-        path = [self.first_node]
-        cur = self.first_node
+        path = [self.first_node[i]]
+        cur = self.first_node[i]
         last_cur = None
         while self.after[cur] != -1:
             cur = self.after[cur]
@@ -90,7 +90,7 @@ class Graph:
 
         return(score)
 
-    def get_shortest(self, a, b):
+    def get_shortest(self, a, b, i):
         # Returns the shortest path passing through edge (a, b)
         path = [b, a]
 
@@ -105,17 +105,17 @@ class Graph:
         follow(b, self.after)
 
         # Only keep paths from source to sink
-        if path[0] != self.first_node or path[-1] != self.last_node:
+        if path[0] != self.first_node[i] or path[-1] != self.last_node[i]:
             return None
 
         return(path)
 
-    def all_shortest(self):
+    def all_shortest(self, target):
         all_paths = set()
         log.debug("%d edges in non-ref edge set.", len(self.edge_set))
         for (i, j) in self.edge_set:
             log.debug("Computing shortest path through edge: (%d, %d)", i, j)
-            path = self.get_shortest(i, j)
+            path = self.get_shortest(i, j, target)
 
             if path:
                 all_paths.add(tuple(path))

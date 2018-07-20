@@ -10,9 +10,8 @@ from . import Graph as ug
 from . import PathQuant as upq
 from .. utils import common as uc
 
-
 class MutationFinder:
-    def __init__(self, target_name, target_seq, jf, graphical, max_stack=500,
+    def __init__(self, target_name, target_seq, jf, graphical, exclude_list, max_stack=500,
                  max_break=10):
         # Load the reference sequence and preparing ref k-mers
         self.first_kmer = []
@@ -32,13 +31,13 @@ class MutationFinder:
         self.target_seq = target_seq
         self.jf = jf
         self.node_data = {}
-        self.done = set()
+        self.done = [set() for i in target_seq]
         self.target_name = target_name
 
         for i in range(len(self.first_kmer)):
-            self.done.add(self.first_kmer[i])
+            self.done[i].add(self.first_kmer[i])
             self.node_data[self.first_kmer[i]] = self.jf.query(self.first_kmer[i])
-            self.done.add(self.last_kmer[i])
+            self.done[i].add(self.last_kmer[i])
             self.node_data[self.last_kmer[i]] = self.jf.query(self.last_kmer[i])
 
         # in case there aren't any
@@ -48,21 +47,34 @@ class MutationFinder:
         self.max_break = max_break
 
         # register all k-mers from the ref
-        for target in self.target_set:
+        for target in range(len(self.target_set)):
             # kmer walking from each k-mer of target_seq
-            self.done.update(target)
-            for kmer in target:
+            self.done[target].update(self.target_set[target])
+            for kmer in self.target_set[target]:
                 self.node_data[kmer] = self.jf.query(kmer)
 
+        def make_exclude(index, exclude_targets):
+            index = set(uc.get_target_kmers(exclude_targets[index], jf.k, "eclude"))
+            exclude = set()
+            for seq in exclude_targets:
+                print seq
+                exclude.update(set(uc.get_target_kmers(seq, jf.k, "exclude")))
+                print uc.get_target_kmers(seq, jf.k, "exclude")
+            exclude = exclude - index
+            return(exclude)
+
+        num_second_gene = len(self.last_kmer)/len(exclude_list)
         for i in range(len(self.last_kmer)):
+            exclude = make_exclude(i//num_second_gene, exclude_list)
+            print exclude
             for kmer in self.target_set[i]:
                 if kmer == self.last_kmer[i]:
                     continue
-                self.__extend([kmer], 0 )
+                self.__extend([kmer], 0, i, exclude)
 
         self.graph_analysis(graphical)
 
-    def __extend(self, stack, breaks):
+    def __extend(self, stack, breaks, target, exclude):
         """ Recursive depth first search """
         if len(stack) > self.max_stack:
             return
@@ -75,13 +87,16 @@ class MutationFinder:
                 return
 
         for child in childs:
-            if child in self.done:
-                self.done.update(stack)
-                self.done.add(child)
-                for p in stack:
-                    self.node_data[p] = self.jf.query(p)
+            if not child in exclude:
+                if child in self.done[target]:
+                    self.done[target].update(stack)
+                    self.done[target].add(child)
+                    for p in stack:
+                        self.node_data[p] = self.jf.query(p)
+                else:
+                    self.__extend(stack + [child], breaks, target, exclude)
             else:
-                self.__extend(stack + [child], breaks )
+                continue
 
     def graph_analysis(self, graphical=False):
         self.paths = []
@@ -113,9 +128,9 @@ class MutationFinder:
         short_paths = []
         for i in range(len(self.first_kmer)):
             graph.init_paths(kmer.index(self.first_kmer[i]),
-                             kmer.index(self.last_kmer[i]))
+                             kmer.index(self.last_kmer[i]), i)
 
-            short_paths.append(graph.all_shortest())
+            short_paths.append(graph.all_shortest(i) )
         def get_seq(path, kmer, skip_prefix=True):
             path = list(path)
             if not path:
@@ -327,3 +342,5 @@ class MutationFinder:
     @staticmethod
     def output_header():
         upq.PathQuant.output_header()
+
+
