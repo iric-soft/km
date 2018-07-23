@@ -11,7 +11,7 @@ from . import PathQuant as upq
 from .. utils import common as uc
 
 class MutationFinder:
-    def __init__(self, target_name, target_seq, jf, graphical, exclude_list, max_stack=500,
+    def __init__(self, target_name, target_seq, jf, graphical, max_stack=500,
                  max_break=10):
         # Load the reference sequence and preparing ref k-mers
         self.first_kmer = []
@@ -53,28 +53,26 @@ class MutationFinder:
             for kmer in self.target_set[target]:
                 self.node_data[kmer] = self.jf.query(kmer)
 
-        def make_exclude(index, exclude_targets):
-            index = set(uc.get_target_kmers(exclude_targets[index], jf.k, "eclude"))
-            exclude = set()
-            for seq in exclude_targets:
-                print seq
-                exclude.update(set(uc.get_target_kmers(seq, jf.k, "exclude")))
-                print uc.get_target_kmers(seq, jf.k, "exclude")
-            exclude = exclude - index
+        def make_exclude(index):
+            index_set = set(uc.get_target_kmers(target_seq[index], jf.k, "exclude"))
+            exclude = []
+            for seq in target_seq:
+                exclude.extend((uc.get_target_kmers(seq, jf.k, "exclude")))
+            exclude = [x for x in exclude if x not in index_set]
+            #exclude = exclude - index_set
             return(exclude)
 
-        num_second_gene = len(self.last_kmer)/len(exclude_list)
         for i in range(len(self.last_kmer)):
-            exclude = make_exclude(i//num_second_gene, exclude_list)
-            print exclude
+            #print i
+            exclude = make_exclude(i)
             for kmer in self.target_set[i]:
                 if kmer == self.last_kmer[i]:
                     continue
-                self.__extend([kmer], 0, i, exclude)
+                self.__extend([kmer], 0, i, exclude, 0)
 
         self.graph_analysis(graphical)
 
-    def __extend(self, stack, breaks, target, exclude):
+    def __extend(self, stack, breaks, i, exclude, wrong_path):
         """ Recursive depth first search """
         if len(stack) > self.max_stack:
             return
@@ -86,17 +84,24 @@ class MutationFinder:
             if breaks > self.max_break:
                 return
 
+        if wrong_path == 22:
+            return
+
         for child in childs:
-            if not child in exclude:
-                if child in self.done[target]:
-                    self.done[target].update(stack)
-                    self.done[target].add(child)
+            if child in exclude:
+                #print "%d, %s" % (i, child)
+                #wrong_path += 1
+                #self.__extend(stack + [child], breaks, i, exclude, wrong_path)
+                continue
+            else:
+                if child in self.done[i]:
+                    self.done[i].update(stack)
+                    self.done[i].add(child)
+                    #print stack
                     for p in stack:
                         self.node_data[p] = self.jf.query(p)
                 else:
-                    self.__extend(stack + [child], breaks, target, exclude)
-            else:
-                continue
+                    self.__extend(stack + [child], breaks, i, exclude, wrong_path)
 
     def graph_analysis(self, graphical=False):
         self.paths = []
@@ -128,9 +133,9 @@ class MutationFinder:
         short_paths = []
         for i in range(len(self.first_kmer)):
             graph.init_paths(kmer.index(self.first_kmer[i]),
-                             kmer.index(self.last_kmer[i]), i)
+                             kmer.index(self.last_kmer[i]) )
 
-            short_paths.append(graph.all_shortest(i) )
+            short_paths.append(graph.all_shortest())
         def get_seq(path, kmer, skip_prefix=True):
             path = list(path)
             if not path:
@@ -216,6 +221,9 @@ class MutationFinder:
         if individual:
             for target_id in range(len(short_paths)):
                 for path in short_paths[target_id]:
+                    for i in path:
+                        print kmer[i]
+                        print self.node_data[kmer[i]]
                     quant = upq.PathQuant(all_path=[path, target_index[target_id]],
                                           counts=self.node_data.values())
 
