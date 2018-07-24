@@ -39,10 +39,10 @@ def main_find_fus(args, argparser):
 
     for i in range(len(ref_name)):
         print(ref_name[i])
-        print(new_seq[i])
+        print(ref_seq[i])
 
     finder = umf.MutationFinder(
-            ref_name, new_seq, jf,
+            ref_name, ref_seq, jf,
             args.graphical, args.steps, args.branchs
         )
 
