@@ -79,7 +79,7 @@ class PathQuant:
         #         return
         (coef, residual, rank, s) = np.linalg.lstsq(self.contrib, self.counts)
         self.coef = coef
-        print("Linear fitting = %s", self.coef.flatten())
+        # print("Linear fitting = %s", self.coef.flatten())
 
     def refine_coef(self):
         # if max(self.coef) == 0: return

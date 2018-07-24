@@ -221,9 +221,9 @@ class MutationFinder:
         if individual:
             for target_id in range(len(short_paths)):
                 for path in short_paths[target_id]:
-                    for i in path:
-                        print kmer[i]
-                        print self.node_data[kmer[i]]
+                    #for i in path:
+                        #print kmer[i]
+                        #print self.node_data[kmer[i]]
                     quant = upq.PathQuant(all_path=[path, target_index[target_id]],
                                           counts=self.node_data.values())
 
@@ -350,5 +350,3 @@ class MutationFinder:
     @staticmethod
     def output_header():
         upq.PathQuant.output_header()
-
-
