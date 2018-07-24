@@ -37,7 +37,7 @@ def main_find_fus(args, argparser):
         new_seq.append(ref_seq[11])
         new_seq.append(ref_seq[0])
 
-    for i in range(len(target_seq)):
+    for i in range(len(ref_name)):
         print(ref_name[i])
         print(new_seq[i])
 
