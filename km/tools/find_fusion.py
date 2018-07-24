@@ -37,6 +37,9 @@ def main_find_fus(args, argparser):
         new_seq.append(ref_seq[11])
         new_seq.append(ref_seq[0])
 
+    print(ref_name)
+    print(new_seq)
+    
     finder = umf.MutationFinder(
             ref_name, new_seq, jf,
             args.graphical, args.steps, args.branchs
