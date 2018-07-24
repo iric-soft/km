@@ -30,15 +30,15 @@ class MutationFinder:
 
         self.target_seq = target_seq
         self.jf = jf
-        self.node_data = {}
+        self.node_data = [{} for i in target_seq]
         self.done = [set() for i in target_seq]
         self.target_name = target_name
 
         for i in range(len(self.first_kmer)):
             self.done[i].add(self.first_kmer[i])
-            self.node_data[self.first_kmer[i]] = self.jf.query(self.first_kmer[i])
+            self.node_data[i][self.first_kmer[i]] = self.jf.query(self.first_kmer[i])
             self.done[i].add(self.last_kmer[i])
-            self.node_data[self.last_kmer[i]] = self.jf.query(self.last_kmer[i])
+            self.node_data[i][self.last_kmer[i]] = self.jf.query(self.last_kmer[i])
 
         # in case there aren't any
         self.paths = []
@@ -51,7 +51,7 @@ class MutationFinder:
             # kmer walking from each k-mer of target_seq
             self.done[target].update(self.target_set[target])
             for kmer in self.target_set[target]:
-                self.node_data[kmer] = self.jf.query(kmer)
+                self.node_data[target][kmer] = self.jf.query(kmer)
 
         def make_exclude(index):
             index_set = set(uc.get_target_kmers(target_seq[index], jf.k, "exclude"))
@@ -99,14 +99,16 @@ class MutationFinder:
                     self.done[i].add(child)
                     #print stack
                     for p in stack:
-                        self.node_data[p] = self.jf.query(p)
+                        self.node_data[i][p] = self.jf.query(p)
                 else:
                     self.__extend(stack + [child], breaks, i, exclude, wrong_path)
 
     def graph_analysis(self, graphical=False):
         self.paths = []
-        kmer = self.node_data.keys()
-
+        kmer = []
+        for data in self.node_data:
+            kmer.extend(data.keys())
+        kmer = list(set(kmer))
         num_k = len(kmer)
         graph = ug.Graph(num_k)
         # The reference path, with node numbers
@@ -207,10 +209,10 @@ class MutationFinder:
                     (string.lower(del_seq) + "/" + ins_seq),
                     diff[1] + 1 + offset)
 
-        def get_counts(path, kmer):
+        def get_counts(path, kmer, i):
             counts = []
             for i in path:
-                counts += [self.node_data[kmer[i]]]
+                counts += [self.node_data[i][kmer[i]]]
             # print("length counts: " + str(len(counts)))
             # print("min counts: " + str(min(counts)))
 
@@ -225,7 +227,7 @@ class MutationFinder:
                         #print kmer[i]
                         #print self.node_data[kmer[i]]
                     quant = upq.PathQuant(all_path=[path, target_index[target_id]],
-                                          counts=self.node_data.values())
+                                          counts=self.node_data[target_id].values())
 
                     quant.compute_coef()
                     quant.refine_coef()
@@ -241,7 +243,7 @@ class MutationFinder:
                         name_f=lambda path: get_name(target_index[target_id], path),
                         seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
                         target_path=target_index[target_id], info="vs_ref",
-                        get_min_f=lambda path: min(get_counts(path, kmer)))
+                        get_min_f=lambda path: min(get_counts(path, kmer, target_id)))
 
                     self.paths += paths_quant
 
@@ -250,7 +252,7 @@ class MutationFinder:
 
                     plt.figure(figsize=(10, 6))
                     for path in short_paths:
-                        plt.plot(get_counts(path, kmer),
+                        plt.plot(get_counts(path, kmer, target_id),
                                  label=get_name(target_index[target_id], path).replace("\t", " "))
                     plt.legend()
                     plt.show()
@@ -309,7 +311,7 @@ class MutationFinder:
                         clipped_paths += [short_paths[target_id][var][start_off:stop_off]]
 
                     quant = upq.PathQuant(all_path=clipped_paths,
-                                      counts=self.node_data.values())
+                                      counts=self.node_data[target_id].values())
 
                     quant.compute_coef()
                     quant.refine_coef()
@@ -323,7 +325,7 @@ class MutationFinder:
                             seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
                             target_path=target_path,
                             info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                            get_min_f=lambda path: min(get_counts(path, kmer )),
+                            get_min_f=lambda path: min(get_counts(path, kmer, target_id )),
                             start_off=start_off))
 
                     paths_quant
@@ -336,10 +338,10 @@ class MutationFinder:
                         for i in range(self.get_paths):
                             for path, ratio in zip(clipped_paths, quant.get_ratio()):
                                 if path == target_path:
-                                    plt.plot(get_counts(path, kmer ),
+                                    plt.plot(get_counts(path, kmer, target_id ),
                                         label="Reference")
                                 else:
-                                    plt.plot(get_counts(path, kmer ),
+                                    plt.plot(get_counts(path, kmer , target_id ),
                                         label=get_name(target_path, path, offset).split("\t")[0])
                         plt.legend()
                         plt.show()
