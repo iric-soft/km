@@ -33,13 +33,13 @@ def main_find_fus(args, argparser):
 
     new_seq = []
 
-    for i in range(1):
-        new_seq.append(ref_seq[11])
-        new_seq.append(ref_seq[0])
+    #for i in range(1):
+    #    new_seq.append(ref_seq[11])
+    #    new_seq.append(ref_seq[0])
 
-    for i in range(len(ref_name)):
-        print(ref_name[i])
-        print(ref_seq[i])
+    #for i in range(len(ref_name)):
+    #    print(ref_name[i])
+    #    print(ref_seq[i])
 
     finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
