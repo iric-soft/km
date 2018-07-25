@@ -115,8 +115,6 @@ class PathQuant:
 
     def adjust_for_reference(self):
         print("adj")
-        print(self.counts)
-        print(self.coef)
         if min(self.counts) == 0:
             self.ratio[0] = 0
             self.ratio[1] = 0
