@@ -232,7 +232,7 @@ class MutationFinder:
                     quant.get_ratio()
 
                     # Reference
-                    if list(path) == target_index[target_id]:
+                    if len(target_seq) == 1 and list(path) == target_index[target_id]:
                         quant.adjust_for_reference()
 
                     paths_quant = quant.get_paths(
@@ -323,7 +323,7 @@ class MutationFinder:
                             seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
                             target_path=target_path,
                             info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                            get_min_f=lambda path: min(get_counts(path, kmer )),
+                            get_min_f=lambda path: min(get_counts(path, kmer)),
                             start_off=start_off))
 
                     paths_quant
@@ -336,10 +336,10 @@ class MutationFinder:
                         for i in range(self.get_paths):
                             for path, ratio in zip(clipped_paths, quant.get_ratio()):
                                 if path == target_path:
-                                    plt.plot(get_counts(path, kmer ),
+                                    plt.plot(get_counts(path, kmer),
                                         label="Reference")
                                 else:
-                                    plt.plot(get_counts(path, kmer ),
+                                    plt.plot(get_counts(path, kmer),
                                         label=get_name(target_path, path, offset).split("\t")[0])
                         plt.legend()
                         plt.show()
