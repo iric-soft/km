@@ -232,7 +232,7 @@ class MutationFinder:
                     quant.get_ratio()
 
                     # Reference
-                    if len(target_seq) == 1 and list(path) == target_index[target_id]:
+                    if len(self.target_seq) == 1 and list(path) == target_index[target_id]:
                         quant.adjust_for_reference()
 
                     paths_quant = quant.get_paths(
