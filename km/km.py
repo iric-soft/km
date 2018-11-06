@@ -4,11 +4,13 @@ from .argparser.find_mutation import *
 from .argparser.find_report import *
 from .argparser.linear_kmin import *
 from .argparser.min_cov import *
+from .argparser.explore import *
 
 from .tools.find_mutation import main_find_mut
 from .tools.find_report import main_find_report
 from .tools.linear_kmin import main_linear_kmin
 from .tools.min_cov import main_min_cov
+from .tools.explore import main_explore
 
 
 # ###########################################################################
@@ -29,6 +31,14 @@ def main():
     )
     find_mut.set_defaults(func=main_find_mut)
     get_argparser_find_mut(find_mut)
+
+    # create the argparser for the "explore" command
+    explore = subparsers.add_parser(
+        'explore',
+        help='Explore all paths from a target sequence and a k-mer database.'
+    )
+    explore.set_defaults(func=main_explore)
+    get_argparser_explore(explore)
 
     # create the argparser for the "find_report" command
     find_report = subparsers.add_parser(

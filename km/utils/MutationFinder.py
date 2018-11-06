@@ -13,7 +13,7 @@ from .. utils import common as uc
 
 class MutationFinder:
     def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500,
-                 max_break=10):
+                 max_break=10, find_mutation=True):
         # Load the reference sequence and preparing ref k-mers
 
         self.first_seq = ref_seq[0:(jf.k)]
@@ -51,7 +51,8 @@ class MutationFinder:
                 continue
             self.__extend([seq], 0, 0)
 
-        self.graph_analysis(graphical)
+        if (find_mutation):
+            self.graph_analysis(graphical)
 
     def __extend(self, stack, breaks, found):
         """ Recursive depth first search """
@@ -311,6 +312,9 @@ class MutationFinder:
 
     def get_paths_quant(self):
         return self.paths_quant
+
+    def get_node_data(self):
+        return self.node_data
 
     @staticmethod
     def output_header():
