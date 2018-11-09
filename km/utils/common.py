@@ -44,10 +44,32 @@ def get_target_kmers(target_seq, k_len, target_name):
                 "%s found multiple times in reference %s, at pos. %d" % (
                     kmer, target_name, i)
             )
-
+        
         target_kmers.append(kmer)
 
     return(target_kmers)
+
+
+def get_target_kmers_list(target_seq_all, k_len, target_name_all):
+    """ Load reference kmers. """
+    target_kmers_all = []
+    seen = set()
+    for target_seq, target_name in zip(target_seq_all, target_name_all):
+        target_kmers = []
+        for i in range(len(target_seq) - k_len + 1):
+            kmer = target_seq[i:(i + k_len)]
+            if kmer in seen:
+                raise ValueError(
+                    "%s found multiple times in reference %s, at pos. %d" % (
+                        kmer, target_name, i)
+                )
+            else:
+                seen.add(kmer)
+            
+            target_kmers.append(kmer)
+        target_kmers_all.append(target_kmers) 
+    
+    return target_kmers_all
 
 
 def mean(v):
@@ -85,6 +107,8 @@ def file_2_fus_names(name_list):
     end_name = os.path.basename(name_list[1])
     start_name = start_name[:-3]
     end_name = end_name[:-3]
+    #fus_names = ['%s_exon%d' % (start_name, i) for i in range(len(file_2_exon_list(name_list[0])))] +\
+    #            ['%s_exon%d' % (end_name, i) for i in range(len(file_2_exon_list(name_list[1])))]
     fus_names = []
     for i in range(len(file_2_exon_list(name_list[0]))):
         for j in range(len(file_2_exon_list(name_list[1]))):
@@ -111,26 +135,13 @@ def file_2_exon_list(seq_f):
 
     return target_list
 
-def exons_2_fusion_seq(seq_list, reverse_compliment = False):
+def exons_2_fusion_seq(seq_list):
     start_list = file_2_exon_list(seq_list[0])
     end_list = file_2_exon_list(seq_list[1])
+    # fusion_seq = start_list + end_list
     fusion_seq = []
     for start in start_list:
         for end in end_list:
-            if reverse_compliment:
-                fusion_target = "%s" %start + "%s" % get_compliment(end)
-            else:
-                fusion_target = "%s" %start + "%s" % end
-            fusion_seq.append(fusion_target)
+            fusion_seq.append(start+end)
 
     return fusion_seq
-
-def get_compliment(seq):
-    compliment = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-    new_seq = []
-    for base in seq:
-        new_seq.append(compliment.get(base))
-    new_seq = ''.join(new_seq)
-    new_seq = new_seq[::-1]
-    return new_seq
-

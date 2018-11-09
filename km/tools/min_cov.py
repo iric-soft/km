@@ -19,11 +19,11 @@ def main_min_cov(args, argparser):
     if os.path.isfile(args.target_fn):
         ref_seq = uc.file_2_seq(args.target_fn)
 
-    sys.stdout.write("DB\tcount\tlength\tmin\tmax\tmean\tkmer_nb\tkmer_nb_0\n")
+    sys.stdout.write("DB\tcount\tlength\tmin\tmax\tmean\tkmer_nb\tkmer_nb_0\tsequence\n")
 
     for jf_file in lst_files:
         res = uc.get_cov(jf_file, ref_seq)
-        res_str = "%s\t%d\t%d\t%d\t%d\t%.2f\t%d\t%d" % (
+        res_str = "%s\t%d\t%d\t%d\t%d\t%.2f\t%d\t%d\t%s" % (
                   jf_file, res[0], res[1], res[2], res[3],
-                  res[4], res[5], res[6])
+                  res[4], res[5], res[6], ref_seq)
         sys.stdout.write(res_str + "\n")

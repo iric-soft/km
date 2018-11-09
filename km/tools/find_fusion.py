@@ -47,6 +47,7 @@ def main_find_fus(args, argparser):
         )
 
     for path in finder.get_paths():
-        sys.stdout.write(str(path) + "\n")
+        if int(str(path).split('\t')[6]):
+            sys.stdout.write(str(path) + "\n")
 
     sys.stdout.write("#Elapsed time:" + str(time.time() - time_start) + "\n")
