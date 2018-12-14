@@ -106,7 +106,7 @@ After setup install:
 Runing km on a real sample:
 ---------------------------
 
-In the `example`_ folder you can find a bash script which can help you to
+In the `example`_ folder you can find some bash scripts to help you to
 run your first km analysis on a Leucegene sample.
 
 .. _example: https://github.com/iric-soft/km/tree/master/example
