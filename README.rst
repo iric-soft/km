@@ -7,10 +7,23 @@ km : a software for RNA-seq investigation using k-mer decomposition
 |    :target: https://www.python.org/download/releases/2.7.6/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 
+
+-------------
+Introduction:
+-------------
+
+This tool was developed to identify and quantify the occurence of single
+nucleotide variants, insertions, deletions and duplications in RNA-seq data.  Contrary to most tools that try to report all variants in a complete genome, here we instead propose to focus the analysis on small regions of interest.
+
+Given a reference sequence (typically a few hundred base pairs) around a
+known or suspected mutation in a gene of interest, all possible sequences
+that can be be created between the two end k-mers according to the
+sequenced reads will be reported. A ratio of variant allele vs WT will be
+computed for each possible sequence constructed.
+
 ---------
 Contents:
 ---------
-* `Introduction`_
 * `Requirements`_
 * `Install`_
 * `Usage`_
@@ -38,18 +51,12 @@ Contents:
 .. _min_cov: https://github.com/iric-soft/km#min_cov
 .. _linear_kmin: https://github.com/iric-soft/km#linear_kmin
 
--------------
-Introduction:
--------------
+-----------------------
+Follow these links for:
+-----------------------
 
-This tool was developed to identify and quantify the occurence of single
-nucleotide variants, insertions, deletions and duplications in RNA-seq data.  Contrary to most tools that try to report all variants in a complete genome, here we instead propose to focus the analysis on small regions of interest.
-
-Given a reference sequence (typically a few hundred base pairs) around a
-known or suspected mutation in a gene of interest, all possible sequences
-that can be be created between the two end k-mers according to the
-sequenced reads will be reported. A ratio of variant allele vs WT will be
-computed for each possible sequence constructed.
+* `More detailed documentation <https://github.com/iric-soft/km/tree/master/km/tools>`_
+* `Preprint paper <https://www.biorxiv.org/content/early/2018/04/17/295808>`_
 
 -------------
 Requirements:
@@ -108,9 +115,7 @@ run your first km analysis on a Leucegene sample.
 Tools:
 ------
 
-Overview of km's tools, for more details see the full documentation `here`_.
-
-.. _here: https://github.com/iric-soft/km/tree/master/km/tools
+Overview of km's tools, for more details see the `full documentation here <https://github.com/iric-soft/km/tree/master/km/tools>`_.
 
 find_mutation:
 --------------
