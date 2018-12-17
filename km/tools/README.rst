@@ -97,7 +97,7 @@ command takes a few seconds and returns an output similar to this:
 
 which shows that:
 
-* a TCTG insertion was found at position 45 of the target sequence: NPM1_exons_10-11utr.
+* a TCTG insertion was found at position 45 (1-based) of the target sequence: NPM1_exons_10-11utr.
 * the target sequence was found (without mutations).
 
 The last line is the same as the first one with local calculation of Ratio,
