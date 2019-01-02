@@ -48,7 +48,7 @@ def main():
     linear_kmin.set_defaults(func=main_linear_kmin)
     get_argparser_linear_kmin(linear_kmin)
 
-    # create the argparser for the "linear_kmin" command
+    # create the argparser for the "min_cov" command
     min_cov = subparsers.add_parser(
         'min_cov',
         help='Compute coverage of target sequences.'

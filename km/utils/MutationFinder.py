@@ -197,7 +197,7 @@ class MutationFinder:
                 j = target_index[l][k+1]
                 graph[i, j] = 0.001
                 # NOTE: A weight difference fold of 1000x might start causing problems for
-                #       deletions > 30,000 bp long
+                #       deletions > 31,000 bp long
 
         log.debug("BigBang=%d, BigCrunch=%d" % (self.first_kmer_index, self.last_kmer_index))
         for s in self.start_kmers:

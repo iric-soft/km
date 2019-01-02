@@ -27,19 +27,11 @@ def main_find_fus(args, argparser):
 
     umf.MutationFinder.output_header()
 
-    ref_name= uc.file_2_fus_names(seq_files)
+    ref_name = uc.file_2_fus_names(seq_files)
 
     ref_seq = uc.exons_2_fusion_seq(seq_files)
 
     new_seq = []
-
-    #for i in range(1):
-    #    new_seq.append(ref_seq[11])
-    #    new_seq.append(ref_seq[0])
-
-    #for i in range(len(ref_name)):
-    #    print(ref_name[i])
-    #    print(ref_seq[i])
 
     finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
@@ -47,7 +39,9 @@ def main_find_fus(args, argparser):
         )
 
     for path in finder.get_paths():
-        if int(str(path).split('\t')[6]):
+        # Dangerous filter used for find_fusion (really bad patch)
+        if not (path.note.split(' ')[0] == "cluster"
+                and path.variant_name.split('\t')[0] == "Reference") and path.min_coverage:
             sys.stdout.write(str(path) + "\n")
 
     sys.stdout.write("#Elapsed time:" + str(time.time() - time_start) + "\n")
