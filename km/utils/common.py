@@ -22,32 +22,44 @@ def target_2_seqfiles(target_fn):
     return(args_2_list_files(target_fn))
 
 
-def file_2_seq(seq_f):
+def file_2_seq(seq_f, individual=False):
     ref_seq = []
+    ref_list = []
     for line in open(seq_f, "r"):
         line = line.strip()
         if len(line) > 0 and line[0] == '>':
-            continue
+            if individual and ref_seq:
+                ref_list.append("".join(ref_seq))
+                ref_seq = []
+                continue
+            else:
+                continue
         ref_seq.append(line)
-    ref_seq = ''.join(ref_seq)
+    if individual:
+        ref_list.append("".join(ref_seq))
+        return(ref_list)
+    else:
+        ref_seq = ''.join(ref_seq)
+        return(ref_seq)
 
-    return(ref_seq)
 
 
-def get_ref_kmer(ref_seq, k_len, ref_name):
+def get_ref_kmers(ref_seq, k_len, ref_name):
     """ Load reference kmers. """
-    ref_mer = []
+    ref_mers = []
+    ref_set = set()
     for i in range(len(ref_seq) - k_len + 1):
         kmer = ref_seq[i:(i + k_len)]
-        if kmer in ref_mer:
+        if kmer in ref_set:
             raise ValueError(
                 "%s found multiple times in reference %s, at pos. %d" % (
                     kmer, ref_name, i)
             )
-
-        ref_mer.append(kmer)
-
-    return(ref_mer)
+        
+        ref_mers.append(kmer)
+        ref_set.add(kmer)
+    
+    return(ref_mers)
 
 
 def mean(v):
