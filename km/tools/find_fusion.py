@@ -5,7 +5,7 @@ import os
 import sys
 import time
 import logging as log
-from collections import OrderedDict
+#from collections import OrderedDict
 
 from .. utils import MutationFinder as umf
 from .. utils import common as uc
@@ -34,11 +34,11 @@ def main_find_fus(args, argparser):
     
     # Get exon sequences and remove duplicates, keeping input order
     (name, ext) = os.path.splitext(os.path.basename(seq_files[0]))
-    ref_left_seq = list(OrderedDict.fromkeys(uc.file_2_seq(seq_files[0], individual=True)))
+    ref_left_seq = uc.file_2_seq(seq_files[0], individual=True)
     ref_left_name = [name + "_exon" + str(i) for i in range(len(ref_left_seq))]
     
     (name, ext) = os.path.splitext(os.path.basename(seq_files[1]))
-    ref_right_seq = list(OrderedDict.fromkeys(uc.file_2_seq(seq_files[1], individual=True)))
+    ref_right_seq = uc.file_2_seq(seq_files[1], individual=True)
     ref_right_name = [name + "_exon" + str(i) for i in range(len(ref_right_seq))]
     
     finder = umf.MutationFinder(
