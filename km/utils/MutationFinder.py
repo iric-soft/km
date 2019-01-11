@@ -112,12 +112,8 @@ class MutationFinder:
                 
         def get_name(a, b, offset=0):
             if self.mode == "fusion" and not cluster:
-                try:
-                    fusion = fusion_names[ref_index_full.index(a)]
-                    return "Fusion\t{}".format(fusion)
-                except ValueError:
-                    ""  # We're in cluster mode
-            # NOTE: The chances of having a hit in cluster are extremely small (so relatively safe)
+                fusion = fusion_names[ref_index_full.index(a)]
+                return "Fusion\t{}".format(fusion)
             
             k = self.jf.k
             diff = graph.diff_path_without_overlap(a, b, k)
@@ -184,9 +180,10 @@ class MutationFinder:
             return counts
         
         def locate_reference(path, sequences, exon_num, start_kmers):
-            def find_all(path, exons_in_order):
+            def find_all(path, exons_in_order, exon_alternatives):
                 if not path:
-                    return exons_in_order
+                    exon_alternatives.append(exons_in_order)
+                    return exon_alternatives
                 exons_to_explore = []
                 for i, k in enumerate(path):
                     if exons_to_explore:
@@ -206,29 +203,40 @@ class MutationFinder:
                                 ee[4] = None
                         # If some are True and some are None get rid of the None
                         if sum([ee[4] for ee in exons_to_explore if ee[4]]):
+                            #print "getting rid of None", exons_to_explore
                             exons_to_explore = [ee for ee in exons_to_explore if not ee[4] is None]
                         # If all are True
                         if sum([ee[4] for ee in exons_to_explore if ee[4]]) == len(exons_to_explore):
-                            #print exons_to_explore
-                            completed = [ee for ee in exons_to_explore if ee[4]]
-                            #print completed
+                            #print "all true", exons_to_explore
+                            completed = [ee for ee in exons_to_explore if ee[4]]  # necessary?
+                            #print "all true completed", completed
                             if exons_in_order:
                                 exons_in_order.append(sorted(completed, key=lambda x: x[1])[-1][0])
                             else:
+                                # Get all start alternatives from first exon and readjust paths later
+                                if len(exons_to_explore) > 1:
+                                    p = []
+                                    for l in range(1, len(path)):
+                                        if path[l] in start_kmers:
+                                            p = path[l:]
+                                            #print "ALTERNATIVE START"
+                                            exon_alternatives.extend(locate_reference(
+                                                p, sequences, exon_num, start_kmers))
+                                            break
                                 exons_in_order.append(sorted(completed, key=lambda x: x[1])[-1][0])
-                            #print exons_in_order[-1]
+                            #print "exons in order", exons_in_order
                             p = []
                             for l in range(i, len(path)):
                                 if path[l] in start_kmers:
                                     p = path[l:]
                                     break
-                            return find_all(p, exons_in_order)
+                            return find_all(p, exons_in_order, exon_alternatives)
                     if k in start_kmers:
                         #print "START", k
                         for e in exon_num:
                             if sequences[e][0] == k:
                                 exons_to_explore.append([e, len(sequences[e]), 1, 0, False])
-            return find_all(path, [])
+            return find_all(path, [], [])
         
         cluster = False
         
@@ -295,34 +303,52 @@ class MutationFinder:
             # Recover reference sequences and correct paths to reference if needed
             ref_index_seq = []
             fusion_names = []
+            new_paths = []
             for sp in short_paths:
-                left_side = [[y for y in x if y != self.first_kmer_index]
+                kleft = [[y for y in x if y != self.first_kmer_index]
                              for x in ref_index if self.first_kmer_index in x]
-                right_side = [[y for y in x if y != self.last_kmer_index]
+                kright = [[y for y in x if y != self.last_kmer_index]
                               for x in ref_index if self.last_kmer_index in x]
-                right_side_rev = [x[::-1] for x in right_side]
+                kright_rev = [x[::-1] for x in kright]
                 
-                start_kmers_index = map(lambda k: kmer.index(k), self.start_kmers)
-                end_kmers_index = map(lambda k: kmer.index(k), self.end_kmers)
-                # indexes of exon candidates on the left and the right
-                exon_num_left = range(len(left_side))
-                exon_num_right = range(len(right_side))
+                start_kmers_idx = map(lambda k: kmer.index(k), self.start_kmers)
+                end_kmers_idx = map(lambda k: kmer.index(k), self.end_kmers)
+                # indexes of exon candidates on left and right
+                exon_num_left = range(len(kleft))
+                exon_num_right = range(len(kright))
                 
                 #print "start"
-                exons_start = locate_reference(sp, left_side, exon_num_left, start_kmers_index)
+                exons_start_all = locate_reference(sp, kleft, exon_num_left, start_kmers_idx)
                 #print "end"
-                exons_end = locate_reference(sp[::-1], right_side_rev, exon_num_right, end_kmers_index)
+                exons_end_all = locate_reference(sp[::-1], kright_rev, exon_num_right, end_kmers_idx)
                 
-                assert len(exons_end) == 1
+                #print "done"
+                #print exons_start_all
+                #print exons_end_all
                 
-                ref_index_seq.append("")
-                fusion_names.append("")
-                for e in exons_start:
-                    ref_exon = get_seq(left_side[e], kmer, skip_prefix=False)
-                    ref_index_seq[-1] += ref_exon
-                    fusion_names[-1] += self.ref_name_fusion[0][e] + "::"
-                ref_index_seq[-1] += get_seq(right_side[exons_end[0]], kmer, skip_prefix=False)
-                fusion_names[-1] += self.ref_name_fusion[1][exons_end[0]]
+                for exons_start in exons_start_all:
+                    for exons_end in exons_end_all:
+                        assert len(exons_end) == 1  # should never continue beyond the fusion exon
+                        first_ex_k = kleft[exons_start[0]][0]
+                        last_ex_k = kright[exons_end[0]][-1]
+                        new_p = [s for s in sp]
+                        for i, k in enumerate(new_p):
+                            if k == first_ex_k:
+                                new_p = new_p[i:]
+                        for i, k in enumerate(new_p[::-1]):
+                            if k == last_ex_k and i:
+                                new_p = new_p[:-i]
+                        if new_p in new_paths:
+                            continue
+                        new_paths.append(new_p)
+                        ref_index_seq.append("")
+                        fusion_names.append("")
+                        for e in exons_start:
+                            ref_exon = get_seq(kleft[e], kmer, skip_prefix=False)
+                            ref_index_seq[-1] += ref_exon
+                            fusion_names[-1] += self.ref_name_fusion[0][e] + "::"
+                        ref_index_seq[-1] += get_seq(kright[exons_end[0]], kmer, skip_prefix=False)
+                        fusion_names[-1] += self.ref_name_fusion[1][exons_end[0]]
                 
             ref_index_kmer = []
             ref_index_full = []
@@ -336,6 +362,7 @@ class MutationFinder:
             for seq in ref_index_kmer:
                 ref_index_full.append(map(lambda k: kmer.index(k), seq))
             ref_index = ref_index_full
+            short_paths = new_paths
         else:
             ref_index = [[x for x in ref_index[0] if x != self.first_kmer_index
                                                   and x != self.last_kmer_index]]*len(short_paths)
@@ -352,6 +379,7 @@ class MutationFinder:
                 quant.get_ratio()
                 
                 # Reference
+                # TODO: Make it work with fusion. The way it is now returns 0.5 for the ratio
                 if list(path) == ref_ind and self.mode != "fusion":
                     quant.adjust_for_reference()
                 
