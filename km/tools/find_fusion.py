@@ -45,6 +45,10 @@ def main_find_fus(args, argparser):
         [ref_left_name, ref_right_name], [ref_left_seq, ref_right_seq], jf,
         args.graphical, args.steps, args.branchs, mode='fusion'
     )
+
+    finder.altsplice = args.altsplice
+
+    finder.graph_analysis(args.graphical)
         
     for path in finder.get_paths():
         sys.stdout.write(str(path) + "\n")

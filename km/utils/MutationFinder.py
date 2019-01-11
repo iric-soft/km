@@ -69,7 +69,9 @@ class MutationFinder:
                 continue
             self.__extend([kmer], 0)
         
-        self.graph_analysis(graphical)
+        # TODO: Should eventually include that in all tools and remove from here
+        if mode != "fusion":
+            self.graph_analysis(graphical)
     
     
     def __extend(self, stack, breaks):
@@ -328,6 +330,8 @@ class MutationFinder:
                 
                 for exons_start in exons_start_all:
                     for exons_end in exons_end_all:
+                        if not self.altsplice:  # if False, discard all the work done on splicings
+                            exons_start = [exons_start[-1]]
                         assert len(exons_end) == 1  # should never continue beyond the fusion exon
                         first_ex_k = kleft[exons_start[0]][0]
                         last_ex_k = kright[exons_end[0]][-1]
