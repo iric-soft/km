@@ -53,7 +53,7 @@ This script will:
 
 * Download all fastq files of sample 03H041 of `Leucegene`_ from `GEO`_.
 * Create a k-mer count table of 31bp length from fastq files downloaded, using Jellyfish.
-* Run km to annotate 03H041 on the 7 mutations from the `catalog`_.
+* Run km to annotate 03H041 on the 9 mutations from the `catalog`_.
 
 .. _Leucegene: https://leucegene.ca/
 .. _catalog: https://github.com/iric-soft/km/tree/master/data/catalog/GRCh38
