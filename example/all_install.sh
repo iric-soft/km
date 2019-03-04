@@ -17,7 +17,7 @@ cd jellyfish-2.2.6
 # General case
 ./configure --prefix=$VIRTUAL_ENV --enable-python-binding
 # For user which have some difficulty to install python binding on ios 
-# ./configure --prefix=$HOME/.virtualenvs/km --enable-python-binding PYTHON_EXTRA_LDFLAGS="-u _PyMac_Error"  LDFLAGS="-L`python-config --ldflags` `python-config --libs`"
+# ./configure --prefix=$HOME/.virtualenvs/km --enable-python-binding PYTHON_EXTRA_LDFLAGS="-u _PyMac_Error"  LDFLAGS="`python-config --ldflags` `python-config --libs`"
 make -j 4
 make install
 
