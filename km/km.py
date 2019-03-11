@@ -30,6 +30,8 @@ def main():
         help='Identify and quantify mutations from a target sequence and a k-mer database.'
     )
     find_mut.set_defaults(func=main_find_mut)
+    find_mut.set_defaults(tool="find_mutation")
+    find_mut.set_defaults(mode="mutation")
     get_argparser_find_mut(find_mut)
 
     # create the argparser for the "find_report" command
@@ -40,14 +42,26 @@ def main():
     find_report.set_defaults(func=main_find_report)
     get_argparser_find_report(find_report)
 
-    # create the argparser for the "linear_kmin" command
-    linear_kmin = subparsers.add_parser(
-        'linear_kmin',
-        help='Find min k-length to decompose a target sequence in a linear graph.'
-    )
-    linear_kmin.set_defaults(func=main_linear_kmin)
-    get_argparser_linear_kmin(linear_kmin)
+    # create the argparser for the "find_fusion" command
+    find_fus = subparsers.add_parser(
+        'find_fusion',
+        help='Locate fusions between two genes.'
+        )
+    find_fus.set_defaults(func=main_find_fus)
+    find_fus.set_defaults(tool="find_fusion")
+    find_fus.set_defaults(mode="fusion")
+    get_argparser_find_fus(find_fus)
 
+    # create the argparser for the "find_isoforms" command (currently merged with find_fusion)
+    find_fus = subparsers.add_parser(
+        'find_isoforms',
+        help='Identify and quantify mutations and alternative splicings in a gene.'
+        )
+    find_fus.set_defaults(func=main_find_fus)
+    find_fus.set_defaults(tool="find_isoforms")
+    find_fus.set_defaults(mode="isoform")
+    get_argparser_find_fus(find_fus)
+    
     # create the argparser for the "min_cov" command
     min_cov = subparsers.add_parser(
         'min_cov',
@@ -56,13 +70,13 @@ def main():
     min_cov.set_defaults(func=main_min_cov)
     get_argparser_min_cov(min_cov)
 
-    # create the argparser for the "find_fusion" command
-    find_fus = subparsers.add_parser(
-        'find_fusion',
-        help='Locate fusions between two genes.'
-        )
-    find_fus.set_defaults(func=main_find_fus)
-    get_argparser_find_fus(find_fus)
+    # create the argparser for the "linear_kmin" command
+    linear_kmin = subparsers.add_parser(
+        'linear_kmin',
+        help='Find min k-length to decompose a target sequence in a linear graph.'
+    )
+    linear_kmin.set_defaults(func=main_linear_kmin)
+    get_argparser_linear_kmin(linear_kmin)
 
     # recover arguments
     args = argparser.parse_args()
