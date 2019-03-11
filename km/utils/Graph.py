@@ -34,30 +34,42 @@ class Graph:
         dist = np.empty(self.n, dtype=np.float32)
         dist.fill(np.inf)
         unvisited = set(range(self.n))
-
+        visited = []
+        
         def visit(i):
             ndist = w[i, :] + dist[i]
-            for j in range(self.n):
-                if ndist[j] < dist[j]:
-                    dist[j] = ndist[j]
-                    prev[j] = i
-
+            #for j in range(self.n):
+            #    if ndist[j] < dist[j]:
+            #        dist[j] = ndist[j]
+            #        prev[j] = i
+            ind = [ndist < dist]
+            dist[ind] = ndist[ind]
+            prev[ind] = i
+        
         dist[start] = 0
         visit(start)
         unvisited.remove(start)
-
+        visited.append(start)
+        
         def min_unvisited():
-            min_i = -1
-            min_dist = np.inf
-            for i in unvisited:
-                if dist[i] <= min_dist:
-                    min_i = i
-                    min_dist = dist[i]
+            #min_i = -1
+            #min_dist = np.inf
+            #for i in unvisited:
+            #    if dist[i] <= min_dist:
+            #        min_i = i
+            #        min_dist = dist[i]
+            d = dist.copy()
+            d[visited] = np.inf
+            min_i = d.argmin()
+            if d[min_i] == np.inf:
+                min_i = unvisited.pop()
+            else:
+                unvisited.remove(min_i)
             return min_i
-
+        
         while unvisited:
             i = min_unvisited()
-            unvisited.remove(i)
+            visited.append(i)
             visit(i)
 
         return prev
@@ -68,28 +80,36 @@ class Graph:
         self.before = self._get_paths(self.first_node, self.w)
         self.after = self._get_paths(self.last_node, self.w.transpose())
         # Load up and remove edges from the ref path
-        path = [self.first_node]
-        cur = self.first_node
-        last_cur = None
-        while self.after[cur] != -1:
-            cur = self.after[cur]
-            path.append(cur)
-            if last_cur:
-                self.edge_set.remove((last_cur, cur))
-                log.debug("Removing (%d, %d)", last_cur, cur)
-            last_cur = cur
-        self.ref_path = path
+        curs = set(np.where(self.before == self.first_node)[0])
+        removed = 0
+        while curs:
+            cur = curs.pop()
+            path = [self.first_node]
+            last_cur = None
+            while self.after[cur] != -1:
+                cur = self.after[cur]
+                path.append(cur)
+                if last_cur:
+                    try:
+                        self.edge_set.remove((last_cur, cur))
+                        log.debug("Removing (%d, %d)", last_cur, cur)
+                        removed += 1
+                    except KeyError:  # We already took care of this edge
+                        log.debug("Removed: (%d, %d)", last_cur, cur)
+                last_cur = cur
+            self.ref_path.append(path)
+        log.debug("Removed %d ref edges.", removed)
 
     def get_shortest(self, a, b):
         # Returns the shortest path passing through edge (a, b)
         path = [b, a]
-
+        
         def follow(start, prev):
             cur = start
             while prev[cur] != -1:
                 cur = prev[cur]
                 path.append(cur)
-
+        
         follow(a, self.before)
         path.reverse()
         follow(b, self.after)
@@ -102,7 +122,7 @@ class Graph:
         all_paths = set()
         log.debug("%d edges in non-ref edge set.", len(self.edge_set))
         for (i, j) in self.edge_set:
-            log.debug("Computing shortest path through edge: (%d, %d)", i, j)
+            #log.debug("Computing shortest path through edge: (%d, %d)", i, j)
             path = self.get_shortest(i, j)
             if path:
                 all_paths.add(tuple(path))
@@ -117,7 +137,8 @@ class Graph:
 
         j_ref = len(ref)
         j_seq = len(seq)
-        while j_ref > i + (k - 1) and j_seq > i + (k - 1) and ref[j_ref - 1] == seq[j_seq - 1]: #  + (k - 1):to prevent kmer from overlapping
+        while j_ref > i + (k - 1) and j_seq > i + (k - 1) and ref[j_ref - 1] == seq[j_seq - 1]:
+            #  + (k - 1): to prevent kmer from overlapping
             j_ref -= 1
             j_seq -= 1
 
@@ -126,7 +147,8 @@ class Graph:
         while k_ref > i and ref[k_ref - 1] == seq[k_seq - 1]:
             k_ref -= 1
             k_seq -= 1
-
-        # log.debug("diffpath : " + " ".join (str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
-
+        
+        # log.debug("diffpath : " + " ".join(
+        #     str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
+        
         return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
