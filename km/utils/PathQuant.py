@@ -72,23 +72,35 @@ class PathQuant:
         self.counts[:, 0] = counts
 
     def compute_coef(self):
-        # Set coefficient to zero if all paths use a kmer with 0 coverage
-        # for c,d in zip(self.contrib,self.counts):
-        #     print c, d
-        #     if min(c) == 1 and d == 0:
-        #         self.coef = np.zeros((len(c), 1), dtype=np.float32)
-        #         return
-        (coef, residual, rank, s) = np.linalg.lstsq(self.contrib, self.counts)
-        self.coef = coef
-        log.debug("Linear fitting = %s", self.coef.flatten())
+        # Set expression to zero for all paths that use at least one kmer with 0 coverage
+        self.coef = np.zeros((self.contrib.shape[1], 1))
+        paths = []
+        for i in range(self.contrib.shape[1]):
+            if self.counts[self.contrib[:, i] > 0].min() >= 1:
+                paths.append(i)
+        # Compute least-squares solutions
+        if paths:
+            if int(np.__version__.split(".")[1]) < 14:
+                from numpy.core import double
+                (sol, residual, rank, s) = np.linalg.lstsq(
+                       self.contrib[:,paths], self.counts,
+                       rcond=np.finfo(double).eps * max(self.contrib[:,paths].shape)
+                       )  # This will become the new default in newer versions of numpy
+            else:
+                (sol, residual, rank, s) = np.linalg.lstsq(
+                       self.contrib[:,paths], self.counts, rcond=None
+                       )
+            for i, s in zip(paths, sol):
+                self.coef[i] = s
+        log.debug("Linear fitting  = %s", self.coef.flatten())
 
     def refine_coef(self):
-        # if max(self.coef) == 0: return
+        if min(self.coef) == 0: return
         # applies a gradient descent to get rid of negative coefficients
         self.coef[self.coef < 0] = 0
         last_max_grad = np.inf
         num_iter = 0
-
+        
         # convergence threshold
         while last_max_grad > 0.01:
             grad = np.zeros_like(self.coef, dtype=np.float32)
@@ -102,9 +114,9 @@ class PathQuant:
             self.coef[self.coef < 0] = 0
             last_max_grad = np.max(np.abs(grad))
             num_iter += 1
-            log.debug("Iteration = %d, max_gradient = %f",
-                      num_iter,
-                      last_max_grad)
+            # log.debug("Iteration = %d, max_gradient = %f",
+            #           num_iter,
+            #           last_max_grad)
         log.debug("Refined fitting = %s", self.coef.flatten())
 
     def get_ratio(self):
@@ -115,14 +127,10 @@ class PathQuant:
         return self.ratio
 
     def adjust_for_reference(self):
-        if min(self.counts) == 0:
-            self.ratio[0] = 0
-            self.ratio[1] = 0
-        else:
-            self.ratio[0] = 1
-            self.ratio[1] = 1
-        self.coef[self.coef >= 0] = min(self.counts)[0]
-
+        if max(self.coef) != 0:
+            self.coef[:] = self.coef.sum()
+            self.ratio[:] = 1
+    
     @staticmethod
     def output_header():
         print "Database\tQuery\tType\tVariant_name\tRatio\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_ratio\tReference_expression\tReference_sequence\tInfo"
