@@ -32,7 +32,7 @@ def main_find_fus(args, argparser):
         
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
         
-        ref_seq, ref_attr = uc.file_2_seq(seq_f, individual=True)
+        ref_seq, ref_attr = uc.file_2_seq(seq_f, jf.k, individual=True)
         
         # Get exon sequences by keeping input order
         #(name, ext) = os.path.splitext(os.path.basename(seq_files[1]))

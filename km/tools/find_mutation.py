@@ -31,7 +31,7 @@ def main_find_mut(args, argparser):
 
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
-        ref_seq = uc.file_2_seq(seq_f)
+        ref_seq = uc.file_2_seq(seq_f, jf.k)
 
         finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
