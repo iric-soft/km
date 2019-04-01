@@ -71,7 +71,7 @@ def init_ref_seq(arg_ref):
                 exons = False
                 strand = None
             try:
-                ref_attributes[attr["n"]] = attr
+                ref_attributes[attr["name"] + "e" + attr["n"]] = attr
                 if strand is None:
                     sys.exit("ERROR: Strand is not specified for exon n=%s\n" % attr["n"])
             except KeyError:
@@ -144,18 +144,20 @@ def create_report(args):
             variant = (tok[2], tok[3])
             if mode == "fusion" or mode == "isoform":
                 variant_name, exon = variant[0].split("/")
-                exon = [e.split("e")[-1] for e in exon.split("::")]
-                exons = []
-                for e in exon:
-                    if len(e) > 3:
-                        if e[-3] == "0":
-                            exons.extend([e[:-3], e[-2:]])
-                        elif e[-4] == "0":
-                            exons.extend([e[:-4], e[-3:]])
-                    else:
-                        exons.append(e)
-                gene = attributes[exons[0]]["name"]
-                exon = "/" + "::".join([gene + "e" + e for e in exons])
+                if "Fusion" in variant_name:
+                    fusion = "Fusion-"
+                    variant_name = variant_name.replace("Fusion-", "")
+                else:
+                    fusion = ""
+                #exon = [e.split("e")[-1] for e in exon.split("::")]
+                #exons = [x for e in exon for x in e.split('-')]
+                print exon
+                exons = [e.split("e")[0] + "e" + ee for e in exon.split("::")
+                                                    for ee in e.split("e")[1].split("-")]
+                print exons
+                #gene = attributes[exons[0]]["name"]
+                #exon = "/" + "::".join([gene + "e" + e for e in exons])
+                exon = "/" + exon
                 if strand == "-":
                     nts = [n for e in exons for n in attributes[e]["nts"][::-1]]
                 else:
@@ -172,7 +174,7 @@ def create_report(args):
             if int(min_cov) < args.min_cov:
                 continue
             
-            if variant_name == 'Reference':
+            if variant_name == 'Reference' or variant_name == 'Fusion':
                 if strand == "-":
                     region = "{}:{}-{}".format(chro, nts[-1], nts[0])
                 else:
@@ -258,6 +260,8 @@ def create_report(args):
                 sys.stderr.write(" - variant: " + str(variant_name + exon) + "\n")
                 sys.stderr.write(" - line: " + line)
                 sys.exit()
+            
+            insert_type = fusion + insert_type
         
         elif not header:
             samp = tok[0]
