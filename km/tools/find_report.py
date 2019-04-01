@@ -148,14 +148,8 @@ def create_report(args):
                 if "Fusion" in variant_name:
                     fusion = "Fusion-"
                     variant_name = variant_name.replace("Fusion-", "")
-                #exon = [e.split("e")[-1] for e in exon.split("::")]
-                #exons = [x for e in exon for x in e.split('-')]
-                print exon
                 exons = [e.split("e")[0] + "e" + ee for e in exon.split("::")
                                                     for ee in e.split("e")[1].split("-")]
-                print exons
-                #gene = attributes[exons[0]]["name"]
-                #exon = "/" + "::".join([gene + "e" + e for e in exons])
                 exon = "/" + exon
                 if strand == "-":
                     nts = [n for e in exons for n in attributes[e]["nts"][::-1]]
