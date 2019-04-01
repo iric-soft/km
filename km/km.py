@@ -45,23 +45,13 @@ def main():
     # create the argparser for the "find_fusion" command
     find_fus = subparsers.add_parser(
         'find_fusion',
-        help='Locate fusions between two genes.'
+        help='Identify and quantify mutations, fusions and alternative splicings in one or more gene.'
         )
     find_fus.set_defaults(func=main_find_fus)
     find_fus.set_defaults(tool="find_fusion")
     find_fus.set_defaults(mode="fusion")
     get_argparser_find_fus(find_fus)
 
-    # create the argparser for the "find_isoforms" command (currently merged with find_fusion)
-    find_fus = subparsers.add_parser(
-        'find_isoforms',
-        help='Identify and quantify mutations and alternative splicings in a gene.'
-        )
-    find_fus.set_defaults(func=main_find_fus)
-    find_fus.set_defaults(tool="find_isoforms")
-    find_fus.set_defaults(mode="isoform")
-    get_argparser_find_fus(find_fus)
-    
     # create the argparser for the "min_cov" command
     min_cov = subparsers.add_parser(
         'min_cov',
