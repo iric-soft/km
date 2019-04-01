@@ -142,13 +142,12 @@ def create_report(args):
             min_exclu = "" 
             
             variant = (tok[2], tok[3])
-            if mode == "fusion" or mode == "isoform":
+            fusion = ""
+            if mode == "fusion":
                 variant_name, exon = variant[0].split("/")
                 if "Fusion" in variant_name:
                     fusion = "Fusion-"
                     variant_name = variant_name.replace("Fusion-", "")
-                else:
-                    fusion = ""
                 #exon = [e.split("e")[-1] for e in exon.split("::")]
                 #exons = [x for e in exon for x in e.split('-')]
                 print exon
