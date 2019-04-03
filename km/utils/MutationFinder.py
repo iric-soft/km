@@ -180,16 +180,21 @@ class MutationFinder:
                 # However, this does not distinguish cases where there is
                 # garbage between repeats.
                 elif diff[0] == diff[5]:
-                    variant = "ITD"  # Prone to error, trust find_report better
+                    variant = "Insertion"  # "ITD"; Prone to errors, trust find_report instead
                 elif len(del_seq) == 0 and len(ins_seq) != 0:
                     variant = "Insertion"
                 elif len(del_seq) != 0 and len(ins_seq) == 0:
                     variant = "Deletion"
 
+                if diff[0] + k > diff[1]:  # some special case of ITD
+                    diff0 = diff[0] - (diff[0] + k - diff[1])
+                else:
+                    diff0 = diff[0]
+
                 return "{}{}\t{}:{}:{}".format(
                     fus+variant,
                     fusion,
-                    diff[0] + k + offset,
+                    diff0 + k + offset,
                     (string.lower(del_seq) + "/" + ins_seq),
                     diff[1] + 1 + offset)
         

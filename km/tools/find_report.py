@@ -57,8 +57,26 @@ def init_ref_seq(arg_ref):
                 chro, pos = exon.split(":")
                 refstart, refstop = pos.split("-")
                 attr["refstart"], attr["refstop"] = refstart, refstop
-                for i in xrange(int(refstart), int(refstop) + 1):
-                    nts += [i]
+                try:
+                    strand = attr["strand"]
+                    cigar = attr["cigar"]
+                    if strand == "-":
+                        cigar = re.split("([^\d])", cigar)[:-1][::-1]
+                        cigar = ''.join([x for i in range(0, len(cigar)-1, 2)
+                                           for x in [cigar[i+1], cigar[i]]])
+                    matches = []
+                    for i, mm in enumerate(re.split("[^\d]", cigar)[:-1]):
+                        for j in range(int(mm)):
+                            if i % 2:
+                                matches.append(False)
+                            else:
+                                matches.append(True)
+                    for ind, i in enumerate(xrange(int(refstart), int(refstop) + 1)):
+                        if matches[ind]:
+                            nts += [i]
+                except KeyError:
+                    for i in xrange(int(refstart), int(refstop) + 1):
+                        nts += [i]
                 attr["nts"] = nts
                 all_nts.extend(nts)  # mutation mode
             else:
@@ -150,7 +168,7 @@ def create_report(args):
                     variant_name = variant_name.replace("Fusion-", "")
                 exons = [e.split("e")[0] + "e" + ee for e in exon.split("::")
                                                     for ee in e.split("e")[1].split("-")]
-                exon = "/" + exon
+                exon = "/" + "::".join(exons)
                 if strand == "-":
                     nts = [n for e in exons for n in attributes[e]["nts"][::-1]]
                 else:
