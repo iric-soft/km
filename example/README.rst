@@ -8,39 +8,9 @@ modify some part to fit with your settings.
 ---------
 Contents:
 ---------
-* `all_install`_ : To install jellyfish and km
 * `run_leucegene`_ : To run your first km analysis
 
-.. _all_install: https://github.com/iric-soft/km/tree/master/example#all_install
 .. _run_leucegene: https://github.com/iric-soft/km/tree/master/example#run_leucegene
-
-------------
-all_install:
-------------
-
-Description:
-------------
-This script will install jellyfish with python binding and km in a virtual
-environement. Without modification, all the code source will be downloaded
-in your $HOME/software directory and all executable will be available in
-the virtual environement directory: $HOME/.virtualenvs/km.
-
-Need:
------
-This script need to have `pip`_ and `virtualenv`_ installed.
-
-.. _pip: https://pip.pypa.io/en/stable/installing/
-.. _virtualenv: https://virtualenv.pypa.io/en/stable/installation/
-
-Usage:
-------
-
-* Copy/past each line (and modify) in a terminal.
-* The virtual environment need to loaded each time you open a new terminal, with this command:
-
-.. code:: shell
-
-  $ source $HOME/.virtualenvs/km/bin/activate
 
 --------------
 run_leucegene:

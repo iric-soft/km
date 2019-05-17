@@ -21,59 +21,45 @@ that can be be created between the two end k-mers according to the
 sequenced reads will be reported. A ratio of variant allele vs WT will be
 computed for each possible sequence constructed.
 
-
 -------
 Citing:
 -------
 * Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
 
----------
-Contents:
----------
-* `Requirements`_
-* `Install`_
-* `Usage`_
-
-  - `General`_
-  - `Runing km on a real sample`_
-
-* `Tools`_
-
-  - `find_mutation`_
-  - `find_report`_
-  - `min_cov`_
-  - `linear_kmin`_
-
-.. _Introduction: https://github.com/iric-soft/km#introduction
-.. _Requirements: https://github.com/iric-soft/km#requirements
-.. _Install: https://github.com/iric-soft/km#install
-.. _Usage: https://github.com/iric-soft/km#usage
-.. _Tools: https://github.com/iric-soft/km#tools
-
-.. _General: https://github.com/iric-soft/km#general
-.. _Runing km on a real sample: https://github.com/iric-soft/km#runing-km-on-a-real-sample
-.. _find_mutation: https://github.com/iric-soft/km#find_mutation
-.. _find_report: https://github.com/iric-soft/km#find_report
-.. _min_cov: https://github.com/iric-soft/km#min_cov
-.. _linear_kmin: https://github.com/iric-soft/km#linear_kmin
-
------------------------
-Follow these links for:
------------------------
-
-* `More detailed documentation <https://github.com/iric-soft/km/tree/master/km/tools>`_
-* `Preprint paper <https://www.biorxiv.org/content/early/2018/04/17/295808>`_
-
 -------------
+Easy install:
+-------------
+easy_install.sh will install jellyfish with python binding, km in a virtual
+environement, and test it. Without modification, all the code source will be
+downloaded in your $HOME/software directory and all executable will be available
+in the virtual environement directory: $HOME/.virtualenvs/km.
+
+Requirements:
+-------------
+* Python 2.7.6 or later with `pip`_ and `virtualenv`_ installed.
+.. _pip: https://pip.pypa.io/en/stable/installing/
+.. _virtualenv: https://virtualenv.pypa.io/en/stable/installation/
+
+Usage:
+------
+
+* Copy/past each line (and modify) in a terminal.
+* The virtual environment need to loaded each time you open a new terminal, with this command:
+
+.. code:: shell
+
+  $ source $HOME/.virtualenvs/km/bin/activate
+
+--------------
+Setup install:
+--------------
+
 Requirements:
 -------------
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 * (Optional) Matplotlib
 
---------
-Install:
---------
 Before installing or using km, Jellyfish needs to be installed with Python
 `bindings`_. Should you need it, a script is available in the `example`_
 folder, to help you to install Jellyfish with bindings. When jellyfish is
@@ -84,44 +70,54 @@ the setup script:
 
   $ python setup.py install
   $ km -h
+  $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
 
 .. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
-------
-Usage:
-------
 
-General:
---------
+------------------------
+Run km from source code:
+------------------------
+km can be executed directly from source code.
+
+Requirements:
+*************
+* Python 2.7.6 or later
+* Jellyfish 2.2 or later **with** Python `bindings`_.
+* (Optional) Matplotlib
+
+.. code:: shell
+
+  $ python -m km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
+
+-------------
+Display help:
+-------------
 
 From source:
-****************
+------------
 
 .. code:: shell
 
   $ cd [your_km_folder]
   $ python -m km -h
 
-After setup install:
-********************
+After install:
+--------------
 
 .. code:: shell
 
   $ km -h
 
-Runing km on a real sample:
----------------------------
+----------------------------
+Design your target sequence:
+----------------------------
+(Coming soon)
 
-In the `example`_ folder you can find some bash scripts to help you to
-run your first km analysis on a Leucegene sample.
-
-.. _example: https://github.com/iric-soft/km/tree/master/example
-
-------
-Tools:
-------
-
-Overview of km's tools, for more details see the `full documentation here <https://github.com/iric-soft/km/tree/master/km/tools>`_.
+--------------------
+km's tools overview:
+--------------------
+For more detailed documentation click `here <https://github.com/iric-soft/km/tree/master/km/tools>`_
 
 find_mutation:
 --------------
@@ -171,3 +167,12 @@ decomposition of a target sequence in a linear graph.
 
   $ km linear_kmin -h
   $ km linear_kmin [your_catalog_directory]
+
+
+----------------------------------------
+Runing km on a real sample from scratch:
+----------------------------------------
+In the `example`_ folder you can find a script to help you to
+run your first km analysis on a Leucegene sample.
+
+  .. _example: https://github.com/iric-soft/km/tree/master/example
