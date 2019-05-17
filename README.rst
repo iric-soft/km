@@ -2,11 +2,11 @@
 ===================================================================
 km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
+
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 | .. image:: https://img.shields.io/badge/python-2.7-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
 |    :target: https://www.python.org/download/releases/2.7.6/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
-
 
 -------------
 Introduction:
@@ -29,7 +29,8 @@ Citing:
 -------------
 Easy install:
 -------------
-easy_install.sh will install jellyfish with python binding, km in a virtual
+
+`easy_install.sh`_ will install jellyfish with python binding, km in a virtual
 environement, and test it. Without modification, all the code source will be
 downloaded in your $HOME/software directory and all executable will be available
 in the virtual environement directory: $HOME/.virtualenvs/km.
@@ -43,7 +44,7 @@ Requirements:
 Usage:
 ------
 
-* Copy/past each line (and modify) in a terminal.
+* Copy/past each line in a terminal.
 * The virtual environment need to loaded each time you open a new terminal, with this command:
 
 .. code:: shell
@@ -54,17 +55,14 @@ Usage:
 Setup install:
 --------------
 
+If you don't use `easy_install.sh`_, before used setup.py, you need install Jellyfish with Python
+`bindings`_, before using setup.py.
+
 Requirements:
 -------------
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 * (Optional) Matplotlib
-
-Before installing or using km, Jellyfish needs to be installed with Python
-`bindings`_. Should you need it, a script is available in the `example`_
-folder, to help you to install Jellyfish with bindings. When jellyfish is
-installed, km may be executed directly from source code or installed using
-the setup script:
 
 .. code:: shell
 
@@ -72,16 +70,15 @@ the setup script:
   $ km -h
   $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
 
-.. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
+.. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
-
-------------------------
-Run km from source code:
-------------------------
+----------------
+Without install:
+----------------
 km can be executed directly from source code.
 
 Requirements:
-*************
+-------------
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 * (Optional) Matplotlib
@@ -89,6 +86,8 @@ Requirements:
 .. code:: shell
 
   $ python -m km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
+
+.. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
 -------------
 Display help:
@@ -112,11 +111,13 @@ After install:
 ----------------------------
 Design your target sequence:
 ----------------------------
+
 (Coming soon)
 
 --------------------
 km's tools overview:
 --------------------
+
 For more detailed documentation click `here <https://github.com/iric-soft/km/tree/master/km/tools>`_
 
 find_mutation:
@@ -143,7 +144,7 @@ tabulated file.
   $ km find_mutation [your_fasta_targetSeq] [your_jellyfish_count_table] | km find_report -t [your_fasta_targetSeq]
 
 min_cov:
---------------
+--------
 
 This tools display some k-mer's coverage stats of a target sequence and a list of jellyfish database.
 
@@ -167,7 +168,6 @@ decomposition of a target sequence in a linear graph.
 
   $ km linear_kmin -h
   $ km linear_kmin [your_catalog_directory]
-
 
 ----------------------------------------
 Runing km on a real sample from scratch:
