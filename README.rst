@@ -21,6 +21,12 @@ that can be be created between the two end k-mers according to the
 sequenced reads will be reported. A ratio of variant allele vs WT will be
 computed for each possible sequence constructed.
 
+
+-------
+Citing:
+-------
+* Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
+
 ---------
 Contents:
 ---------
