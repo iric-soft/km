@@ -100,7 +100,7 @@ Usage:
 Design your target sequence:
 ----------------------------
 * km is design to made targeted analysis based on **target sequences**. These target sequences **need to be design** and given as km's input.
-* A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provide in `catalog <https://github.com/iric-soft/km/tree/master/km/catalog>`_ .
+* A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provide in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
 * To feet your specific needs, you will certainly have to create your own target sequences. 
 * On generic cases, you can follow some good practices describe below: **(Coming soon)**
 * No limit are fixed, create the target sequence which feet your needs.
@@ -134,7 +134,7 @@ Display help:
 km's tools overview:
 --------------------
 
-For more detailed documentation click `here <https://github.com/iric-soft/km/tree/master/km/tools>`_
+For more detailed documentation click `here <https://github.com/iric-soft/km/tree/master/km/tools>`_.
 
 find_mutation:
 --------------
@@ -175,7 +175,7 @@ linear_kmin:
 Length of k-mers is a central parameter:
 
 * To produce a linear directed graph from the target sequence.
-* To avoid false-positive. `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
+* To avoid false-positive. find_mutation shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
 
 linear_kmin tool is design to give you the minimun k length to allow a
 decomposition of a target sequence in a linear graph.
