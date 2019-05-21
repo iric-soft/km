@@ -110,20 +110,25 @@ Design your target sequence:
 Display help:
 -------------
 
-From source:
-------------
-
-.. code:: shell
-
-  $ cd [your_km_folder]
-  $ python -m km -h
-
-After install:
---------------
-
 .. code:: shell
 
   $ km -h
+    usage: PROG [-h] {find_mutation,find_report,linear_kmin,min_cov} ...
+  
+    positional arguments:
+      {find_mutation,find_report,linear_kmin,min_cov}
+                            sub-command help
+        find_mutation       Identify and quantify mutations from a target sequence
+                            and a k-mer database.
+        find_report         Parse find_mutation output to reformat it in tabulated
+                            file more user friendly.
+        linear_kmin         Find min k length to decompose a target sequence in a
+                            linear graph.
+        min_cov             Compute coverage of target sequences.
+   
+    optional arguments:
+      -h, --help            show this help message and exit
+
 
 --------------------
 km's tools overview:
