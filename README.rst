@@ -54,6 +54,18 @@ Usage:
 
   $ source $HOME/.virtualenvs/km/bin/activate
 
+Test:
+*****
+
+.. code:: shell
+
+  $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
+  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov	Variant	Target	InfoVariant_sequence	Reference_sequence
+  ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428		/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
+  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379		-	NPM1_4ins_exons_10-11utr	vs_ref	
+
+.. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
+
 Setup install:
 --------------
 
@@ -71,10 +83,7 @@ Usage:
 .. code:: shell
 
   $ python setup.py install
-  $ km -h
-  $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
 
-.. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
 Without install:
 ----------------
