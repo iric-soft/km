@@ -27,6 +27,9 @@ Citing:
 * Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
 
 -------------
+Install:
+-------------
+
 Easy install:
 -------------
 
@@ -36,13 +39,13 @@ downloaded in your $HOME/software directory and all executable will be available
 in the virtual environement directory: $HOME/.virtualenvs/km.
 
 Requirements:
--------------
+*************
 * Python 2.7.6 or later with `pip`_ and `virtualenv`_ installed.
 .. _pip: https://pip.pypa.io/en/stable/installing/
 .. _virtualenv: https://virtualenv.pypa.io/en/stable/installation/
 
 Usage:
-------
+******
 
 * Copy/past each line in a terminal.
 * The virtual environment need to loaded each time you open a new terminal, with this command:
@@ -51,17 +54,19 @@ Usage:
 
   $ source $HOME/.virtualenvs/km/bin/activate
 
---------------
 Setup install:
 --------------
 
 If you have already installed Jellyfish with Python `bindings`_, you can install km using setup.py.
 
 Requirements:
--------------
+*************
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 * (Optional) Matplotlib
+
+Usage:
+******
 
 .. code:: shell
 
@@ -71,16 +76,18 @@ Requirements:
 
 .. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
-----------------
 Without install:
 ----------------
 km can be executed directly from source code.
 
 Requirements:
--------------
+*************
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 * (Optional) Matplotlib
+
+Usage:
+******
 
 .. code:: shell
 
