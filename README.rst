@@ -55,8 +55,7 @@ Usage:
 Setup install:
 --------------
 
-If you don't use `easy_install.sh`_, before used setup.py, you need install Jellyfish with Python
-`bindings`_, before using setup.py.
+If you have already installed Jellyfish with Python `bindings`_, you can install km using setup.py.
 
 Requirements:
 -------------
@@ -85,9 +84,20 @@ Requirements:
 
 .. code:: shell
 
+  $ cd [your_km_folder]
   $ python -m km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
 
 .. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
+
+----------------------------
+Design your target sequence:
+----------------------------
+* km is design to made targeted analysis based on **target sequences**. These target sequences **need to be design** and given as km's input.
+* A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provide in `catalog <https://github.com/iric-soft/km/tree/master/km/catalog>`_ .
+* To feet your specific needs, you will certainly have to create your own target sequences. 
+* On generic cases, you can follow some good practices describe below: **(Coming soon)**
+* No limit are fixed, create the target sequence which feet your needs.
+
 
 -------------
 Display help:
@@ -107,12 +117,6 @@ After install:
 .. code:: shell
 
   $ km -h
-
-----------------------------
-Design your target sequence:
-----------------------------
-
-(Coming soon)
 
 --------------------
 km's tools overview:
