@@ -173,10 +173,10 @@ decomposition of a target sequence in a linear graph.
   $ km linear_kmin -h
   $ km linear_kmin [your_catalog_directory]
 
-----------------------------------------
-Runing km on a real sample from scratch:
-----------------------------------------
+-------------------------------------------------
+Runing km on a real sample from downloaded fastq:
+-------------------------------------------------
 In the `example`_ folder you can find a script to help you to
-run your first km analysis on a Leucegene sample.
+run a km analysis on one Leucegene sample.
 
   .. _example: https://github.com/iric-soft/km/tree/master/example
