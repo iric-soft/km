@@ -26,14 +26,14 @@ class MutationFinder:
         self.start_kmers = set([seq[0:(jf.k)] for seq in target_seq])
         self.end_kmers = set([seq[-(jf.k):] for seq in target_seq])
 
-        self.target_kmers = [[self.first_kmer] + \
+        self.target_kmers = [[self.first_kmer] +\
                              uc.get_target_kmers(tar, jf.k, name) +\
                              [self.last_kmer]
                              for tar, name in zip(target_seq, target_name)]
         self.target_set = set([kmer for tar in self.target_kmers for kmer in tar])
         
         log.debug("Ref. set contains %d kmers.", len(self.target_set))
-        
+     
         self.target_name = target_name
         self.target_seq = target_seq
         self.jf = jf
@@ -86,83 +86,6 @@ class MutationFinder:
 
     def graph_analysis(self, graphical=False):
 
-        def get_seq(path, kmer, skip_prefix=True):
-            path = list(path)
-            if not path:
-                # Deals with an empty sequence
-                return ""
-
-            if skip_prefix:
-                seq = kmer[path[0]][-1]
-            else:
-                seq = kmer[path[0]]
-
-            for i in path[1:]:
-                seq += kmer[i][-1]
-            return seq
-
-        def get_name(a, b, offset=0):
-            k = self.jf.k
-            diff = graph.diff_path_without_overlap(a, b, k)
-            deletion = diff[3]
-            ins = diff[4]
-
-            if (len(a)-len(deletion)+len(ins)) != len(b):
-                sys.stderr.write(
-                    "ERROR: %s %d != %d" % (
-                        "mutation identification could be incorrect",
-                        len(a) - len(deletion) + len(ins),
-                        len(b)
-                    )
-                )
-
-                # Fixes cases where we look at two copies of the same sequence
-                deletion = diff[3]
-                raise Exception()
-
-            # Trim end sequence when in both del and ins:
-            del_seq = get_seq(deletion, kmer, True)
-            ins_seq = get_seq(ins, kmer, True)
-
-            trim = 1
-            while (len(del_seq[-trim:]) > 0 and
-                    del_seq[-trim:] == ins_seq[-trim:]):
-                trim += 1
-            trim -= 1
-            if trim != 0:
-                del_seq = del_seq[:-trim]
-                ins_seq = ins_seq[:-trim]
-
-            if diff[0] == diff[1] and not diff[4]:
-                return "Reference\t"
-            else:
-                variant = "Indel"
-                # SNP have equal length specific sequences
-                if diff[1] == diff[2]:
-                    variant = "Substitution"
-
-                # ITD have zero kmers in ref after full trimming.
-                # However, this does not distinguish cases where there is
-                # garbage between repeats.
-                elif diff[0] == diff[5]:
-                    variant = "ITD"
-                elif len(del_seq) == 0 and len(ins_seq) != 0:
-                    variant = "Insertion"
-                elif len(del_seq) != 0 and len(ins_seq) == 0:
-                    variant = "Deletion"
-
-                return "{}\t{}:{}:{}".format(
-                    variant,
-                    diff[0] + k + offset,
-                    (string.lower(del_seq) + "/" + ins_seq),
-                    diff[1] + 1 + offset)
-
-        def get_counts(path, kmer):
-            counts = []
-            for i in path:
-                counts += [self.node_data[kmer[i]]]
-            return counts
-
         self.paths = []
         kmer = self.node_data.keys()  # unique k-mers
         kmer.extend([self.first_kmer, self.last_kmer])
@@ -190,14 +113,14 @@ class MutationFinder:
                     weight = 1
                     graph[i, j] = weight
 
-        # Attribute a weight of 0.001 for continuous k-mers in the same sequence
+        # Attribute a weight of 0.001 to continuous k-mers in the same sequence
         for l in range(len(target_index)):  # for each sequence
             for k in range(len(target_index[l])-1):  # k-mers in sequence - 1
                 i = target_index[l][k]
                 j = target_index[l][k+1]
                 graph[i, j] = 0.001
                 # NOTE: A weight difference fold of 1000x might start causing problems for
-                #       deletions > 31,000 bp long
+                #       deletions that are > 31,000 bp long
 
         log.debug("BigBang=%d, BigCrunch=%d" % (self.first_kmer_index, self.last_kmer_index))
         for s in self.start_kmers:
@@ -259,6 +182,87 @@ class MutationFinder:
             short_paths_target.append(s_paths)
         short_paths = short_paths_target
         
+        
+        def get_seq(path, kmer, skip_prefix=True):
+            path = list(path)
+            if not path:
+                # Deals with an empty sequence
+                return ""
+
+            if skip_prefix:
+                seq = kmer[path[0]][-1]
+            else:
+                seq = kmer[path[0]]
+
+            for i in path[1:]:
+                seq += kmer[i][-1]
+            return seq
+
+        
+        def get_name(a, b, offset=0):
+            k = self.jf.k
+            diff = graph.diff_path_without_overlap(a, b, k)
+            deletion = diff[3]
+            ins = diff[4]
+
+            if (len(a)-len(deletion)+len(ins)) != len(b):
+                sys.stderr.write(
+                    "ERROR: %s %d != %d" % (
+                        "mutation identification could be incorrect",
+                        len(a) - len(deletion) + len(ins),
+                        len(b)
+                    )
+                )
+
+                # Fixes cases where we look at two copies of the same sequence
+                deletion = diff[3]
+                raise Exception()
+
+            # Trim end sequence when in both del and ins:
+            del_seq = get_seq(deletion, kmer, True)
+            ins_seq = get_seq(ins, kmer, True)
+
+            trim = 1
+            while (len(del_seq[-trim:]) > 0 and
+                    del_seq[-trim:] == ins_seq[-trim:]):
+                trim += 1
+            trim -= 1
+            if trim != 0:
+                del_seq = del_seq[:-trim]
+                ins_seq = ins_seq[:-trim]
+
+            if diff[0] == diff[1] and not diff[4]:
+                return "Reference\t"
+            else:
+                variant = "Indel"
+                # SNP have equal length specific sequences
+                if diff[1] == diff[2]:
+                    variant = "Substitution"
+
+                # ITD have zero kmers in ref after full trimming.
+                # However, this does not distinguish cases where there is
+                # garbage between repeats.
+                elif diff[0] == diff[5]:
+                    variant = "ITD"
+                elif len(del_seq) == 0 and len(ins_seq) != 0:
+                    variant = "Insertion"
+                elif len(del_seq) != 0 and len(ins_seq) == 0:
+                    variant = "Deletion"
+
+                return "{}\t{}:{}:{}".format(
+                    variant,
+                    diff[0] + k + offset,
+                    (string.lower(del_seq) + "/" + ins_seq),
+                    diff[1] + 1 + offset)
+
+
+        def get_counts(path, kmer):
+            counts = []
+            for i in path:
+                counts += [self.node_data[kmer[i]]]
+            return counts
+
+
         # Quantify all paths independently
         individual = True
         if individual:

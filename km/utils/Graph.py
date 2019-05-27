@@ -83,13 +83,13 @@ class Graph:
         
 
     def init_paths(self, first_node, last_node):
-        # Updates self.before, self.after and self.edge_set to run all_shortest
+        # Updates self.before, self.after and self.edge_set before running all_shortest
         self.first_node = first_node
         self.last_node = last_node
         log.debug("Initialize path (before)")
         self.before_shortest = self._get_paths(self.first_node, self.w)  # contains idx of previous kmer
         log.debug("Initialize path (after)")
-        self.after_shortest = self._get_paths(self.last_node, self.w.transpose())  # contains next kmer
+        self.after_shortest = self._get_paths(self.last_node, self.w.transpose())  # idx of next kmer
         
         self.before = np.empty(self.n, dtype=np.int32)
         self.after = np.empty(self.n, dtype=np.int32)
@@ -132,7 +132,7 @@ class Graph:
             self.after_ref[i] = tuple(aft)
 
         # Load up and remove edges from the ref path
-        # THIS IS PYTHON: Consider implementing a tree instead of a recursive function
+        # Consider implementing a tree instead of a recursive function
         def remove_edges(first_local_node):
             cur = first_local_node
             last_cur = cur
