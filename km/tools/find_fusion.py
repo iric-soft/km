@@ -44,8 +44,6 @@ def main_find_fus(args, argparser):
             args.graphical, args.steps, args.branchs, attr=ref_attr
         )
         
-        finder.altsplice = args.altsplice
-        
         finder.graph_analysis(args.graphical)
         
         for path in finder.get_paths():

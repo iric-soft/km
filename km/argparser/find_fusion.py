@@ -35,10 +35,6 @@ def get_argparser_find_fus(parser):
         help="Display coverage graph.",
         action="store_true")
     parser.add_argument(
-        "-a", "--altsplice",
-        help="Include alternative splicing events on the 5' side of the fusion.",
-        action="store_true")
-    parser.add_argument(
         "-v", "--verbose",
         help="Get more information.",
         action="store_true")
