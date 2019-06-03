@@ -221,13 +221,13 @@ class MutationFinder:
         graph = ug.Graph(num_k)
         
         log.debug("k-mer graph contains %d nodes.", num_k)
-                
+         
         log.debug("BigBang=%d, BigCrunch=%d" % (self.first_kmer_index, self.last_kmer_index))
         for s in self.start_kmers:
             log.debug("Start kmer %d %s" % (kmer.index(s), s))
         for e in self.end_kmers:
             log.debug("End   kmer %d %s" % (kmer.index(e), e))
-         
+        
         # The reference path, with node numbers
         ref_index = []
         # Look up indexes of chopped up k-mers from individual sequences in the nodes graph
