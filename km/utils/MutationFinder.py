@@ -13,7 +13,7 @@ from .. utils import common as uc
 
 class MutationFinder:
     def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500,
-                 max_break=10, attr={}):
+                 max_break=10, max_node=5000, attr={}):
         
         # Load the reference sequence and prepare ref k-mers
         
@@ -57,6 +57,7 @@ class MutationFinder:
         
         self.max_stack = max_stack
         self.max_break = max_break
+        self.max_node = max_node
         
         # register all k-mers from the ref
         for s in self.ref_set:
@@ -92,6 +93,8 @@ class MutationFinder:
         for child in childs:
             if child in self.done:
                 self.done.update(stack)
+                if len(self.done) > self.max_node:
+                    sys.exit("ERROR: Node query count limit exceeded: max={}".format(self.max_node))
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
             else:
@@ -394,6 +397,8 @@ class MutationFinder:
         elif self.mode == "mutation":
             ref_index = [[x for x in ref_index[0] if x != self.first_kmer_index
                                                   and x != self.last_kmer_index]]*len(short_paths)
+        
+        log.debug("Number of paths found: {}".format(len(short_paths)))
        
         # Quantify all paths independently
         individual = True

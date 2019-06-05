@@ -41,7 +41,7 @@ def main_find_fus(args, argparser):
     
         finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
-            args.graphical, args.steps, args.branchs, attr=ref_attr
+            args.graphical, args.steps, args.branchs, args.nodes, attr=ref_attr
         )
         
         finder.graph_analysis(args.graphical)

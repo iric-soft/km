@@ -37,20 +37,20 @@ def get_argparser_find_report(parser):
     optional.add_argument(
         "-e", "--exclu",
         dest="exclu",
-        help="Filename of a jf database, containing k-mers which can create false positive variants (as, a jf build on the transcriptome)",
+        help="Filename of a jf database, containing k-mers which can " +\
+             "create false positive variants (as, a jf build on the transcriptome)",
         default="",
         type=str)
 
     optional.add_argument(
-        "-a", "--annot",
-        dest="annot",
-        help="Output variants in VCF-like file format",
-        default=False,
-        action="store_true")
+        "-f", "--format",
+        help="Option 'vcf': Output variants in VCF-like file format -- Option 'table':" +\
+             "Group variants by position and return per-sample ratio",
+        choices=['vcf', 'table'])
     
     optional.add_argument(
-        "-b", "--table",
-        dest="table",
-        help="Groups variants by position and returns ratio per sample.",
+        "-j", "--junction",
+        dest="junction",
+        help="Includes variants overlapping 2 exons (use with -f vcf)",
         default=False,
         action="store_true")

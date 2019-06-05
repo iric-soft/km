@@ -20,17 +20,21 @@ def print_vcf_header():
     header += '##INFO=<ID=TYPE,Number=A,Type=String,Description='
     header += '"The type of variant, either Insertion, ITD, I&I, Deletion, Substitution or Indel.">\n'
     header += '##INFO=<ID=TARGET,Number=A,Type=String,Description='
-    header += '"Name of the target sequencing containing mutation.">\n'
+    header += '"Name of the sequencing that contains the mutation.">\n'
     header += '##INFO=<ID=RATIO,Number=A,Type=String,Description="Ratio of mutation to reference.">\n'
-    header += '##INFO=<ID=MINCOV,Number=A,Type=String,Description="Minimum k-mer coverage on mutated sequence.">\n'
+    header += '##INFO=<ID=MINCOV,Number=A,Type=String,Description='
+    header += '"Minimum k-mer coverage of alternative allele.">\n'
+    header += '##INFO=<ID=REMOVED,Number=A,Type=String,Description="Number of removed bases.">\n'
+    header += '##INFO=<ID=ADDED,Number=A,Type=String,Description="Number of added bases.">\n'
     header += '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
 
     sys.stdout.write(header)
 
 
-def print_vcf_line(chro, location, ref_var, alt_var, type_var, target, ratio, min_cov):
-    line = "\t".join([chro, location, ".", ref_var, alt_var, ".", ".",
-                      "TYPE="+type_var+";TARGET="+target+";RATIO="+ratio+";MINCOV="+min_cov])
+def print_vcf_line(chro, loc, ref_var, alt_var, type_var, target, ratio, min_cov, rem, ad):
+    line = "\t".join([chro, str(loc), ".", ref_var, alt_var, ".", ".",
+                      "TYPE="+type_var+";TARGET="+target+";RATIO="+ratio+";MINCOV="+min_cov+\
+                      ";REMOVED="+str(rem)+";ADDED="+str(ad)])
     sys.stdout.write(line + "\n")
 
 
@@ -139,10 +143,10 @@ def create_report(args):
     if args.target:
         (chro, strand, attributes) = init_ref_seq(args.target)
     
-    if args.annot:
+    if args.format == 'vcf':
         print_vcf_header()
         vcf = True
-    elif args.table:
+    elif args.format == 'table':
         table = True
     else:
         print_line("Sample", "Region", "Location", "Type", "Removed",
@@ -226,9 +230,9 @@ def create_report(args):
                                                     for ee in e.split("e")[1].split("-")]
                 exon = "/" + "::".join(exons)
                 if strand == "-":
-                    nts = [n for e in exons for n in attributes[e]["nts"][::-1]]
+                    nts = [n for e in exons for n in attributes[e]["nts"][::-1]][int(start_off):]
                 else:
-                    nts = [n for e in exons for n in attributes[e]["nts"]]
+                    nts = [n for e in exons for n in attributes[e]["nts"]][int(start_off):]
                 
             elif mode == "mutation":
                 variant_name = variant[0]
@@ -238,6 +242,7 @@ def create_report(args):
                     nts = [-12]*len(nts)
                 if strand == "-":
                     nts = nts[::-1]
+            assert len(nts) >= len(ref_seq)
             
             # case: entries with no mutations
             if variant_name == 'Reference' or variant_name == 'Fusion':
@@ -311,9 +316,11 @@ def create_report(args):
                     start_pos = nts[pos - 1] + 1
                     end_pos = nts[end - 1] + 1
                 
-                ref_var =  ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
-                alt_var =  ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
-                loc_var = start_pos - 1
+                #ref_var =  ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
+                #alt_var =  ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
+                ref_var =  delet.upper()
+                alt_var =  insert.upper()
+                loc_var = start_pos
                 
                 region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                 
@@ -321,7 +328,8 @@ def create_report(args):
                     insert_type = "Insertion"
                     
                     var = insert.upper()
-                    before, bef_ind = get_full_mut(var, pos + 1, ref_seq)  # include current position in before
+                    # include current position in before
+                    before, bef_ind = get_full_mut(var, pos + 1, ref_seq)
                     after, aft_ind = get_full_mut(var[::-1], len(ref_seq) - pos - 1, ref_seq[::-1])
                     after = after[::-1]
                     aft_ind = len(ref_seq) - aft_ind - 1
@@ -373,7 +381,9 @@ def create_report(args):
                 elif variant_name == 'Deletion':
                     var = delet.upper()
                     before, bef_ind = get_full_mut(var, pos, ref_seq)
-                    after, aft_ind = get_full_mut(var[::-1], len(ref_seq) - pos - 1 - len(var) + 1, ref_seq[::-1])
+                    after, aft_ind = get_full_mut(var[::-1],
+                                                  len(ref_seq) - pos - 1 - len(var) + 1,
+                                                  ref_seq[::-1])
                     after = after[::-1]
                     aft_ind = len(ref_seq) - aft_ind - 1
                     ref_var = before + var + after
@@ -385,6 +395,9 @@ def create_report(args):
                     insert_type = variant_name + exon
                     
                 elif variant_name == 'Indel':
+                    ref_var =  ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
+                    alt_var =  ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
+                    loc_var = start_pos - 1
                     region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                     location = chro + ":" + str(start_pos)
                     insert_type = variant_name + exon
@@ -408,10 +421,14 @@ def create_report(args):
                        alt_seq, refSeq)
             
         elif vcf and header:
-            if strand == '-':
-                ref_var = ref_var.translate(maketrans('ATGCU', 'TACGA'))[::-1]
-                alt_var = alt_var.translate(maketrans('ATGCU', 'TACGA'))[::-1]
-            print_vcf_line(chro, str(loc_var), ref_var, alt_var, insert_type, query, ratio, min_cov)
+            complement = maketrans('ATGCU', 'TACGA')
+            ref_var = ref_var.translate(complement)[::-1] if strand == '-' else ref_var
+            alt_var = alt_var.translate(complement)[::-1] if strand == '-' else alt_var
+            if '/' in insert_type:
+                insert_type, query = insert_type.split('/')
+            if '::' not in query or args.junction:
+                print_vcf_line(chro, loc_var, ref_var, alt_var, insert_type,
+                               query, ratio, min_cov, removed, added)
             
         elif table:
             var_name = variant[0] + "/" + query if "/" not in variant[0] else variant[0]
