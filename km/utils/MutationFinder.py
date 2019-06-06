@@ -13,7 +13,7 @@ from .. utils import common as uc
 
 class MutationFinder:
     def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500,
-                 max_break=10, max_node=5000, attr={}):
+                 max_break=10, max_node=10000, attr={}):
         
         # Load the reference sequence and prepare ref k-mers
         
@@ -47,7 +47,7 @@ class MutationFinder:
                              for seq, name in zip(ref_seq, self.exons_name)]
             self.ref_set = set([kmer for seq in self.ref_mers for kmer in seq])
         
-        log.debug("Ref. set contains %d kmers.", len(self.ref_set))
+        log.info("Ref. set contains %d kmers.", len(self.ref_set))
         
         self.ref_seq = ref_seq
         self.ref_name = ref_name
@@ -223,13 +223,13 @@ class MutationFinder:
         num_k = len(kmer)
         graph = ug.Graph(num_k)
         
-        log.debug("k-mer graph contains %d nodes.", num_k)
+        log.info("k-mer graph contains %d nodes.", num_k)
          
-        log.debug("BigBang=%d, BigCrunch=%d" % (self.first_kmer_index, self.last_kmer_index))
+        log.info("BigBang=%d, BigCrunch=%d" % (self.first_kmer_index, self.last_kmer_index))
         for s in self.start_kmers:
-            log.debug("Start kmer %d %s" % (kmer.index(s), s))
+            log.info("Start kmer %d %s" % (kmer.index(s), s))
         for e in self.end_kmers:
-            log.debug("End   kmer %d %s" % (kmer.index(e), e))
+            log.info("End   kmer %d %s" % (kmer.index(e), e))
         
         # The reference path, with node numbers
         ref_index = []
@@ -356,7 +356,7 @@ class MutationFinder:
                 
                 for (p2, ref2) in zip(new_paths_filtered, ref_index_full_filtered):
                     if p == p2 and ref == ref2:
-                        log.debug("Omitting duplicate path {}".format(name))
+                        log.info("Omitting duplicate path {}".format(name))
                         skip = True
                         break
                 if skip:
@@ -374,9 +374,9 @@ class MutationFinder:
                         diff2 = len(p2) + len(ref2) - len(set(p2).intersection(set(ref2)))*2
                         if diff1 > diff2:  # Parcimony
                             if seq == seq2:
-                                log.debug("Omitting incorrect ref. {}".format(name))
+                                log.info("Omitting incorrect ref. {}".format(name))
                             else:
-                                log.debug("Omitting a nested path: {}".format(name))
+                                log.info("Omitting a nested path: {}".format(name))
                             skip = True
                             break
                 if skip:
@@ -398,7 +398,7 @@ class MutationFinder:
             ref_index = [[x for x in ref_index[0] if x != self.first_kmer_index
                                                   and x != self.last_kmer_index]]*len(short_paths)
         
-        log.debug("Number of paths found: {}".format(len(short_paths)))
+        log.info("Number of paths found: {}".format(len(short_paths)))
        
         # Quantify all paths independently
         individual = True

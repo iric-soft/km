@@ -61,13 +61,14 @@ def init_ref_seq(arg_ref):
             
             loc = line.split(" ")[0]
             if "chr" not in loc or ":" not in loc or "-" not in loc:
-                sys.exit('ERROR: Fasta entries do not contain a correctly formatted location: {}\n'.format(loc))
+                sys.exit('ERROR: Fasta entries do not contain a correctly ' +\
+                         'formatted location: {}\n'.format(loc))
             line = line.replace(">", "location=", 1)
             # look up attributes in Fasta file
             attr = {x.split("=")[0].strip():x.split("=")[1].strip() for x in line.split("|")}
             attk = '|'.join(attr.keys())
             if attkeys is None:
-                sys.stderr.write("Found attributes: " + attk + '\n')
+                #sys.stderr.write("Found attributes: " + attk + '\n')
                 attkeys = attk
             elif attkeys != attk:
                 sys.exit("ERROR: Attributes do not match in multi-fasta file (-t)\n")
@@ -95,7 +96,8 @@ def init_ref_seq(arg_ref):
                     if matches[ind]:
                         nts += [i]
             else:
-                sys.stderr.write("WARNING: Strand and/or CIGAR info not found. Location might not be accurate.\n")
+                sys.stderr.write("WARNING: Strand and/or CIGAR info not found. " +\
+                                 "Location might not be accurate.\n")
                 strand = None
                 for i in xrange(int(refstart), int(refstop) + 1):
                     nts += [i]
@@ -165,7 +167,8 @@ def create_report(args):
         
         # sanity check
         if header and not args.target:
-            sys.exit("ERROR: Target file not specified for km mode '{}'. Please use -t option.".format(mode))
+            sys.exit("ERROR: Target file not specified for km mode '{}'. " +\
+                     "Please use -t option.".format(mode))
         
         # filter on info column
         if not re.search(args.info, line):
@@ -261,6 +264,10 @@ def create_report(args):
                 
             # case: there is a mutation
             else:
+                def get_bong_bong(var, p, rs):  # p = pos, rs = ref_seq
+                    if p - 1 > 0 and rs[p - 1] == var[-1]:
+                        return get_bong_bong(rs[p - 1] + var[:-1], p - 1, rs)
+                    return p - 1
                 def get_full_mut(var, p, rs):  # p = pos, rs = ref_seq
                     bef_pos = p - 1
                     full_mutated = rs[bef_pos:p]
@@ -277,12 +284,12 @@ def create_report(args):
                                 for j in range(len(var[i:])):
                                     if var[i+j] != rs[p-1+j]:
                                         skip = True
-                                        break  # will always find the smallest pattern
+                                        break
                                 if not skip:
                                     pattern = rs[p - rewind - 1:p]
                         rewind += 1
                         if pattern:
-                            break
+                            break  # will always find the smallest pattern
                     
                     if pattern:
                         pattern_length = rewind
@@ -321,6 +328,7 @@ def create_report(args):
                 ref_var =  delet.upper()
                 alt_var =  insert.upper()
                 loc_var = start_pos
+                end_var = end_pos
                 
                 region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                 
@@ -329,13 +337,19 @@ def create_report(args):
                     
                     var = insert.upper()
                     # include current position in before
-                    before, bef_ind = get_full_mut(var, pos + 1, ref_seq)
-                    after, aft_ind = get_full_mut(var[::-1], len(ref_seq) - pos - 1, ref_seq[::-1])
-                    after = after[::-1]
-                    aft_ind = len(ref_seq) - aft_ind - 1
+                    ibef = get_bong_bong(var, pos + 1, ref_seq)
+                    before = ref_seq[ibef:pos+1]
+                    #before, ibef = get_full_mut(var, pos + 1, ref_seq)
+                    iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1, ref_seq[::-1])
+                    after = ref_seq[::-1][iaft:len(ref_seq)-pos-1][::-1]
+                    iaft = len(ref_seq) - iaft - 1
+                    #after, iaft = get_full_mut(var[::-1], len(ref_seq) - pos - 1, ref_seq[::-1])
+                    #after = after[::-1]
+                    #iaft = len(ref_seq) - iaft - 1
                     ref_var = before + after
                     alt_var = before + var + after
-                    loc_var = nts[aft_ind] if strand == "-" else nts[bef_ind]
+                    loc_var = nts[iaft] if strand == "-" else nts[ibef]
+                    end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
                     
                     end += 1
                     
@@ -371,6 +385,9 @@ def create_report(args):
                         added += " | " + str(end_pos - start_pos + 1)
                     insert_type += exon
                     
+                    if loc_var + len(ref_var) - 1 < end_var:
+                        insert_type = 'PossibleIntron' + exon
+                    
                     location = chro + ":" + str(end_pos)
                     
                 elif variant_name == 'Substitution':
@@ -378,29 +395,47 @@ def create_report(args):
                     location = chro + ":" + str(start_pos)
                     insert_type = variant_name + exon
                     
-                elif variant_name == 'Deletion':
-                    var = delet.upper()
-                    before, bef_ind = get_full_mut(var, pos, ref_seq)
-                    after, aft_ind = get_full_mut(var[::-1],
-                                                  len(ref_seq) - pos - 1 - len(var) + 1,
-                                                  ref_seq[::-1])
-                    after = after[::-1]
-                    aft_ind = len(ref_seq) - aft_ind - 1
-                    ref_var = before + var + after
-                    alt_var = before + after
-                    loc_var = nts[aft_ind] if strand == "-" else nts[bef_ind]
+                    # NOTE: Substitutions that end at junctions are considered mutations not altsplice
+                    if loc_var + len(ref_var) - 1 < end_var:
+                        insert_type = 'PossibleAltsplice' + exon
                     
+                elif variant_name == 'Deletion':
                     region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                     location = chro + ":" + str(start_pos)
                     insert_type = variant_name + exon
                     
+                    var = delet.upper()
+                    ibef = get_bong_bong(var, pos, ref_seq)
+                    before = ref_seq[ibef:pos]
+                    #before, ibef = get_full_mut(var, pos, ref_seq)
+                    iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1-len(var)+1, ref_seq[::-1])
+                    after = ref_seq[::-1][iaft:len(ref_seq)-pos-1-len(var)+1][::-1]
+                    iaft = len(ref_seq) - iaft - 1
+                    #after, iaft = get_full_mut(var[::-1],
+                    #                              len(ref_seq) - pos - 1 - len(var) + 1,
+                    #                              ref_seq[::-1])
+                    #after = after[::-1]
+                    #iaft = len(ref_seq) - iaft - 1
+                    ref_var = before + var + after
+                    alt_var = before + after
+                    loc_var = nts[iaft] if strand == "-" else nts[ibef]
+                    end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
+                    
+                    if loc_var + len(ref_var) - 1 < end_var:
+                        insert_type = 'Altsplice' + exon
+                    
                 elif variant_name == 'Indel':
+                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
+                    location = chro + ":" + str(start_pos)
+                    insert_type = variant_name + exon
+                    
                     ref_var =  ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
                     alt_var =  ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
                     loc_var = start_pos - 1
-                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
-                    location = chro + ":" + str(start_pos)
-                    insert_type = variant_name + exon
+                    end_var = end_pos + 1
+                    
+                    if loc_var + len(ref_var) - 1 < end_var:
+                        insert_type = 'PossibleAltspliceIntron' + exon
                     
                 else:
                     sys.stderr.write("WARNING: This variant isn't taken account\n")
@@ -421,6 +456,8 @@ def create_report(args):
                        alt_seq, refSeq)
             
         elif vcf and header:
+            #print loc_var, end_var
+            assert loc_var + len(ref_var) - 1 <= end_var
             complement = maketrans('ATGCU', 'TACGA')
             ref_var = ref_var.translate(complement)[::-1] if strand == '-' else ref_var
             alt_var = alt_var.translate(complement)[::-1] if strand == '-' else alt_var

@@ -98,7 +98,7 @@ class Graph:
                         log.debug("Removed: (%d, %d)", last_cur, cur)
                 last_cur = cur
             self.ref_path.append(path)
-        log.debug("Removed %d ref edges.", removed)
+        log.info("Removed %d ref edges.", removed)
 
     def get_shortest(self, a, b):
         # Returns the shortest path passing through edge (a, b)
@@ -120,9 +120,9 @@ class Graph:
 
     def all_shortest(self):
         all_paths = set()
-        log.debug("%d edges in non-ref edge set.", len(self.edge_set))
+        log.info("%d edges in non-ref edge set.", len(self.edge_set))
         for (i, j) in self.edge_set:
-            #log.debug("Computing shortest path through edge: (%d, %d)", i, j)
+            log.debug("Computing shortest path through edge: (%d, %d)", i, j)
             path = self.get_shortest(i, j)
             if path:
                 all_paths.add(tuple(path))

@@ -62,7 +62,7 @@ class PathQuant:
         self.ratio = None
 
         seq_i = 0
-        log.debug("%d sequence(s) are observed.", self.nb_seq)
+        log.info("%d sequence(s) are observed.", self.nb_seq)
 
         for s in all_path:
             for i in s:
@@ -92,7 +92,7 @@ class PathQuant:
                        )
             for i, s in zip(paths, sol):
                 self.coef[i] = s
-        log.debug("Linear fitting  = %s", self.coef.flatten())
+        log.info("Linear fitting  = %s", self.coef.flatten())
 
     def refine_coef(self):
         if min(self.coef) == 0: return
@@ -114,10 +114,10 @@ class PathQuant:
             self.coef[self.coef < 0] = 0
             last_max_grad = np.max(np.abs(grad))
             num_iter += 1
-            # log.debug("Iteration = %d, max_gradient = %f",
-            #           num_iter,
-            #           last_max_grad)
-        log.debug("Refined fitting = %s", self.coef.flatten())
+            log.debug("Iteration = %d, max_gradient = %f",
+                      num_iter,
+                      last_max_grad)
+        log.info("Refined fitting = %s", self.coef.flatten())
 
     def get_ratio(self):
         if max(self.coef) == 0:

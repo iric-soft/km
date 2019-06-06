@@ -1,5 +1,6 @@
 import os
 import sys
+import logging as log
 from Jellyfish import Jellyfish
 
 
@@ -37,7 +38,8 @@ def file_2_seq(seq_f, k_len, individual=False):
                         ref_list.append("".join(ref_seq))
                         ref_seq = []
                     else:
-                        print >> sys.stderr, "Discarding", ref_attr_list.pop(-1)['exon']
+                        discarded = ref_attr_list.pop(-1)['exon']
+                        log.info("Discarding " + discarded)
                         ref_seq = []
                 line = line.replace(">", "location=", 1)
                 attr = {x.split("=")[0].strip():x.split("=")[1].strip() for x in line.split("|")}
@@ -107,7 +109,6 @@ def get_cov(db, ref_seq):
 # Moved here to alleviate MutationFinder.py
 def locate_reference(path, exon_seq, exon_names, exon_seq_ind, debug=False):
     exit_now = False
-    import logging as log
     import numpy as np
     n_exons = len(exon_names)
     exon_num = range(n_exons)
@@ -164,7 +165,7 @@ def locate_reference(path, exon_seq, exon_names, exon_seq_ind, debug=False):
                             assert not (np.any(np.isfinite(exon3)) and \
                                         np.all(np.isnan(exon3[:end2+31])))
                         except AssertionError:
-                            sys.stderr.write("Found a 3rd exon, most probably nested, ignoring...\n")
+                            log.info("Found a 3rd exon, most probably nested, ignoring...")
     
     single_complete = [e for e in candidates if len(e[-2]) == 1 and e[-1]]
     double_all = [e for e in candidates if len(e[-2]) == 2]

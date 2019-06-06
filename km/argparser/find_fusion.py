@@ -35,7 +35,7 @@ def get_argparser_find_fus(parser):
         help="Maximum nodes queried from jellyfish database (default: -n 5000)",
         action="store",
         nargs='?',
-        default=5000,
+        default=10000,
         type=int)
     parser.add_argument(
         "-g", "--graphical",
@@ -44,6 +44,10 @@ def get_argparser_find_fus(parser):
     parser.add_argument(
         "-v", "--verbose",
         help="Get more information.",
+        action="store_true")
+    parser.add_argument(
+        "-vv", "--debug",
+        help="Get much more information.",
         action="store_true")
     parser.add_argument(
         "target_fn",

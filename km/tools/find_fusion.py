@@ -16,6 +16,9 @@ def main_find_fus(args, argparser):
     time_start = time.time()
     
     if args.verbose:
+        log.basicConfig(level=log.INFO, format="VERBOSE: %(message)s")
+ 
+    if args.debug:
         log.basicConfig(level=log.DEBUG, format="VERBOSE: %(message)s")
     
     for k, v in vars(args).iteritems():

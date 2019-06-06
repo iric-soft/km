@@ -39,6 +39,10 @@ def get_argparser_find_mut(parser):
         help="Get more information.",
         action="store_true")
     parser.add_argument(
+        "-vv", "--debug",
+        help="Get much more information.",
+        action="store_true")
+    parser.add_argument(
         "target_fn",
         help="Filename of the target sequence file or directory.",
         nargs='*')
