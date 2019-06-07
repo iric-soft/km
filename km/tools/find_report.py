@@ -78,8 +78,14 @@ def init_ref_seq(arg_ref):
             refstart, refstop = pos.split("-")
             
             # Get nt coordinates on the genome
-            if 'strand' in attr.keys() and 'cigar' in attr.keys():
-                strand = attr["strand"]
+            if 'strand' not in attr.keys():
+                attr['strand'] = '+'
+                sys.stderr.write("WARNING: Strand is assumed to be '+' \n")
+            strand = attr["strand"]
+            if 'cigar' not in attr.keys():
+                for i in xrange(int(refstart), int(refstop) + 1):
+                    nts += [i]
+            else:
                 cigar = attr["cigar"]
                 if strand == "-":
                     cigar = re.split("([^\d])", cigar)[:-1][::-1]
@@ -95,12 +101,12 @@ def init_ref_seq(arg_ref):
                 for ind, i in enumerate(xrange(int(refstart), int(refstop) + 1)):
                     if matches[ind]:
                         nts += [i]
-            else:
-                sys.stderr.write("WARNING: Strand and/or CIGAR info not found. " +\
-                                 "Location might not be accurate.\n")
-                strand = None
-                for i in xrange(int(refstart), int(refstop) + 1):
-                    nts += [i]
+            #else:
+            #    sys.stderr.write("WARNING: Strand and/or CIGAR info not found. " +\
+            #                     "Location might not be accurate.\n")
+            #    strand = None
+            #    for i in xrange(int(refstart), int(refstop) + 1):
+            #        nts += [i]
             
             attr["refstart"], attr["refstop"], attr["nts"] = refstart, refstop, nts
             all_nts.extend(nts)  #  for mutation mode
@@ -241,7 +247,7 @@ def create_report(args):
                 variant_name = variant[0]
                 exon = ""
                 nts = attributes["all_nts"]
-                if strand is None:
+                if strand == "+":
                     nts = [-12]*len(nts)
                 if strand == "-":
                     nts = nts[::-1]
