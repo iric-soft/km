@@ -334,7 +334,7 @@ class MutationFinder:
                             new_p = new_p[i:]
                             break  # for ITDs
                     for i, k in enumerate(sp[::-1]):
-                        if k == last_ex_k and not i:  # equivalent to the non-working new_p[:-0]
+                        if k == last_ex_k and not i:  # equivalent to what could be new_p[:-0]
                             break
                         if k == last_ex_k and i:
                             new_p = new_p[:-i]
@@ -354,11 +354,18 @@ class MutationFinder:
                 seq = get_seq(p, kmer, False)
                 skip = False
                 
-                for (p2, ref2) in zip(new_paths_filtered, ref_index_full_filtered):
+                diff_names_path = {}
+                for (p2, ref2, name2) in zip(new_paths_filtered,
+                                             ref_index_full_filtered,
+                                             fusion_names_filtered):
                     if p == p2 and ref == ref2:
+                        if name != name2:
+                            diff_names_path[name2] = name + "|" + name2
                         log.info("Omitting duplicate path {}".format(name))
                         skip = True
                         break
+                fusion_names_filtered = [x if x not in diff_names_path.keys() else diff_names_path[x]
+                                         for x in fusion_names_filtered]
                 if skip:
                     continue
                 

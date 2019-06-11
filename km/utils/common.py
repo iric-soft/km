@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 import logging as log
 from Jellyfish import Jellyfish
 
@@ -109,7 +110,6 @@ def get_cov(db, ref_seq):
 # Moved here to alleviate MutationFinder.py
 def locate_reference(path, exon_seq, exon_names, exon_seq_ind, debug=False):
     exit_now = False
-    import numpy as np
     n_exons = len(exon_names)
     exon_num = range(n_exons)
     
@@ -136,16 +136,23 @@ def locate_reference(path, exon_seq, exon_names, exon_seq_ind, debug=False):
             min_pos = np.nanmin(exon)
             max_pos = np.nanmax(exon)
             status = True if len(seq) == max_pos + 1 else False  # we got the whole sequence
-            status_full = status and np.all(np.diff(exon[~np.isnan(exon)]) == 1)  # is not mutated 
-            status_full = True if end + 1 == len(path) else status_full
+            status_full = status
+            #status_full = status and np.all(np.diff(exon[~np.isnan(exon)]) == 1)  # is not mutated 
+            #status_full = True if end + 1 == len(path) else status_full
+            #^ can be mutated if starts and ends with path
             
             candidates.append(((num,), (name,), (start,), (end,), (status,), status_full))
             
             for exon2, seq2, name2, num2 in zip(exon_table, exon_seq, exon_names, exon_num):
+                try_3rd_exon = False
                 if np.any(np.isfinite(exon2)) and np.all(np.isnan(exon2[:end+21])):
+                    try_3rd_exon = True
+                
+                #if np.any(np.isfinite(exon2)) and np.all(np.isnan(exon2[:end+21])):
                     # ^ if status is False, we don't know for how many steps the next exon was
                     #   wrongfully continued, so we set the maximum to 10 (31 - 21) (and that's generous)
                     # ^ same for True, because the next exon could be False
+                if np.any(np.isfinite(exon2)):
                     # Check #2 (again)
                     try:
                         assert np.all(np.diff(exon[~np.isnan(exon)]) > 0)
@@ -160,12 +167,13 @@ def locate_reference(path, exon_seq, exon_names, exon_seq_ind, debug=False):
                     candidates.append(((num, num2), (name, name2), (start, start2),
                                        (end, end2), (status, status2), status_full))
                     # Check #3
-                    for exon3 in exon_table:
-                        try:
-                            assert not (np.any(np.isfinite(exon3)) and \
-                                        np.all(np.isnan(exon3[:end2+31])))
-                        except AssertionError:
-                            log.info("Found a 3rd exon, most probably nested, ignoring...")
+                    if try_3rd_exon:
+                        for exon3 in exon_table:
+                            try:
+                                assert not (np.any(np.isfinite(exon3)) and \
+                                            np.all(np.isnan(exon3[:end2+31])))
+                            except AssertionError:
+                                log.info("Found a 3rd exon, most probably nested, ignoring...")
     
     single_complete = [e for e in candidates if len(e[-2]) == 1 and e[-1]]
     double_all = [e for e in candidates if len(e[-2]) == 2]

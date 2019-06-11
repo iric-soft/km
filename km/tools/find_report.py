@@ -11,7 +11,6 @@ def print_line(sample, region, location, type_var, removed,
     line = "\t".join([sample, region, location, type_var, removed,
                       added, abnormal, normal, ratio, min_cov, min_exclu,
                       variant, target, info, var_seq, ref_seq])
-
     sys.stdout.write(line + "\n")
 
 
@@ -27,7 +26,6 @@ def print_vcf_header():
     header += '##INFO=<ID=REMOVED,Number=A,Type=String,Description="Number of removed bases.">\n'
     header += '##INFO=<ID=ADDED,Number=A,Type=String,Description="Number of added bases.">\n'
     header += '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
-
     sys.stdout.write(header)
 
 
@@ -64,7 +62,7 @@ def init_ref_seq(arg_ref):
                 sys.exit('ERROR: Fasta entries do not contain a correctly ' +\
                          'formatted location: {}\n'.format(loc))
             line = line.replace(">", "location=", 1)
-            # look up attributes in Fasta file
+            # look up attributes in fasta file
             attr = {x.split("=")[0].strip():x.split("=")[1].strip() for x in line.split("|")}
             attk = '|'.join(attr.keys())
             if attkeys is None:
@@ -101,12 +99,6 @@ def init_ref_seq(arg_ref):
                 for ind, i in enumerate(xrange(int(refstart), int(refstop) + 1)):
                     if matches[ind]:
                         nts += [i]
-            #else:
-            #    sys.stderr.write("WARNING: Strand and/or CIGAR info not found. " +\
-            #                     "Location might not be accurate.\n")
-            #    strand = None
-            #    for i in xrange(int(refstart), int(refstop) + 1):
-            #        nts += [i]
             
             attr["refstart"], attr["refstop"], attr["nts"] = refstart, refstop, nts
             all_nts.extend(nts)  #  for mutation mode
@@ -119,15 +111,13 @@ def init_ref_seq(arg_ref):
         
         try:
             ref_attributes[attr["name"] + "e" + attr["n"]] = attr
-            #sys.exit("ERROR: Strand is not specified for exon n=%s\n" % attr["n"])
         except KeyError:
             ''  # We're in mutation mode
         
         strand_list.append(strand)
         chro_list.append(chro)
     
-    if not ref_attributes:
-        # We're in mutation mode
+    if not ref_attributes:  # we're in mutation mode
         ref_attributes["all_nts"] = all_nts
         ref_attributes["all_ref"] = all_ref_seq
     
@@ -140,6 +130,47 @@ def init_ref_seq(arg_ref):
 
 
 def create_report(args):
+    # Find correct extremities of a mutation
+    sys.setrecursionlimit(10000)
+    def get_bong_bong(var, p, rs):  # p = pos, rs = ref_seq
+        if p - 1 > 0 and rs[p - 1] == var[-1]:
+            return get_bong_bong(rs[p - 1] + var[:-1], p - 1, rs)
+        return p - 1
+    #def get_full_mut(var, p, rs):  # p = pos, rs = ref_seq
+    #    bef_pos = p - 1
+    #    full_mutated = rs[bef_pos:p]
+    #    rewind = 0
+    #    pattern = ''
+    #    bef_positions = [i for i, b in enumerate(var) if b == rs[p - 1]]
+    #    while bef_positions and p - rewind - 1 >= 0:
+    #        new_befpos = []
+    #        for i in bef_positions:
+    #            if i - rewind > 0 and rs[p - rewind - 1] == var[i - rewind]:
+    #                new_befpos.append(i)
+    #            elif i - rewind == 0 and rs[p - rewind - 1] == var[i - rewind]:
+    #                skip = False
+    #                for j in range(len(var[i:])):
+    #                    if var[i+j] != rs[p-1+j]:
+    #                        skip = True
+    #                        break
+    #                if not skip:
+    #                    pattern = rs[p - rewind - 1:p]
+    #        rewind += 1
+    #        if pattern:
+    #            break  # will always find the smallest pattern
+    #    if pattern:
+    #        pattern_length = rewind
+    #        bef_pos = p - rewind
+    #        while bef_pos - pattern_length >= 0:
+    #            if rs[bef_pos - pattern_length:bef_pos] == pattern:
+    #                bef_pos -= pattern_length
+    #            else:
+    #                break
+    #        if bef_pos - 1 >= 0:
+    #            bef_pos -= 1
+    #        full_mutated = rs[bef_pos:p]
+    #    return full_mutated, bef_pos
+                    
     variants = {}
     samples = {}
     data = {}
@@ -235,13 +266,21 @@ def create_report(args):
                 if "Fusion" in variant_name:
                     fusion = "Fusion-"
                     variant_name = variant_name.replace("Fusion-", "")
-                exons = [e.split("e")[0] + "e" + ee for e in exon.split("::")
-                                                    for ee in e.split("e")[1].split("-")]
-                exon = "/" + "::".join(exons)
+                all_exons = exon.split('|')
+                exon = "/"
+                for ex in all_exons:
+                    # any value exons takes should return the same nts
+                    exons = [e.split("e")[0] + "e" + ee for e in ex.split("::")
+                                                        for ee in e.split("e")[1].split("-")]
+                    exon += "::".join(exons) + "|"
+                exon = exon.rstrip("|")
                 if strand == "-":
-                    nts = [n for e in exons for n in attributes[e]["nts"][::-1]][int(start_off):]
+                    nts = [n for e in exons for n in attributes[e]["nts"][::-1]]
+                    nts = nts[int(start_off):int(start_off)+len(ref_seq)]
                 else:
-                    nts = [n for e in exons for n in attributes[e]["nts"]][int(start_off):]
+                    nts = [n for e in exons for n in attributes[e]["nts"]]
+                    nts = nts[int(start_off):int(start_off)+len(ref_seq)]
+                variant = (variant_name + exon, variant[1])
                 
             elif mode == "mutation":
                 variant_name = variant[0]
@@ -251,7 +290,98 @@ def create_report(args):
                     nts = [-12]*len(nts)
                 if strand == "-":
                     nts = nts[::-1]
-            assert len(nts) >= len(ref_seq)
+            assert len(nts) == len(ref_seq)
+            
+            seen = {}
+            duplicate_count = {}
+            cntd = True
+            broke = False
+            start_pos = 0
+            if len(nts) > len(set(nts)):
+                start, mod, stop = variant[1].split(":")
+                delet, insert = mod.split("/")
+                pos = int(start) - 1
+                pos -= int(start_off)
+                end = int(stop) - 1 - 1
+                end -= int(start_off)
+                
+                var = delet.upper()
+                ibef = get_bong_bong(delet, pos, ref_seq)
+                before = ref_seq[ibef:pos]
+                iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1-len(var)+1, ref_seq[::-1])
+                after = ref_seq[::-1][iaft:len(ref_seq)-pos-1-len(var)+1][::-1]
+                iaft = len(ref_seq) - iaft - 1
+                
+                start = ibef + 1
+                stop = iaft + 2
+                delet = before + delet + after
+                delet = delet.lower()
+                insert = before + insert + after
+                
+                new_nts = []
+                for nt, n in zip(nts, ref_seq):
+                    if nt not in seen:
+                        if broke:
+                            cntd = False
+                        seen[nt] = start_pos
+                        new_nts.append(nt)
+                    else:
+                        duplicate_count[start_pos] = [2]  # will point to same list with seen[nt]
+                        duplicate_count[seen[nt]] = duplicate_count[start_pos]
+                        broke = True
+                        if cntd == False:
+                            sys.stderr.write("nts sequence doesn't make sense")
+                            exit(1)
+                    start_pos += 1
+                
+                false_del = ""
+                for spos, n in zip(range(start - 1, stop - 1), delet.upper()):
+                    if spos in duplicate_count and duplicate_count[spos] == [2]:
+                        false_del += n
+                        duplicate_count[spos][0] -= 1
+                
+                nts = new_nts
+                old_delet = delet
+                delet = delet.replace(false_del.lower(), "", 1)
+                assert old_delet != delet
+                for i, j in zip(delet.upper(), insert.upper()):
+                    if i == j:
+                        delet = delet[1:]
+                        insert = insert[1:]
+                        start += 1
+                    else:
+                        break
+                for i, j in zip(delet[::-1].upper(), insert[::-1].upper()):
+                    if i == j:
+                        delet = delet[:-1]
+                        insert = insert[:-1]
+                        stop -= 1
+                    else:
+                        break
+                reduct_len = len(false_del)
+                reduct_offset = max(0, start - min(duplicate_count.keys()))
+                ref_seq = ref_seq.replace(false_del, "", 1)
+                if not delet and not insert:
+                    variant_name = "Reference"
+                    var = ""
+                elif delet and insert:
+                    variant_name = "Indel"
+                    cur_start = start - reduct_offset
+                    cur_end = stop - len(false_del) - reduct_offset
+                    if len(delet) == len(insert):
+                        variant_name = "Substitution"
+                    var = '%d:%s/%s:%d' % (cur_start, delet, insert, cur_end)
+                elif delet and not insert:
+                    variant_name = "Deletion"
+                    var = '%d:%s/%s:%d' % (start - reduct_offset, delet, insert,
+                                           stop - len(false_del) - reduct_offset)
+                elif not delet and insert:
+                    variant_name = "Insertion"
+                    var = '%d:%s/%s:%d' % (start - reduct_offset, delet, insert,
+                                           stop - len(false_del) - reduct_offset)
+                variant = (variant_name + exon, var)
+            
+            assert len(set(nts)) == len(nts)
             
             # case: entries with no mutations
             if variant_name == 'Reference' or variant_name == 'Fusion':
@@ -269,47 +399,7 @@ def create_report(args):
                     continue
                 
             # case: there is a mutation
-            else:
-                def get_bong_bong(var, p, rs):  # p = pos, rs = ref_seq
-                    if p - 1 > 0 and rs[p - 1] == var[-1]:
-                        return get_bong_bong(rs[p - 1] + var[:-1], p - 1, rs)
-                    return p - 1
-                def get_full_mut(var, p, rs):  # p = pos, rs = ref_seq
-                    bef_pos = p - 1
-                    full_mutated = rs[bef_pos:p]
-                    rewind = 0
-                    pattern = ''
-                    bef_positions = [i for i, b in enumerate(var) if b == rs[p - 1]]
-                    while bef_positions and p - rewind - 1 >= 0:
-                        new_befpos = []
-                        for i in bef_positions:
-                            if i - rewind > 0 and rs[p - rewind - 1] == var[i - rewind]:
-                                new_befpos.append(i)
-                            elif i - rewind == 0 and rs[p - rewind - 1] == var[i - rewind]:
-                                skip = False
-                                for j in range(len(var[i:])):
-                                    if var[i+j] != rs[p-1+j]:
-                                        skip = True
-                                        break
-                                if not skip:
-                                    pattern = rs[p - rewind - 1:p]
-                        rewind += 1
-                        if pattern:
-                            break  # will always find the smallest pattern
-                    
-                    if pattern:
-                        pattern_length = rewind
-                        bef_pos = p - rewind
-                        while bef_pos - pattern_length >= 0:
-                            if rs[bef_pos - pattern_length:bef_pos] == pattern:
-                                bef_pos -= pattern_length
-                            else:
-                                break
-                        if bef_pos - 1 >= 0:
-                            bef_pos -= 1
-                        full_mutated = rs[bef_pos:p]
-                    return full_mutated, bef_pos
-                    
+            else: 
                 start, mod, stop = variant[1].split(":")
                 delet, insert = mod.split("/")
                 
@@ -329,8 +419,6 @@ def create_report(args):
                     start_pos = nts[pos - 1] + 1
                     end_pos = nts[end - 1] + 1
                 
-                #ref_var =  ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
-                #alt_var =  ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
                 ref_var =  delet.upper()
                 alt_var =  insert.upper()
                 loc_var = start_pos
@@ -345,13 +433,9 @@ def create_report(args):
                     # include current position in before
                     ibef = get_bong_bong(var, pos + 1, ref_seq)
                     before = ref_seq[ibef:pos+1]
-                    #before, ibef = get_full_mut(var, pos + 1, ref_seq)
                     iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1, ref_seq[::-1])
                     after = ref_seq[::-1][iaft:len(ref_seq)-pos-1][::-1]
                     iaft = len(ref_seq) - iaft - 1
-                    #after, iaft = get_full_mut(var[::-1], len(ref_seq) - pos - 1, ref_seq[::-1])
-                    #after = after[::-1]
-                    #iaft = len(ref_seq) - iaft - 1
                     ref_var = before + after
                     alt_var = before + var + after
                     loc_var = nts[iaft] if strand == "-" else nts[ibef]
@@ -413,15 +497,9 @@ def create_report(args):
                     var = delet.upper()
                     ibef = get_bong_bong(var, pos, ref_seq)
                     before = ref_seq[ibef:pos]
-                    #before, ibef = get_full_mut(var, pos, ref_seq)
                     iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1-len(var)+1, ref_seq[::-1])
                     after = ref_seq[::-1][iaft:len(ref_seq)-pos-1-len(var)+1][::-1]
                     iaft = len(ref_seq) - iaft - 1
-                    #after, iaft = get_full_mut(var[::-1],
-                    #                              len(ref_seq) - pos - 1 - len(var) + 1,
-                    #                              ref_seq[::-1])
-                    #after = after[::-1]
-                    #iaft = len(ref_seq) - iaft - 1
                     ref_var = before + var + after
                     alt_var = before + after
                     loc_var = nts[iaft] if strand == "-" else nts[ibef]
@@ -462,13 +540,18 @@ def create_report(args):
                        alt_seq, refSeq)
             
         elif vcf and header:
-            #print loc_var, end_var
-            assert loc_var + len(ref_var) - 1 <= end_var
             complement = maketrans('ATGCU', 'TACGA')
             ref_var = ref_var.translate(complement)[::-1] if strand == '-' else ref_var
             alt_var = alt_var.translate(complement)[::-1] if strand == '-' else alt_var
             if '/' in insert_type:
                 insert_type, query = insert_type.split('/')
+            try:
+                assert loc_var + len(ref_var) - 1 <= end_var
+            except AssertionError:
+                sys.stderr.write(
+                        "WARNING: Throwing away an aberration on {} for {}\n".format(chro, query)
+                        )
+                continue
             if '::' not in query or args.junction:
                 print_vcf_line(chro, loc_var, ref_var, alt_var, insert_type,
                                query, ratio, min_cov, removed, added)
