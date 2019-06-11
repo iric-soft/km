@@ -136,47 +136,16 @@ def create_report(args):
         if p - 1 > 0 and rs[p - 1] == var[-1]:
             return get_bong_bong(rs[p - 1] + var[:-1], p - 1, rs)
         return p - 1
-    #def get_full_mut(var, p, rs):  # p = pos, rs = ref_seq
-    #    bef_pos = p - 1
-    #    full_mutated = rs[bef_pos:p]
-    #    rewind = 0
-    #    pattern = ''
-    #    bef_positions = [i for i, b in enumerate(var) if b == rs[p - 1]]
-    #    while bef_positions and p - rewind - 1 >= 0:
-    #        new_befpos = []
-    #        for i in bef_positions:
-    #            if i - rewind > 0 and rs[p - rewind - 1] == var[i - rewind]:
-    #                new_befpos.append(i)
-    #            elif i - rewind == 0 and rs[p - rewind - 1] == var[i - rewind]:
-    #                skip = False
-    #                for j in range(len(var[i:])):
-    #                    if var[i+j] != rs[p-1+j]:
-    #                        skip = True
-    #                        break
-    #                if not skip:
-    #                    pattern = rs[p - rewind - 1:p]
-    #        rewind += 1
-    #        if pattern:
-    #            break  # will always find the smallest pattern
-    #    if pattern:
-    #        pattern_length = rewind
-    #        bef_pos = p - rewind
-    #        while bef_pos - pattern_length >= 0:
-    #            if rs[bef_pos - pattern_length:bef_pos] == pattern:
-    #                bef_pos -= pattern_length
-    #            else:
-    #                break
-    #        if bef_pos - 1 >= 0:
-    #            bef_pos -= 1
-    #        full_mutated = rs[bef_pos:p]
-    #    return full_mutated, bef_pos
-                    
+    
+    if args.format == "vcf" and args.info == "cluster":
+        sys.exit("ERROR: -f vcf and -i cluster options are incompatible")
+    
     variants = {}
     samples = {}
     data = {}
     mode = "mutation"
     header = False
-    vcf=False
+    vcf = False
     table = False
     
     if args.target:
