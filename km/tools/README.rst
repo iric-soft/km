@@ -224,10 +224,11 @@ linear_kmin:
 Length of k-mers is a central parameter:
 
 * To produce a linear directed graph from the target sequence.
-* To avoid false-positive. `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
+* To avoid false-positive. 
 
-linear_kmin tool is design to give you the minimun k length to allow a
-decomposition of a target sequence in a linear graph.
+**Warning**: `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
+
+linear_kmin tool is design to report the minimun k length to allow a linear decomposition of a target sequence.
 
 Usage:
 ------
@@ -253,9 +254,9 @@ Output:
   KMT2A-PTD_8-2 7
   NPM1_4ins_exons_10-11utr 7
 
-For this catalog of target sequences, the output shows that
+For this catalog of target sequences, this output shows that
 `find_mutation`_ need to be run on jellyfish count tables build
-with k >= 10 bp.
+with at least k >= 10 bp.
 Which is under the threshold to avoid the detection of false-positive
 mutations. This is not always the case, especially on large target sequence
 (like a transcript), where linear_kmin could be more longer than sequenced
