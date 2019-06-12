@@ -25,7 +25,7 @@ def main_find_fus(args, argparser):
         if k != "func":
             sys.stdout.write("#" + str(k) + ':' + str(v) + "\n")
     
-    jf = Jellyfish(args.jellyfish_fn, cutoff=args.ratio, n_cutoff=args.count, canonical=args.canonical)
+    jf = Jellyfish(args.jellyfish_fn, cutoff=args.ratio, n_cutoff=args.count)
     
     seq_files = uc.target_2_seqfiles(args.target_fn)
     
