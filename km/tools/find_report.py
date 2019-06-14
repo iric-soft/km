@@ -120,9 +120,9 @@ def init_ref_seq(arg_ref):
         strand_list.append(strand)
         chro_list.append(chro)
     
-    if not ref_attributes:  # we're in mutation mode
-        ref_attributes["all_nts"] = all_nts
-        ref_attributes["all_ref"] = all_ref_seq
+    #if not ref_attributes:  # we're in mutation mode
+    ref_attributes["all_nts"] = all_nts
+    ref_attributes["all_ref"] = all_ref_seq
     
     assert len(set(chro_list)) == 1
     chro = chro_list[0]
@@ -141,6 +141,7 @@ def create_report(args):
         return p - 1
     
     if args.format == "vcf" and args.info == "cluster":
+        # Note: could salvage that option if we get the fill ref from vs_ref entries
         sys.exit("ERROR: -f vcf and -i cluster options are incompatible")
     
     variants = {}
@@ -400,7 +401,8 @@ def create_report(args):
                     region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                     
                     var = insert.upper()
-                    ibef = get_bong_bong(var, pos + 1, ref_seq)  # include current position
+                    # pos + 1 is needed because MutationFinder changed to return insertions: x-1/x
+                    ibef = get_bong_bong(var, pos + 1, ref_seq)
                     before = ref_seq[ibef:pos+1]
                     iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1, ref_seq[::-1])
                     after = ref_seq[::-1][iaft:len(ref_seq)-pos-1][::-1]
