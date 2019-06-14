@@ -38,7 +38,7 @@ def print_vcf_line(chro, loc, ref_var, alt_var, type_var, target, ratio, min_cov
 
 def init_ref_seq(arg_ref):
     if not arg_ref:
-        sys.exit("Target file is empty\n")
+        sys.exit("ERROR: Target file is empty\n")
 
     # BE 1-based
     ref_attributes = {}
@@ -57,10 +57,12 @@ def init_ref_seq(arg_ref):
             nts = []
             ref_seq = []
             
+            # sanity check
             loc = line.split(" ")[0]
             if "chr" not in loc or ":" not in loc or "-" not in loc:
                 sys.exit('ERROR: Fasta entries do not contain a correctly ' +\
                          'formatted location: {}\n'.format(loc))
+            
             line = line.replace(">", "location=", 1)
             # look up attributes in fasta file
             attr = {x.split("=")[0].strip():x.split("=")[1].strip() for x in line.split("|")}
@@ -99,6 +101,7 @@ def init_ref_seq(arg_ref):
                 for ind, i in enumerate(xrange(int(refstart), int(refstop) + 1)):
                     if matches[ind]:
                         nts += [i]
+            nts = nts[::-1] if strand == "-" else nts
             
             attr["refstart"], attr["refstop"], attr["nts"] = refstart, refstop, nts
             all_nts.extend(nts)  #  for mutation mode
@@ -145,18 +148,15 @@ def create_report(args):
     data = {}
     mode = "mutation"
     header = False
-    vcf = False
-    table = False
+    vcf = True if args.format == 'vcf' else False
+    table = True if args.format == 'table' else False
     
     if args.target:
         (chro, strand, attributes) = init_ref_seq(args.target)
     
-    if args.format == 'vcf':
+    if vcf:
         print_vcf_header()
-        vcf = True
-    elif args.format == 'table':
-        table = True
-    else:
+    elif not table:
         print_line("Sample", "Region", "Location", "Type", "Removed",
                    "Added", "Abnormal", "Normal", "Ratio", "Min_coverage",
                    "Exclu_min_cov", "Variant", "Target", "Info", "Variant_sequence",
@@ -176,12 +176,12 @@ def create_report(args):
             sys.exit("ERROR: Target file not specified for km mode '{}'. " +\
                      "Please use -t option.".format(mode))
         
+        tok = line.strip("\n").split("\t")
+        
         # filter on info column
-        if not re.search(args.info, line):
+        if not re.search(args.info, line) or tok[0] == "Database" or len(tok) <= 1:
             # sys.stderr.write("Filtered: " + line)
             continue
-        
-        tok = line.strip("\n").split("\t")
         
         if not header:
             # keep everything as is
@@ -204,12 +204,7 @@ def create_report(args):
             
             variant = (insert_type, )
         
-        elif len(tok) > 1 and tok[0] != "Database" and header:
-            #pathvals = {
-            #    'project': '',
-            #    'sample': tok[0]
-            #}
-            #samp = (pathvals['project'], pathvals['sample'])
+        else:
             samp = tok[0]
             query = tok[1]
             ratio = tok[4]
@@ -224,6 +219,10 @@ def create_report(args):
             min_exclu = "" 
             variant = (tok[2], tok[3])
             ref_seq = refSeq.upper()
+            
+            if args.exclu != "" and alt_seq != "":
+                res = uc.get_cov(args.exclu, alt_seq)
+                min_exclu = str(res[2])
             
             if int(min_cov) < args.min_cov:
                 continue
@@ -244,21 +243,16 @@ def create_report(args):
                     exon += "::".join(exons) + "|"
                 exon = exon.rstrip("|")
                 if strand == "-":
-                    nts = [n for e in exons for n in attributes[e]["nts"][::-1]]
-                    nts = nts[int(start_off):int(start_off)+len(ref_seq)]
+                    nts = [n for e in exons for n in attributes[e]["nts"]]
                 else:
                     nts = [n for e in exons for n in attributes[e]["nts"]]
-                    nts = nts[int(start_off):int(start_off)+len(ref_seq)]
+                nts = nts[int(start_off):int(start_off)+len(ref_seq)]
                 variant = (variant_name + exon, variant[1])
                 
             elif mode == "mutation":
                 variant_name = variant[0]
                 exon = ""
                 nts = attributes["all_nts"]
-                if strand == "+":
-                    nts = [-12]*len(nts)
-                if strand == "-":
-                    nts = nts[::-1]
             assert len(nts) == len(ref_seq)
             
             seen = {}
@@ -366,7 +360,7 @@ def create_report(args):
                     continue
                 elif vcf:
                     continue
-                
+            
             # case: there is a mutation
             else: 
                 start, mod, stop = variant[1].split(":")
@@ -378,29 +372,35 @@ def create_report(args):
                 # start and end positions in 0-based coordinates
                 pos = int(start) - 1
                 pos -= int(start_off)
-                end = int(stop) - 1 - 1
+                end = int(stop) - 2  # one to go back to last position, the other for 0-base
                 end -= int(start_off)
                 
-                if strand == "-":
-                    end_pos = nts[pos - 1] - 1
-                    start_pos = nts[end - 1] - 1
-                else:
-                    start_pos = nts[pos - 1] + 1
-                    end_pos = nts[end - 1] + 1
+                if strand == "+":
+                    start_pos = nts[pos]
+                    end_pos = nts[end]
+                elif strand == "-":
+                    start_pos = nts[end]
+                    end_pos = nts[pos]
+                
+                region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                 
                 ref_var =  delet.upper()
                 alt_var =  insert.upper()
                 loc_var = start_pos
                 end_var = end_pos
                 
-                region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
-                
                 if len(delet) == 0 and len(insert) != 0:
-                    insert_type = "Insertion"
+                    # Insertions return an end 1 nt to the left compared to others
+                    if strand == "+":
+                        start_pos = nts[pos]
+                        end_pos = nts[end + 1]
+                    elif strand == "-":
+                        start_pos = nts[end + 1]
+                        end_pos = nts[pos]
+                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                     
                     var = insert.upper()
-                    # include current position in before
-                    ibef = get_bong_bong(var, pos + 1, ref_seq)
+                    ibef = get_bong_bong(var, pos + 1, ref_seq)  # include current position
                     before = ref_seq[ibef:pos+1]
                     iaft = get_bong_bong(var[::-1], len(ref_seq)-pos-1, ref_seq[::-1])
                     after = ref_seq[::-1][iaft:len(ref_seq)-pos-1][::-1]
@@ -410,17 +410,6 @@ def create_report(args):
                     loc_var = nts[iaft] if strand == "-" else nts[ibef]
                     end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
                     
-                    end += 1
-                    
-                    if strand == "-":
-                        end_pos = nts[pos - 1] - 1
-                        start_pos = nts[end - 1] - 1
-                    else:
-                        start_pos = nts[pos - 1] + 1
-                        end_pos = nts[end - 1] + 1
-                    
-                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
-                    
                     # Reinterpret mutations for small ITDs
                     # careful, going upstream may put us outside the reference.
                     # I&I discovered this way do not take into account insertions and deletions.
@@ -428,6 +417,7 @@ def create_report(args):
                         possible_itd = insert[:int(len(insert)/2)] 
                     else:
                         possible_itd = insert
+                    #^ detects double ITDs in certain situations
                     upstream = alt_seq[pos-len(possible_itd):pos]
                     match = 0
                     if pos-len(possible_itd) >= 0:
@@ -436,6 +426,7 @@ def create_report(args):
                                 match += 1
                         match = float(match)/len(possible_itd)
                     
+                    insert_type = "Insertion"
                     if pos-len(insert) >= 0 and len(insert) >= 3 and insert == upstream:
                         insert_type = "ITD"
                         added += " | " + str(end_pos - start_pos + 1)
@@ -449,17 +440,7 @@ def create_report(args):
                     
                     location = chro + ":" + str(end_pos)
                     
-                elif variant_name == 'Substitution':
-                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
-                    location = chro + ":" + str(start_pos)
-                    insert_type = variant_name + exon
-                    
-                    # NOTE: Substitutions that end at junctions are considered mutations not altsplice
-                    if loc_var + len(ref_var) - 1 < end_var:
-                        insert_type = 'PossibleAltsplice' + exon
-                    
                 elif variant_name == 'Deletion':
-                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                     location = chro + ":" + str(start_pos)
                     insert_type = variant_name + exon
                     
@@ -477,8 +458,15 @@ def create_report(args):
                     if loc_var + len(ref_var) - 1 < end_var:
                         insert_type = 'Altsplice' + exon
                     
+                elif variant_name == 'Substitution':
+                    location = chro + ":" + str(start_pos)
+                    insert_type = variant_name + exon
+                    
+                    # NOTE: Substitutions that end at junctions are considered mutations not altsplice
+                    if loc_var + len(ref_var) - 1 < end_var:
+                        insert_type = 'PossibleAltsplice' + exon
+                    
                 elif variant_name == 'Indel':
-                    region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
                     location = chro + ":" + str(start_pos)
                     insert_type = variant_name + exon
                     
@@ -498,10 +486,6 @@ def create_report(args):
                 
                 insert_type = fusion + insert_type
         
-        if args.exclu != "" and alt_seq != "":
-            res = uc.get_cov(args.exclu, alt_seq)
-            min_exclu = str(res[2])
-       
         if not vcf and not table:
             print_line(samp, region, location, insert_type,
                        removed, added, alt_exp, ref_exp, ratio,
@@ -521,7 +505,9 @@ def create_report(args):
                         "WARNING: Throwing away an aberration on {} for {}\n".format(chro, query)
                         )
                 continue
-            if '::' not in query or args.junction:
+            if ('::' not in query or args.junction) and \
+               not (insert_type in ["PossibleIntron", "AltSplice", "PossibleAltSplice",
+                                "PossibleAltspliceIntron"] and mode == "mutation"):
                 print_vcf_line(chro, loc_var, ref_var, alt_var, insert_type,
                                query, ratio, min_cov, removed, added)
             
@@ -536,14 +522,14 @@ def create_report(args):
             if samp not in samples:
                 samples[samp] = set()
             samples[samp].add(var)
-       
+            
             if samp not in data:
                 data[samp] = {}
             data[samp][var] = float(ratio)
     
     if table:
         sorted_variants = sorted(variants, key=variants.get, reverse=True)
-
+        
         sys.stdout.write("Sample")
         for v in sorted_variants:
             if v[0].split("/")[0] == "Reference" or v[0].split("/")[0] == "Fusion":
@@ -551,7 +537,7 @@ def create_report(args):
             else:
                 sys.stdout.write("\t" + v[1])
         sys.stdout.write("\n")
-
+        
         for s, sv in samples.iteritems():
             sys.stdout.write(s)
             for v in sorted_variants:
@@ -561,7 +547,7 @@ def create_report(args):
                     else:
                         sys.stdout.write("\t" + str(data[s][v]))
                 else:
-                    sys.stdout.write("\t" + ".")                
+                    sys.stdout.write("\t" + ".")
             sys.stdout.write("\n")
 
 
