@@ -113,7 +113,7 @@ Design your target sequence:
 * To feet your specific needs, you will have to create your own target sequences. 
 * On generic cases, you can follow some good practices describe below:
 
-.. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.pdf
+.. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 
 * There are different methods to extract nucleotide sequences from genome, if needed two of them are discribe below:
 
