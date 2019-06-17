@@ -110,9 +110,15 @@ Design your target sequence:
 ----------------------------
 * km is design to made targeted analysis based on **target sequences**. These target sequences **need to be design** and given as km's input.
 * A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provide in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
-* To feet your specific needs, you will certainly have to create your own target sequences. 
-* On generic cases, you can follow some good practices describe below: **(Coming soon)**
-* No limit are fixed, create the target sequence which feet your needs.
+* To feet your specific needs, you will have to create your own target sequences. 
+* On generic cases, you can follow some good practices describe below:
+
+.. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.pdf
+
+* There are different methods to extract nucleotide sequences from genome, if needed two of them are discribe below:
+
+   - samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
+   - `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
 
 
 -------------
