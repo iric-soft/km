@@ -117,8 +117,8 @@ Design your target sequence:
 
 * There are different methods to extract nucleotide sequences from genome, if needed two of them are discribe below:
 
-   - samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
-   - `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
+  - samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
+  - `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
 
 
 -------------
