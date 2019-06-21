@@ -127,11 +127,6 @@ target sequence.
   - vs_ref: means that each alternate path is compared in expression with the whole target sequence.
   - cluster: indicates that all alternate path in a subregion extending by k bases on each side of all overlapping mutations are considered at once to evaluate the expression of each
 
-Using the -g argument, one can also obtain a coverage graph for the two
-variants, for example:
-
-.. image:: https://github.com/iric-soft/km/blob/master/data/figure/figure_1.png
-
 ------------
 find_report:
 ------------
@@ -224,7 +219,7 @@ linear_kmin:
 Length of k-mers is a central parameter:
 
 * To produce a linear directed graph from the target sequence.
-* To avoid false-positive. 
+* To avoid false-positive.
 
 **Warning**: `find_mutation`_ shouldn't be use on jellyfish count table build with k<21 bp (we recommand k=31 bp, by default)
 
