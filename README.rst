@@ -60,6 +60,7 @@ Test:
 * 4bp insertion in NPM1
 .. code:: shell
 
+  $ cd [your_km_folder]
   $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
   Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov	Variant	Target	InfoVariant_sequence	Reference_sequence
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428		/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
@@ -68,6 +69,7 @@ Test:
 * ITD of 75 bp
 .. code:: shell
 
+  $ cd [your_km_folder]
   $ km find_mutation ./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa ./data/jf/03H116_ITD.jf | km find_report -t ./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa
   Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov	Variant	Target	Info	Variant_sequence	Reference_sequence
   ./data/jf/03H116_ITD.jf		-	Reference	0	0	0.0	443.0	1.000	912		-	FLT3-ITD_exons_13-15	vs_ref
