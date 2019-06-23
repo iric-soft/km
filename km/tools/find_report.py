@@ -437,7 +437,7 @@ def create_report(args):
                         added += " | " + str(end_pos - start_pos + 1)
                     insert_type += exon
                     
-                    if loc_var + len(ref_var) - 1 < end_var:
+                    if nts[nts.index(loc_var)+1] + len(ref_var) - 2 - 1 < nts[nts.index(end_var)-1]:
                         insert_type = 'PossibleIntron' + exon
                     
                     location = chro + ":" + str(end_pos)
@@ -454,8 +454,10 @@ def create_report(args):
                     iaft = len(ref_seq) - iaft - 1
                     ref_var = before + var + after
                     alt_var = before + after
-                    loc_var = nts[iaft] if strand == "-" else nts[ibef]
-                    end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
+                    loc_var = nts[ibef]
+                    end_var = nts[iaft]
+                    
+                    loc_var, end_var = (end_var, loc_var) if strand == "-" else (loc_var, end_var)
                     
                     if loc_var + len(ref_var) - 1 < end_var:
                         insert_type = 'Altsplice' + exon
