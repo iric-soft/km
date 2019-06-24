@@ -42,6 +42,7 @@ def get_argparser_find_report(parser):
     
     optional.add_argument(
         "-f", "--format",
+        dest="format",
         help="Option 'vcf': Output variants in VCF-like file format -- Option 'table':" +\
              "Group variants by position and return per-sample ratio",
         choices=['vcf', 'table'])

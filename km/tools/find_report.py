@@ -31,7 +31,7 @@ def print_vcf_header():
 
 def print_vcf_line(chro, loc, ref_var, alt_var, type_var, target, ratio, min_cov, rem, ad):
     line = "\t".join([chro, str(loc), ".", ref_var, alt_var, ".", ".",
-                      "TYPE="+type_var+";TARGET="+target+";RATIO="+ratio+";MINCOV="+min_cov+\
+                      "TYPE="+type_var+";TARGET="+target+";RATIO="+ratio+";MINCOV="+min_cov +
                       ";REMOVED="+str(rem)+";ADDED="+str(ad)])
     sys.stdout.write(line + "\n")
 
@@ -42,7 +42,6 @@ def init_ref_seq(arg_ref):
 
     # BE 1-based
     nts = []
-    ref_seq = []
     chro = None
     strand = None
     
@@ -55,12 +54,12 @@ def init_ref_seq(arg_ref):
             # sanity check
             loc = line.split(" ")[0]
             if "chr" not in loc or ":" not in loc or "-" not in loc:
-                sys.exit('ERROR: Fasta entries do not contain a correctly ' +\
+                sys.exit('ERROR: Fasta entries do not contain a correctly ' +
                          'formatted location: {}\n'.format(loc))
             
             # look up attributes in fasta file
             line = line.replace(">", "location=", 1)
-            attr = {x.split("=")[0].strip():x.split("=")[1].strip() for x in line.split("|")}
+            attr = {x.split("=")[0].strip(): x.split("=")[1].strip() for x in line.split("|")}
             exon = attr["location"]
             chro, pos = exon.split(":")
             refstart, refstop = pos.split("-")
@@ -75,15 +74,17 @@ def init_ref_seq(arg_ref):
             nt = nt[::-1] if strand == "-" else nt
             nts.extend(nt)
 
-    return(nts, chro, strand)
+    return nts, chro, strand
 
 
 def create_report(args):
+
     # Find correct extremities of a mutation
     sys.setrecursionlimit(10000)
-    def get_extremities(var, p, rs):  # p = pos, rs = ref_seq
-        if p - 1 > 0 and rs[p - 1] == var[-1]:
-            return get_extremities(rs[p - 1] + var[:-1], p - 1, rs)
+
+    def get_extremities(va, p, rs):
+        if p - 1 > 0 and rs[p - 1] == va[-1]:
+            return get_extremities(rs[p - 1] + va[:-1], p - 1, rs)
         return p - 1
     
     if args.format == "vcf" and args.info == "cluster":
@@ -169,7 +170,7 @@ def create_report(args):
             pos -= int(start_off)
             end = int(stop) - 2  # one to go back to last position, the other for 0-base
             end -= int(start_off)
-            
+
             if strand == "+":
                 start_pos = nts[pos]
                 end_pos = nts[end]
@@ -179,8 +180,8 @@ def create_report(args):
             
             region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
             
-            ref_var =  delet.upper()
-            alt_var =  insert.upper()
+            ref_var = delet.upper()
+            alt_var = insert.upper()
             loc_var = start_pos
             end_var = end_pos
             
@@ -205,6 +206,7 @@ def create_report(args):
                 end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
                 
                 if loc_var + len(ref_var) - 1 != end_var and vcf:
+                    sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
                     continue
                 
                 # Reinterpret mutations for small ITDs
@@ -247,22 +249,24 @@ def create_report(args):
                     continue
                 
             elif variant[0] == 'Substitution':
-                location = chro + ":" + str(end_pos-1)
+                location = chro + ":" + str(start_pos)
                 insert_type = variant[0]
                 
                 if loc_var + len(ref_var) - 1 != end_var and vcf:
+                    sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
                     continue
                 
             elif variant[0] == 'Indel':
                 location = chro + ":" + str(end_pos)
                 insert_type = variant[0]
                 
-                ref_var =  ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
-                alt_var =  ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
+                ref_var = ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
+                alt_var = ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
                 loc_var = start_pos - 1
                 end_var = end_pos + 1
                 
                 if loc_var + len(ref_var) - 1 != end_var and vcf:
+                    sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
                     continue
                 
             else:
@@ -282,7 +286,7 @@ def create_report(args):
             ref_var = ref_var.translate(complement)[::-1] if strand == '-' else ref_var
             alt_var = alt_var.translate(complement)[::-1] if strand == '-' else alt_var
             print_vcf_line(chro, loc_var, ref_var, alt_var, insert_type,
-                           query, ratio, min_cov, removed, added)
+                           query, ratio, min_cov, removed, added.replace(" ", ""))
             
         elif table:
             var_name = variant[0] + "/" + query if "/" not in variant[0] else variant[0]
