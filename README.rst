@@ -48,7 +48,7 @@ Usage:
 ******
 
 * Copy/past each line in a terminal.
-* The virtual environment need to loaded each time you open a new terminal, with this command:
+* The virtual environment need to be loaded each time you open a new terminal, with this command:
 
 .. code:: shell
 
@@ -57,12 +57,25 @@ Usage:
 Test:
 *****
 
+* 4bp insertion in NPM1
 .. code:: shell
 
+  $ cd [your_km_folder]
   $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
   Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov	Variant	Target	InfoVariant_sequence	Reference_sequence
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428		/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
-  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379		-	NPM1_4ins_exons_10-11utr	vs_ref	
+  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379		-	NPM1_4ins_exons_10-11utr	vs_ref
+
+* ITD of 75 bp
+.. code:: shell
+
+  $ cd [your_km_folder]
+  $ km find_mutation ./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa ./data/jf/03H116_ITD.jf | km find_report -t ./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa
+  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov	Variant	Target	Info	Variant_sequence	Reference_sequence
+  ./data/jf/03H116_ITD.jf		-	Reference	0	0	0.0	443.0	1.000	912		-	FLT3-ITD_exons_13-15	vs_ref
+  ./data/jf/03H116_ITD.jf	chr13:28034105-28034179	chr13:28034180	ITD	0	75 | 75	417.6	1096.7	0.276	443		/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC	FLT3-ITD_exons_13-15	vs_ref	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC
+
+
 
 .. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
@@ -75,7 +88,6 @@ Requirements:
 *************
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
-* (Optional) Matplotlib
 
 Usage:
 ******
@@ -93,7 +105,6 @@ Requirements:
 *************
 * Python 2.7.6 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
-* (Optional) Matplotlib
 
 Usage:
 ******
@@ -110,9 +121,15 @@ Design your target sequence:
 ----------------------------
 * km is design to made targeted analysis based on **target sequences**. These target sequences **need to be design** and given as km's input.
 * A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provide in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
-* To feet your specific needs, you will certainly have to create your own target sequences. 
-* On generic cases, you can follow some good practices describe below: **(Coming soon)**
-* No limit are fixed, create the target sequence which feet your needs.
+* To feet your specific needs, you will have to create your own target sequences.
+* On generic cases, you can follow some good practices describe below:
+
+.. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
+
+* There are different methods to extract nucleotide sequences from genome, if needed two of them are discribe below:
+
+  - samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
+  - `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
 
 
 -------------
@@ -123,7 +140,7 @@ Display help:
 
   $ km -h
     usage: PROG [-h] {find_mutation,find_report,linear_kmin,min_cov} ...
-  
+
     positional arguments:
       {find_mutation,find_report,linear_kmin,min_cov}
                             sub-command help
@@ -134,7 +151,7 @@ Display help:
         linear_kmin         Find min k length to decompose a target sequence in a
                             linear graph.
         min_cov             Compute coverage of target sequences.
-   
+
     optional arguments:
       -h, --help            show this help message and exit
 

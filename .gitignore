@@ -27,6 +27,9 @@ var/
 # C extensions
 *.so
 
+# OS
+*.DS_Store
+
 # Unit test / coverage reports
 htmlcov/
 .tox/
