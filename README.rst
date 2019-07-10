@@ -126,10 +126,14 @@ Design your target sequence:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 
-* There are different methods to extract nucleotide sequences from genome, if needed two of them are discribe below:
+* A web portal is available to assit you in the creation of your target sequences (of case 1 and 2). 
 
-  - samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
-  - `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
+  - km-target: https://bioinfo.iric.ca/km-target/
+  
+* You could also extract nucleotide sequences from genome using severals methods, two of them are discribe below:
+
+  - Using `samtools <http://www.htslib.org/doc/samtools.html>`_: samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
+  - Using get DNA from `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
 
 
 -------------
