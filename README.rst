@@ -126,7 +126,7 @@ Design your target sequence:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 
-* A web portal is available to assit you in the creation of your target sequences (of case 1 and 2). 
+* A web portal is available to assist you in the creation of your target sequences (of case 1 and 2). 
 
   - km-target: https://bioinfo.iric.ca/km-target/
   
