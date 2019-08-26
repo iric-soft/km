@@ -24,6 +24,7 @@ computed for each possible sequence constructed.
 -------
 Citing:
 -------
+* Targeted variant detection using unaligned RNA-Seq reads. Life science Alliance 2019 Aug 19;2(4); doi: https://doi.org/10.26508/lsa.201900336
 * Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
 
 -------------
