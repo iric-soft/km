@@ -46,8 +46,8 @@ class kmMuttaionTest(unittest.TestCase):
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue()
-        find_output = output.split("\n")
+        fm_output = out.getvalue()
+        find_output = fm_output.split("\n")
         find_output = find_output[11].split("\t")
 
         self.assertEqual(find_output[2],
@@ -62,10 +62,11 @@ class kmMuttaionTest(unittest.TestCase):
 
         args = Namespace(
             target=target,
-            infile=StringIO(output),
+            infile=StringIO(fm_output),
             info="vs_ref",
             min_cov=1,
-            exclu=""
+            exclu="",
+            format=None
         )
 
         with captured_output() as (out, err):
@@ -88,6 +89,32 @@ class kmMuttaionTest(unittest.TestCase):
                          "AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
                          "Test fail: NPM1 -> report sequence")
 
+        args = Namespace(
+            target=target,
+            infile=StringIO(fm_output),
+            info="vs_ref",
+            min_cov=1,
+            exclu="",
+            format="vcf"
+        )
+
+        with captured_output() as (out, err):
+            fr.main_find_report(args, None)
+
+        output = out.getvalue()
+        report_output = [o for o in output.split("\n") if o and o[0] != "#"]
+        report_output = report_output[0].split("\t")
+
+        self.assertEqual(report_output[1],
+                         "171410539",
+                         "Test fail: NPM1 -> vcf report pos")
+        self.assertEqual(report_output[3],
+                         "CTCTGG",
+                         "Test fail: NPM1 -> vcf report ref")
+        self.assertEqual(report_output[4],
+                         "CTCTGTCTGG",
+                         "Test fail: NPM1 -> vcf report alt")
+
     def testFLT3_IandI(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
@@ -104,26 +131,31 @@ class kmMuttaionTest(unittest.TestCase):
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue()
-        find_output = output.split("\n")
+        fm_output = out.getvalue()
+        find_output = fm_output.split("\n")
         find_output = find_output[11].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
         self.assertEqual(find_output[3],
-                         "152:/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTC:152",
+                         "152:/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAA" +
+                         "ACTCCCATTTGAGATCATATTC:152",
                          "Test fail: FLT3-ITD -> find variant")
         self.assertEqual(find_output[8],
-                         "TTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTC",
+                         "TTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTC" +
+                         "CCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACC" +
+                         "TGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAAT" +
+                         "CAACGTAGAAGTACTC",
                          "Test fail: FLT3-ITD -> find sequence")
 
         args = Namespace(
             target=target,
-            infile=StringIO(output),
+            infile=StringIO(fm_output),
             info="vs_ref",
             min_cov=1,
-            exclu=""
+            exclu="",
+            format=None
         )
 
         with captured_output() as (out, err):
@@ -140,11 +172,36 @@ class kmMuttaionTest(unittest.TestCase):
                          "I&I",
                          "Test fail: FLT3-ITD -> report type")
         self.assertEqual(report_output[11],
-                         "/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTC",
+                         "/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCC" +
+                         "CATTTGAGATCATATTC",
                          "Test fail: FLT3-ITD -> report variant")
         self.assertEqual(report_output[14],
-                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
+                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTT" +
+                         "CCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCT" +
+                         "TGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATT" +
+                         "TGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGT" +
+                         "AGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACA" +
+                         "AACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
                          "Test fail: FLT3-ITD -> report sequence")
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(fm_output),
+            info="vs_ref",
+            min_cov=1,
+            exclu="",
+            format="vcf"
+        )
+
+        with captured_output() as (out, err):
+            fr.main_find_report(args, None)
+
+        output = err.getvalue()
+        find_output = [o for o in output.split("\n") if o[:5] == "NOTE:"]
+        find_output = find_output[0]
+
+        self.assertEqual(find_output,
+                         "NOTE: Mutation overlaps 2 exons or more, VCF output is disabled ")
 
     def testFLT3_ITD(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
@@ -162,8 +219,8 @@ class kmMuttaionTest(unittest.TestCase):
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue()
-        find_output = output.split("\n")
+        fm_output = out.getvalue()
+        find_output = fm_output.split("\n")
         find_output = find_output[11].split("\t")
 
         self.assertEqual(find_output[2],
@@ -173,15 +230,18 @@ class kmMuttaionTest(unittest.TestCase):
                          "204:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:204",
                          "Test fail: FLT3-ITD -> find variant")
         self.assertEqual(find_output[8],
-                         "TACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
+                         "TACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGA" +
+                         "AGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAG" +
+                         "TACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
                          "Test fail: FLT3-ITD -> find sequence")
 
         args = Namespace(
             target=target,
-            infile=StringIO(output),
+            infile=StringIO(fm_output),
             info="vs_ref",
             min_cov=1,
-            exclu=""
+            exclu="",
+            format=None
         )
 
         with captured_output() as (out, err):
@@ -201,8 +261,41 @@ class kmMuttaionTest(unittest.TestCase):
                          "/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC",
                          "Test fail: FLT3-ITD -> report variant")
         self.assertEqual(report_output[14],
-                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
+                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTT" +
+                         "CCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATA" +
+                         "TTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATT" +
+                         "CTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA" +
+                         "AATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATA" +
+                         "GAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
                          "Test fail: FLT3-ITD -> report sequence")
+
+
+        args = Namespace(
+            target=target,
+            infile=StringIO(fm_output),
+            info="vs_ref",
+            min_cov=1,
+            exclu="",
+            format="vcf"
+        )
+
+        with captured_output() as (out, err):
+            fr.main_find_report(args, None)
+
+        output = out.getvalue()
+        report_output = [o for o in output.split("\n") if o and o[0] != "#"]
+        report_output = report_output[0].split("\t")
+
+        self.assertEqual(report_output[1],
+                         "28034104",
+                         "Test fail: FLT3-ITD -> vcf report pos")
+        self.assertEqual(report_output[3],
+                         "AAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCT",
+                         "Test fail: FLT3-ITD -> vcf report ref")
+        self.assertEqual(report_output[4],
+                         "AAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCA" +
+                         "ACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCT",
+                         "Test fail: FLT3-ITD -> vcf report alt")
 
     def testFLT3_TKD(self):
         target = "./data/catalog/GRCh38/FLT3-TKD_exon_20.fa"
@@ -220,8 +313,8 @@ class kmMuttaionTest(unittest.TestCase):
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue()
-        find_output = output.split("\n")
+        fm_output = out.getvalue()
+        find_output = fm_output.split("\n")
         find_output = find_output[11].split("\t")
 
         self.assertEqual(find_output[2],
@@ -236,10 +329,11 @@ class kmMuttaionTest(unittest.TestCase):
 
         args = Namespace(
             target=target,
-            infile=StringIO(output),
+            infile=StringIO(fm_output),
             info="vs_ref",
             min_cov=1,
-            exclu=""
+            exclu="",
+            format=None
         )
 
         with captured_output() as (out, err):
@@ -262,6 +356,32 @@ class kmMuttaionTest(unittest.TestCase):
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTTCACC",
                          "Test fail: FLT3-TKD -> report sequence")
 
+        args = Namespace(
+            target=target,
+            infile=StringIO(fm_output),
+            info="vs_ref",
+            min_cov=1,
+            exclu="",
+            format="vcf"
+        )
+
+        with captured_output() as (out, err):
+            fr.main_find_report(args, None)
+
+        output = out.getvalue()
+        report_output = [o for o in output.split("\n") if o and o[0] != "#"]
+        report_output = report_output[0].split("\t")
+
+        self.assertEqual(report_output[1],
+                         "28018497",
+                         "Test fail: FLT3-TKD -> vcf report pos")
+        self.assertEqual(report_output[3],
+                         "CATGATA",
+                         "Test fail: FLT3-TKD -> vcf report ref")
+        self.assertEqual(report_output[4],
+                         "CATA",
+                         "Test fail: FLT3-TKD -> vcf report alt")
+
     def testDNMT3A(self):
         target = "./data/catalog/GRCh38/DNMT3A_R882_exon_23.fa"
         args = Namespace(
@@ -278,8 +398,8 @@ class kmMuttaionTest(unittest.TestCase):
         with captured_output() as (out, err):
             fm.main_find_mut(args, None)
 
-        output = out.getvalue()
-        find_output = output.split("\n")
+        fm_output = out.getvalue()
+        find_output = fm_output.split("\n")
         find_output = find_output[11].split("\t")
 
         self.assertEqual(find_output[2],
@@ -294,10 +414,11 @@ class kmMuttaionTest(unittest.TestCase):
 
         args = Namespace(
             target=target,
-            infile=StringIO(output),
+            infile=StringIO(fm_output),
             info="vs_ref",
             min_cov=1,
-            exclu=""
+            exclu="",
+            format=None
         )
 
         with captured_output() as (out, err):
@@ -320,13 +441,39 @@ class kmMuttaionTest(unittest.TestCase):
                          "ATGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGACT",
                          "Test fail: DNMT3A -> report sequence")
 
+        args = Namespace(
+            target=target,
+            infile=StringIO(fm_output),
+            info="vs_ref",
+            min_cov=1,
+            exclu="",
+            format="vcf"
+        )
+
+        with captured_output() as (out, err):
+            fr.main_find_report(args, None)
+
+        output = out.getvalue()
+        report_output = [o for o in output.split("\n") if o and o[0] != "#"]
+        report_output = report_output[0].split("\t")
+
+        self.assertEqual(report_output[1],
+                         "25234373",
+                         "Test fail: DNMT3A -> vcf report pos")
+        self.assertEqual(report_output[3],
+                         "C",
+                         "Test fail: DNMT3A -> vcf report ref")
+        self.assertEqual(report_output[4],
+                         "T",
+                         "Test fail: DNMT3A -> vcf report alt")
+
     def test_not_linear(self):
         ref_seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
         k_len = 31
         ref_name = "not_linear"
 
         with self.assertRaises(ValueError):
-            uc.get_ref_kmer(ref_seq, 31, ref_name)
+            uc.get_ref_kmer(ref_seq, k_len, ref_name)
 
     def test_linear_kmin(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"

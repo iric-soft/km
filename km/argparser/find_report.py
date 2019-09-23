@@ -39,3 +39,10 @@ def get_argparser_find_report(parser):
         help="Filename of a jf database, containing k-mers which can create false positive variants (as, a jf build on the transcriptome)",
         default="",
         type=str)
+    
+    optional.add_argument(
+        "-f", "--format",
+        dest="format",
+        help="Option 'vcf': Output variants in VCF-like file format -- Option 'table':" +\
+             "Group variants by position and return per-sample ratio",
+        choices=['vcf', 'table'])
