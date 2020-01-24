@@ -53,7 +53,7 @@ def init_ref_seq(arg_ref):
         if line[0] == '>':
             # sanity check
             loc = line.split(" ")[0]
-            if "chr" not in loc or ":" not in loc or "-" not in loc:
+            if ":" not in loc or "-" not in loc:
                 sys.exit('ERROR: Fasta entries do not contain a correctly ' +
                          'formatted location: {}\n'.format(loc))
             
