@@ -1,5 +1,5 @@
 import os
-from Jellyfish import Jellyfish
+from .Jellyfish import Jellyfish
 
 
 def args_2_list_files(args):
@@ -8,9 +8,7 @@ def args_2_list_files(args):
         lst_files = args
     else:
         if os.path.isdir(args[0]):
-            lst_files = map(
-                lambda f: os.path.join(args[0], f),
-                os.listdir(args[0]))
+            lst_files = [os.path.join(args[0], f) for f in os.listdir(args[0])]
         else:
             lst_files = args
 

@@ -37,4 +37,4 @@ class Jellyfish:
             sum += c_count
         threshold = max(sum * self.cutoff, self.n_cutoff)
 
-        return map(lambda x: x[0], filter(lambda x: x[1] >= threshold, child))
+        return [x[0] for x in [x for x in child if x[1] >= threshold]]

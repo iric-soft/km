@@ -18,7 +18,7 @@ def main_find_mut(args, argparser):
     if args.verbose:
         log.basicConfig(level=log.DEBUG, format="VERBOSE: %(message)s")
 
-    for k, v in vars(args).iteritems():
+    for k, v in vars(args).items():
         sys.stdout.write("#" + str(k) + ':' + str(v) + "\n")
 
     jf = Jellyfish(args.jellyfish_fn, cutoff=args.ratio, n_cutoff=args.count)
@@ -39,7 +39,7 @@ def main_find_mut(args, argparser):
             False, args.steps, args.branchs
         )
 
-        for path in finder.get_paths():
+        for path in finder.get_paths(sort=True):
             sys.stdout.write(str(path) + "\n")
 
     sys.stdout.write("#Elapsed time:" + str(time.time() - time_start) + "\n")

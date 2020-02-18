@@ -1,6 +1,5 @@
 import sys
 import re
-from string import maketrans
 
 from .. utils import common as uc
 
@@ -65,11 +64,11 @@ def init_ref_seq(arg_ref):
             refstart, refstop = pos.split("-")
             
             # get nt coordinates on the genome
-            if 'strand' not in attr.keys():
+            if 'strand' not in list(attr.keys()):
                 attr['strand'] = '+'
                 sys.stderr.write("WARNING: Strand is assumed to be '+' \n")
             strand = attr["strand"]
-            for i in xrange(int(refstart), int(refstop) + 1):
+            for i in range(int(refstart), int(refstop) + 1):
                 nt += [i]
             nt = nt[::-1] if strand == "-" else nt
             nts.extend(nt)
@@ -214,7 +213,7 @@ def create_report(args):
                 upstream = alt_seq[pos-len(insert):pos]
                 match = 0
                 if pos-len(insert) >= 0:
-                    for i in xrange(0, len(insert)):
+                    for i in range(0, len(insert)):
                         if insert[i] == upstream[i]:
                             match += 1
                     match = float(match)/len(insert)
@@ -270,7 +269,7 @@ def create_report(args):
                     continue
                 
             else:
-                sys.stderr.write("WARNING: This variant isn't take account\n")
+                sys.stderr.write("WARNING: This variant isn't taken account\n")
                 sys.stderr.write(" - variant: " + str(variant[0]) + "\n")
                 sys.stderr.write(" - line: " + line)
                 sys.exit()
@@ -282,7 +281,7 @@ def create_report(args):
                        alt_seq, refSeq)
             
         elif vcf:
-            complement = maketrans('ATGCU', 'TACGA')
+            complement = str.maketrans('ATGCU', 'TACGA')
             ref_var = ref_var.translate(complement)[::-1] if strand == '-' else ref_var
             alt_var = alt_var.translate(complement)[::-1] if strand == '-' else alt_var
             print_vcf_line(chro, loc_var, ref_var, alt_var, insert_type,
@@ -315,7 +314,7 @@ def create_report(args):
                 sys.stdout.write("\t" + v[1])
         sys.stdout.write("\n")
         
-        for s, sv in samples.iteritems():
+        for s, sv in samples.items():
             sys.stdout.write(s)
             for v in sorted_variants:
                 if v in sv:

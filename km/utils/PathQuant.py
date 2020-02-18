@@ -38,6 +38,12 @@ class Path:
             self.ref_sequence,
             self.note)
 
+    def __list__(self):
+        return self.__str__().split('\t')
+    
+    def __getitem__(self, i):
+        return self.__list__()[i]
+
     @staticmethod
     def get_min_cov(self):
         return self.min_coverage
@@ -78,7 +84,7 @@ class PathQuant:
         #     if min(c) == 1 and d == 0:
         #         self.coef = np.zeros((len(c), 1), dtype=np.float32)
         #         return
-        (coef, residual, rank, s) = np.linalg.lstsq(self.contrib, self.counts)
+        (coef, residual, rank, s) = np.linalg.lstsq(self.contrib, self.counts, rcond=None)
         self.coef = coef
         log.debug("Linear fitting = %s", self.coef.flatten())
 
@@ -125,16 +131,16 @@ class PathQuant:
 
     @staticmethod
     def output_header():
-        print "Database\tQuery\tType\tVariant_name\tRatio\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_ratio\tReference_expression\tReference_sequence\tInfo"
+        print("Database\tQuery\tType\tVariant_name\tRatio\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_ratio\tReference_expression\tReference_sequence\tInfo")
 
     def output(self, db_f, ref_name, name_f, seq_f):
         for i in range(self.nb_seq):
             # if self.ratio[i] > 0:
-            print "%s\t%s\t%s\t%.3f\t%.1f\t%s" % (db_f,
+            print("%s\t%s\t%s\t%.3f\t%.1f\t%s" % (db_f,
                                                   ref_name,
                                                   name_f(self.all_path[i]),
                                                   self.ratio[i], self.coef[i],
-                                                  seq_f(self.all_path[i]))
+                                                  seq_f(self.all_path[i])))
 
     def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
                   get_min_f=lambda path: 0, start_off=0):

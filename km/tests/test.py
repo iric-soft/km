@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # cmd to run test: coverage run -m unittest discover ./km/tests
 
 import unittest
@@ -15,7 +17,7 @@ from km.utils import MutationFinder as umf
 from km.utils import common as uc
 
 from contextlib import contextmanager
-from StringIO import StringIO
+from io import StringIO
 
 
 @contextmanager
@@ -74,7 +76,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_output = report_output[1].split("\t")
+        report_output = report_output[2].split("\t")
 
         self.assertEqual(report_output[2],
                          "chr5:171410544",
@@ -163,7 +165,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_output = report_output[1].split("\t")
+        report_output = report_output[2].split("\t")
 
         self.assertEqual(report_output[2],
                          "chr13:28034128",
@@ -426,7 +428,7 @@ class kmMuttaionTest(unittest.TestCase):
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_output = report_output[1].split("\t")
+        report_output = report_output[2].split("\t")
 
         self.assertEqual(report_output[2],
                          "chr2:25234373",
