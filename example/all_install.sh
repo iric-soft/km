@@ -1,13 +1,12 @@
 # NEED:
 # - pip : https://pip.pypa.io/en/stable/installing/
-# - virtualenv: https://virtualenv.pypa.io/en/stable/installation/
 
 ## Setup your software directory
 mkdir -p $HOME/software
 cd $HOME/software
 
 ## Create virtual environment
-virtualenv $HOME/.virtualenvs/km
+python -m venv $HOME/.virtualenvs/km
 source $HOME/.virtualenvs/km/bin/activate
 
 ## Download and install jellyfish
