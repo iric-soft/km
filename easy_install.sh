@@ -16,7 +16,7 @@ echo "==> Done!"
 
 ## Create virtual environment
 echo "### Create virtual environment ... ###"
-virtualenv $INSTALL_DIR/.virtualenvs/km
+python -m venv $INSTALL_DIR/.virtualenvs/km
 source $INSTALL_DIR/.virtualenvs/km/bin/activate
 echo "==> Virtual environment created"
 
