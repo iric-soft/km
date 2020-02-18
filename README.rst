@@ -41,9 +41,8 @@ in the virtual environement directory: $HOME/.virtualenvs/km.
 
 Requirements:
 *************
-* Python 2.7.6 or later with `pip`_ and `virtualenv`_ installed.
+* Python 3.7.0 or later with `pip`_ and installed.
 .. _pip: https://pip.pypa.io/en/stable/installing/
-.. _virtualenv: https://virtualenv.pypa.io/en/stable/installation/
 
 Usage:
 ******
@@ -87,7 +86,7 @@ If you have already installed Jellyfish with Python `bindings`_, you can install
 
 Requirements:
 *************
-* Python 2.7.6 or later
+* Python 3.7.0 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 
 Usage:
