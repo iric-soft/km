@@ -19,7 +19,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.1.0',
+    version='2.0',
 
     description='A software for RNA-seq investigation using k-mer decomposition',
     long_description=long_description,
@@ -77,7 +77,7 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     setup_requires=['numpy==1.18.1', 'coverage==5.0.3'], #, 'matplotlib==2.1.1'],
     install_requires=['numpy==1.18.1', 'coverage==5.0.3'], #, 'matplotlib==2.1.1'],
-    python_requires='>=3.7',
+    python_requires='>=3.5',
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

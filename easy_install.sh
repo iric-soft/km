@@ -38,6 +38,10 @@ cd $INSTALL_DIR/software
 echo "### Install km ... ###"
 git clone https://github.com/iric-soft/km.git
 cd km
+# crucial for earlier versions of python (e.g. 3.5)
+$VIRTUAL_ENV/bin/pip install pip setuptools --upgrade
+# wheel package is necessary now that setuptools runs pip for dependecies
+pip install wheel
 python setup.py install && echo "==> km installed"
 
 ## Execute km on a small example
