@@ -4,8 +4,8 @@ km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
 
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
-| .. image:: https://img.shields.io/badge/python-2.7-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
-|    :target: https://www.python.org/download/releases/2.7.6/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
+| .. image:: https://img.shields.io/badge/python-3.5-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
+|    :target: https://www.python.org/download/releases/3.5.0/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 
 -------------
@@ -41,9 +41,8 @@ in the virtual environement directory: $HOME/.virtualenvs/km.
 
 Requirements:
 *************
-* Python 2.7.6 or later with `pip`_ and `virtualenv`_ installed.
+* Python 3.5.0 or later with `pip`_ and installed.
 .. _pip: https://pip.pypa.io/en/stable/installing/
-.. _virtualenv: https://virtualenv.pypa.io/en/stable/installation/
 
 Usage:
 ******
@@ -87,7 +86,7 @@ If you have already installed Jellyfish with Python `bindings`_, you can install
 
 Requirements:
 *************
-* Python 2.7.6 or later
+* Python 3.5.0 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 
 Usage:
@@ -104,7 +103,7 @@ km can be executed directly from source code.
 
 Requirements:
 *************
-* Python 2.7.6 or later
+* Python 3.5.0 or later
 * Jellyfish 2.2 or later **with** Python `bindings`_.
 
 Usage:
@@ -120,10 +119,10 @@ Usage:
 ----------------------------
 Design your target sequence:
 ----------------------------
-* km is design to made targeted analysis based on **target sequences**. These target sequences **need to be design** and given as km's input.
-* A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provide in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
-* To feet your specific needs, you will have to create your own target sequences.
-* On generic cases, you can follow some good practices describe below:
+* km is designed to make targeted analysis based on **target sequences**. These target sequences **need to be designed** and given to km as input.
+* A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provided in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
+* To fit your specific needs, you will have to create your own target sequences.
+* On generic cases, you can follow some good practices described below:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 

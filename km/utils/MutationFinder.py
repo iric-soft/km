@@ -2,7 +2,6 @@
 # MutationFinder.py
 #
 
-import string
 import sys
 import logging as log
 
@@ -78,12 +77,12 @@ class MutationFinder:
 
     def graph_analysis(self, graphical=False):
         self.paths = []
-        kmer = self.node_data.keys()
+        kmer = list(self.node_data.keys())
 
         num_k = len(kmer)
         graph = ug.Graph(num_k)
         # The reference path, with node numbers
-        ref_index = map(lambda k: kmer.index(k), self.ref_mer)
+        ref_index = [kmer.index(k) for k in self.ref_mer]
 
         log.debug("k-mer graph contains %d nodes.", num_k)
 
@@ -172,7 +171,7 @@ class MutationFinder:
                 return "{}\t{}:{}:{}".format(
                     variant,
                     diff[0] + k + offset,
-                    (string.lower(del_seq) + "/" + ins_seq),
+                    (str.lower(del_seq) + "/" + ins_seq),
                     diff[1] + 1 + offset)
 
         def get_counts(path, kmer):
@@ -189,7 +188,7 @@ class MutationFinder:
         if individual:
             for path in short_paths:
                 quant = upq.PathQuant(all_path=[path, ref_index],
-                                      counts=self.node_data.values())
+                                      counts=list(self.node_data.values()))
 
                 quant.compute_coef()
                 quant.refine_coef()
@@ -271,7 +270,7 @@ class MutationFinder:
                     clipped_paths += [short_paths[var][start_off:stop_off]]
 
                 quant = upq.PathQuant(all_path=clipped_paths,
-                                      counts=self.node_data.values())
+                                      counts=list(self.node_data.values()))
 
                 quant.compute_coef()
                 quant.refine_coef()
@@ -306,7 +305,9 @@ class MutationFinder:
                     plt.legend()
                     plt.show()
 
-    def get_paths(self):
+    def get_paths(self, sort=True):
+        if sort:
+            self.paths = sorted(self.paths, key=lambda x: (x[3], x[2], x[6]))
         return self.paths
 
     def get_paths_quant(self):

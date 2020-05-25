@@ -21,10 +21,12 @@ class Graph:
 
         self.ref_path = []
 
-    def __getitem__(self, (i, j)):
+    def __getitem__(self, indices):
+        (i, j) = indices
         return self.w[i, j]
 
-    def __setitem__(self, (i, j), new_val):
+    def __setitem__(self, indices, new_val):
+        (i, j) = indices
         self.w[i, j] = new_val
         self.edge_set.add((i, j))
 
