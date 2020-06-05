@@ -30,10 +30,10 @@ def get_argparser_find_mut(parser):
         nargs='?',
         default=10,
         type=int)
-#    parser.add_argument(
-#        "-g", "--graphical",
-#        help="Display coverage graph.",
-#        action="store_true")
+    parser.add_argument(
+        "-g", "--graphical",
+        help="Display coverage graph.",
+        action="store_true")
     parser.add_argument(
         "-v", "--verbose",
         help="Get more information.",

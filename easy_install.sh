@@ -49,4 +49,5 @@ python setup.py install && echo "==> km installed"
 # with: source $INSTALL_DIR/.virtualenvs/km/bin/activate
 echo "### Run km test ... ###"
 km find_mutation $INSTALL_DIR/software/km/data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa $INSTALL_DIR/software/km/data/jf/02H025_NPM1.jf | km find_report -t $INSTALL_DIR/software/km/data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
+km find_mutation $INSTALL_DIR/software/km/data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa $INSTALL_DIR/software/km/data/jf/02H025_NPM1.jf -g
 km find_mutation $INSTALL_DIR/software/km/data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa $INSTALL_DIR/software/km/data/jf/03H116_ITD.jf | km find_report -t $INSTALL_DIR/software/km/data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa

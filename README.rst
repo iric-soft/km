@@ -65,6 +65,8 @@ Test:
   Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov	Variant	Target	InfoVariant_sequence	Reference_sequence
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428		/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
   ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379		-	NPM1_4ins_exons_10-11utr	vs_ref
+  # To display kmer coverage
+  $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf -g
 
 * ITD of 75 bp
 .. code:: shell
@@ -126,10 +128,10 @@ Design your target sequence:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 
-* A web portal is available to assist you in the creation of your target sequences (of case 1 and 2). 
+* A web portal is available to assist you in the creation of your target sequences (of case 1 and 2).
 
   - km-target: https://bioinfo.iric.ca/km-target/
-  
+
 * You could also extract nucleotide sequences from genome using severals methods, two of them are discribe below:
 
   - Using `samtools <http://www.htslib.org/doc/samtools.html>`_: samtools faidx chr2:25234341-25234405 GRCh38/genome.fa
