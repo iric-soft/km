@@ -3,5 +3,5 @@ source = km
 
 [report]
 omit =
-    tests/*
-    argparser/*
+    km/tests/*
+    km/argparser/*
