@@ -3,7 +3,6 @@ source =
   km
 [report]
 omit =
-  /u/eaudemard/software/km/swig/python/jellyfish.py
   .eggs/*
   km/tests/*
   km/argparser/*
