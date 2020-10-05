@@ -27,5 +27,4 @@ install:
 script:
     - pytest ./km --cov=km/
 
-after_success: 
-    - codecov
+after_success: bash <(curl -s https://codecov.io/bash)
