@@ -31,8 +31,8 @@ def captured_output():
         sys.stdout, sys.stderr = old_out, old_err
 
 
-class kmMuttaionTest(unittest.TestCase):
-    def testNPM1(self):
+class TestkmMuttaion(unittest.TestCase):
+    def test_NPM1(self):
         target = "./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa"
         args = Namespace(
             count=5,
@@ -117,7 +117,7 @@ class kmMuttaionTest(unittest.TestCase):
                          "CTCTGTCTGG",
                          "Test fail: NPM1 -> vcf report alt")
 
-    def testFLT3_IandI(self):
+    def test_FLT3_IandI(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
             count=5,
@@ -205,7 +205,7 @@ class kmMuttaionTest(unittest.TestCase):
         self.assertEqual(find_output,
                          "NOTE: Mutation overlaps 2 exons or more, VCF output is disabled ")
 
-    def testFLT3_ITD(self):
+    def test_FLT3_ITD(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
             count=5,
@@ -299,7 +299,7 @@ class kmMuttaionTest(unittest.TestCase):
                          "ACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCT",
                          "Test fail: FLT3-ITD -> vcf report alt")
 
-    def testFLT3_TKD(self):
+    def test_FLT3_TKD(self):
         target = "./data/catalog/GRCh38/FLT3-TKD_exon_20.fa"
         args = Namespace(
             count=5,
@@ -384,7 +384,7 @@ class kmMuttaionTest(unittest.TestCase):
                          "CATA",
                          "Test fail: FLT3-TKD -> vcf report alt")
 
-    def testDNMT3A(self):
+    def test_DNMT3A(self):
         target = "./data/catalog/GRCh38/DNMT3A_R882_exon_23.fa"
         args = Namespace(
             count=5,
