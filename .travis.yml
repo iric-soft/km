@@ -22,6 +22,8 @@ before_install:
 install:
     - python setup.py install
 
-script: coverage run -m unittest discover km/tests
+script:
+    - coverage run -m unittest discover km/tests
+    - coverage xml -i
 
 after_success: bash <(curl -s https://codecov.io/bash)
