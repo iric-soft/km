@@ -25,7 +25,7 @@ install:
     - python setup.py install
 
 script:
-    - pytest --cov=km/
+    - pytest ./km --cov=km/
 
 after_success: 
     - codecov
