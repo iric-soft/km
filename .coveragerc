@@ -1,2 +1,7 @@
 [run]
-source=km
+source = km
+
+[report]
+omit =
+    tests/*
+    argparser/*
