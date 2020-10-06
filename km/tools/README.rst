@@ -94,8 +94,8 @@ command takes a few seconds and returns an output similar to this:
 .. code:: shell
 
   Database	Query	Type	Variant_name	rVAF	Expression	Min_coverage	Start_offset  Sequence	Reference_expression	Reference_sequence	Info
+  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Reference		nan	2379.0	2379	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	2379.0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
   ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2870.6	2428	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	3055.2	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
-  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Reference		1.000	2379.0	2379	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	2379.0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
   ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2972.6	2428	9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	3172.9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	cluster 1 n=1
 
 which shows that:
@@ -154,8 +154,8 @@ Output:
 .. code:: shell
 
   Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	rVAF	Min_coverage	Exclu_min_cov  Variant	Target	Info	Variant_sequence	Reference_sequence
+  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	nan	2379	 -	NPM1_4ins_exons_10-11utr	vs_ref
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428 0	/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
-  ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	 -	NPM1_4ins_exons_10-11utr	vs_ref
 
 which shows that an ITD variant (TCTG insertion) was found at position
 chr5:171410544.
@@ -285,7 +285,7 @@ We currently compute the following rVAF by only comparing to the reference signa
 
 * rVAF(M1) = 80/(80+100) = 0.44
 * rVAF(M2) = 250/(250+100) = 0.71
-* rVAF(R) = NA
+* rVAF(R) = nan
 
 For cases where M1 and M2 do not overlap, our rVAF are in fact Variant Alelle
 Frequencies. When there is overlap however, deconvoluting the total signal
