@@ -122,7 +122,6 @@ target sequence.
 * Min_coverage: Min k-mer count of all k-mers in the path
 * Start_offset: Starting position of sequences. Usefull for cluster quantification method (see Info column).
 * Sequence: Sequence of the mutated path
-* Reference_ratio: Estimated ratio of the target allele
 * Reference_expression: Estimated expression level for the target
 * Reference_sequence: Target sequence used
 * Info: Supplementary information regarding the quantification method.
@@ -286,7 +285,7 @@ We currently compute the following rVAF by only comparing to the reference signa
 
 * rVAF(M1) = 80/(80+100) = 0.44
 * rVAF(M2) = 250/(250+100) = 0.71
-* rVAF(R) will be fixed NA.
+* rVAF(R) = NA.
 
 For cases where M1 and M2 do not overlap, our rVAF are in fact Variant Alelle
 Frequencies. When there is overlap however, deconvoluting the total signal
