@@ -11,6 +11,7 @@ from argparse import Namespace
 from km.tools import find_mutation as fm
 from km.tools import find_report as fr
 from km.tools import linear_kmin as lk
+from km.tools import min_cov as mc
 
 from km.utils.Jellyfish import Jellyfish
 from km.utils import MutationFinder as umf
@@ -84,6 +85,24 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "ITD",
                          "Test fail: NPM1 -> report type")
+        self.assertEqual(report_output[4],
+                         "0",
+                         "Test fail: NPM1 -> report Removed")
+        self.assertEqual(report_output[5],
+                         "4 | 1",
+                         "Test fail: NPM1 -> report Added")
+        self.assertEqual(report_output[6],
+                         "2870.6",
+                         "Test fail: NPM1 -> report Abnormal")
+        self.assertEqual(report_output[7],
+                         "3055.2",
+                         "Test fail: NPM1 -> report Normal")
+        self.assertEqual(report_output[8],
+                         "0.484",
+                         "Test fail: NPM1 -> report rVAF")
+        self.assertEqual(report_output[9],
+                         "2428",
+                         "Test fail: NPM1 -> report Min_coverage")
         self.assertEqual(report_output[11],
                          "/TCTG",
                          "Test fail: NPM1 -> report variant")
@@ -139,17 +158,17 @@ class TestkmMuttaion(unittest.TestCase):
 
         self.assertEqual(find_output[2],
                          "ITD",
-                         "Test fail: FLT3-ITD -> find type")
+                         "Test fail: FLT3-IandI -> find type")
         self.assertEqual(find_output[3],
                          "152:/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAA" +
                          "ACTCCCATTTGAGATCATATTC:152",
-                         "Test fail: FLT3-ITD -> find variant")
+                         "Test fail: FLT3-IandI -> find variant")
         self.assertEqual(find_output[8],
                          "TTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTC" +
                          "CCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACC" +
                          "TGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAAT" +
                          "CAACGTAGAAGTACTC",
-                         "Test fail: FLT3-ITD -> find sequence")
+                         "Test fail: FLT3-IandI -> find sequence")
 
         args = Namespace(
             target=target,
@@ -169,14 +188,32 @@ class TestkmMuttaion(unittest.TestCase):
 
         self.assertEqual(report_output[2],
                          "chr13:28034128",
-                         "Test fail: FLT3-ITD -> report pos")
+                         "Test fail: FLT3-IandI -> report pos")
         self.assertEqual(report_output[3],
                          "I&I",
-                         "Test fail: FLT3-ITD -> report type")
+                         "Test fail: FLT3-IandI -> report type")
+        self.assertEqual(report_output[4],
+                         "0",
+                         "Test fail: FLT3-IandI -> report Removed")
+        self.assertEqual(report_output[5],
+                         "93 | 1",
+                         "Test fail: FLT3-IandI -> report Added")
+        self.assertEqual(report_output[6],
+                         "399.1",
+                         "Test fail: FLT3-IandI -> report Abnormal")
+        self.assertEqual(report_output[7],
+                         "398.5",
+                         "Test fail: FLT3-IandI -> report Normal")
+        self.assertEqual(report_output[8],
+                         "0.500",
+                         "Test fail: FLT3-IandI -> report rVAF")
+        self.assertEqual(report_output[9],
+                         "285",
+                         "Test fail: FLT3-IandI -> report Min_coverage")
         self.assertEqual(report_output[11],
                          "/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCC" +
                          "CATTTGAGATCATATTC",
-                         "Test fail: FLT3-ITD -> report variant")
+                         "Test fail: FLT3-IandI -> report variant")
         self.assertEqual(report_output[14],
                          "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTT" +
                          "CCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCT" +
@@ -184,7 +221,7 @@ class TestkmMuttaion(unittest.TestCase):
                          "TGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGT" +
                          "AGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACA" +
                          "AACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
-                         "Test fail: FLT3-ITD -> report sequence")
+                         "Test fail: FLT3-IandI -> report sequence")
 
         args = Namespace(
             target=target,
@@ -259,6 +296,24 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "ITD",
                          "Test fail: FLT3-ITD -> report type")
+        self.assertEqual(report_output[4],
+                         "0",
+                         "Test fail: FLT3-ITD -> report Removed")
+        self.assertEqual(report_output[5],
+                         "75 | 1",
+                         "Test fail: FLT3-ITD -> report Added")
+        self.assertEqual(report_output[6],
+                         "417.6",
+                         "Test fail: FLT3-ITD -> report Abnormal")
+        self.assertEqual(report_output[7],
+                         "1096.7",
+                         "Test fail: FLT3-ITD -> report Normal")
+        self.assertEqual(report_output[8],
+                         "0.276",
+                         "Test fail: FLT3-ITD -> report rVAF")
+        self.assertEqual(report_output[9],
+                         "443",
+                         "Test fail: FLT3-ITD -> report Min_coverage")
         self.assertEqual(report_output[11],
                          "/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC",
                          "Test fail: FLT3-ITD -> report variant")
@@ -436,6 +491,24 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "Substitution",
                          "Test fail: DNMT3A -> report type")
+        self.assertEqual(report_output[4],
+                         "1",
+                         "Test fail: DNMT3A -> report Removed")
+        self.assertEqual(report_output[5],
+                         "1",
+                         "Test fail: DNMT3A -> report Added")
+        self.assertEqual(report_output[6],
+                         "33.7",
+                         "Test fail: DNMT3A -> report Abnormal")
+        self.assertEqual(report_output[7],
+                         "48.7",
+                         "Test fail: DNMT3A -> report Normal")
+        self.assertEqual(report_output[8],
+                         "0.409",
+                         "Test fail: DNMT3A -> report rVAF")
+        self.assertEqual(report_output[9],
+                         "32",
+                         "Test fail: DNMT3A -> report Min_coverage")
         self.assertEqual(report_output[11],
                          "c/T",
                          "Test fail: DNMT3A -> report variant")
@@ -498,20 +571,83 @@ class TestkmMuttaion(unittest.TestCase):
     def test_min_cov(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
-            start=5,
+            jellyfish_fn="./data/jf/",
             target_fn=[target]
         )
 
         with captured_output() as (out, err):
-            lk.main_linear_kmin(args, None)
+            mc.main_min_cov(args, None)
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_output = report_output[1].split("\t")
+        report_line = report_output[1].split("\t")
+
+        self.assertEqual(report_line[0],
+                         "./data/jf/02H025_NPM1.jf",
+                         "Test fail: min_cov1 -> wrong DB")
+
+        self.assertEqual(report_line[1],
+                         "0",
+                         "Test fail: min_cov1 -> wronng count")
+
+        self.assertEqual(report_line[2],
+                         "345",
+                         "Test fail: min_cov1 -> wronng length")
+
+        self.assertEqual(report_line[3],
+                         "0",
+                         "Test fail: min_cov1 -> wronng min")
+
+        self.assertEqual(report_line[4],
+                         "0",
+                         "Test fail: min_cov1 -> wronng max")
+
+        self.assertEqual(report_line[5],
+                         "0.00",
+                         "Test fail: min_cov1 -> wronng mean")
+
+        self.assertEqual(report_line[6],
+                         "315",
+                         "Test fail: min_cov1 -> wronng kmer_nb")
+
+        self.assertEqual(report_line[7],
+                         "315",
+                         "Test fail: min_cov1 -> wronng kmer_nb_0")
+
+
+        report_line = report_output[3].split("\t")
+
+        self.assertEqual(report_output[0],
+                         "./data/jf/03H112_IandI.jf",
+                         "Test fail: min_cov2 -> wrong DB")
 
         self.assertEqual(report_output[1],
-                         "10",
-                         "Test fail: linear_kmin -> wrong kmin")
+                         "275596",
+                         "Test fail: min_cov2 -> wronng count")
+
+        self.assertEqual(report_output[2],
+                         "345",
+                         "Test fail: min_cov2 -> wronng length")
+
+        self.assertEqual(report_output[3],
+                         "618",
+                         "Test fail: min_cov2 -> wronng min")
+
+        self.assertEqual(report_output[4],
+                         "1368",
+                         "Test fail: min_cov2 -> wronng max")
+
+        self.assertEqual(report_output[5],
+                         "874.91",
+                         "Test fail: min_cov2 -> wronng mean")
+
+        self.assertEqual(report_output[6],
+                         "315",
+                         "Test fail: min_cov2 -> wronng kmer_nb")
+
+        self.assertEqual(report_output[7],
+                         "0",
+                         "Test fail: min_cov2 -> wronng kmer_nb_0")
 
 
 def runTests():
