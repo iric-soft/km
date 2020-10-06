@@ -496,22 +496,22 @@ class TestkmMuttaion(unittest.TestCase):
                          "Test fail: linear_kmin -> wrong kmin")
 
     def test_min_cov(self):
-         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
-         args = Namespace(
-             start=5,
-             target_fn=[target]
-         )
+        target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
+        args = Namespace(
+            start=5,
+            target_fn=[target]
+        )
 
-         with captured_output() as (out, err):
-             lk.main_linear_kmin(args, None)
+        with captured_output() as (out, err):
+            lk.main_linear_kmin(args, None)
 
-         output = out.getvalue()
-         report_output = output.split("\n")
-         report_output = report_output[1].split("\t")
+        output = out.getvalue()
+        report_output = output.split("\n")
+        report_output = report_output[1].split("\t")
 
-         self.assertEqual(report_output[1],
-                          "10",
-                          "Test fail: linear_kmin -> wrong kmin")
+        self.assertEqual(report_output[1],
+                         "10",
+                         "Test fail: linear_kmin -> wrong kmin")
 
 
 def runTests():
