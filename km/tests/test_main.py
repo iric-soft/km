@@ -580,73 +580,66 @@ class TestkmMuttaion(unittest.TestCase):
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_line = report_output[1].split("\t")
 
-        self.assertEqual(report_line[0],
-                         "./data/jf/02H025_NPM1.jf",
-                         "Test fail: min_cov1 -> wrong DB")
+        for report_line in report_output:
+            report_line = report_line.split("\t")
+            if report_line[0] == "./data/jf/02H025_NPM1.jf":
+                self.assertEqual(report_line[1],
+                                 "0",
+                                 "Test fail: min_cov1 -> wronng count")
 
-        self.assertEqual(report_line[1],
-                         "0",
-                         "Test fail: min_cov1 -> wronng count")
+                self.assertEqual(report_line[2],
+                                 "345",
+                                 "Test fail: min_cov1 -> wronng length")
 
-        self.assertEqual(report_line[2],
-                         "345",
-                         "Test fail: min_cov1 -> wronng length")
+                self.assertEqual(report_line[3],
+                                 "0",
+                                 "Test fail: min_cov1 -> wronng min")
 
-        self.assertEqual(report_line[3],
-                         "0",
-                         "Test fail: min_cov1 -> wronng min")
+                self.assertEqual(report_line[4],
+                                 "0",
+                                 "Test fail: min_cov1 -> wronng max")
 
-        self.assertEqual(report_line[4],
-                         "0",
-                         "Test fail: min_cov1 -> wronng max")
+                self.assertEqual(report_line[5],
+                                 "0.00",
+                                 "Test fail: min_cov1 -> wronng mean")
 
-        self.assertEqual(report_line[5],
-                         "0.00",
-                         "Test fail: min_cov1 -> wronng mean")
+                self.assertEqual(report_line[6],
+                                 "315",
+                                 "Test fail: min_cov1 -> wronng kmer_nb")
 
-        self.assertEqual(report_line[6],
-                         "315",
-                         "Test fail: min_cov1 -> wronng kmer_nb")
+                self.assertEqual(report_line[7],
+                                 "315",
+                                 "Test fail: min_cov1 -> wronng kmer_nb_0")
 
-        self.assertEqual(report_line[7],
-                         "315",
-                         "Test fail: min_cov1 -> wronng kmer_nb_0")
+            if report_line[0] == "./data/jf/03H112_IandI.jf":
+                self.assertEqual(report_line[1],
+                                 "275596",
+                                 "Test fail: min_cov2 -> wronng count")
 
-        report_line2 = report_output[3].split("\t")
+                self.assertEqual(report_line[2],
+                                 "345",
+                                 "Test fail: min_cov2 -> wronng length")
 
-        self.assertEqual(report_line2[0],
-                         "./data/jf/03H112_IandI.jf",
-                         "Test fail: min_cov2 -> wrong DB")
+                self.assertEqual(report_line[3],
+                                 "618",
+                                 "Test fail: min_cov2 -> wronng min")
 
-        self.assertEqual(report_line2[1],
-                         "275596",
-                         "Test fail: min_cov2 -> wronng count")
+                self.assertEqual(report_line[4],
+                                 "1368",
+                                 "Test fail: min_cov2 -> wronng max")
 
-        self.assertEqual(report_line2[2],
-                         "345",
-                         "Test fail: min_cov2 -> wronng length")
+                self.assertEqual(report_line[5],
+                                 "874.91",
+                                 "Test fail: min_cov2 -> wronng mean")
 
-        self.assertEqual(report_line2[3],
-                         "618",
-                         "Test fail: min_cov2 -> wronng min")
+                self.assertEqual(report_line[6],
+                                 "315",
+                                 "Test fail: min_cov2 -> wronng kmer_nb")
 
-        self.assertEqual(report_line2[4],
-                         "1368",
-                         "Test fail: min_cov2 -> wronng max")
-
-        self.assertEqual(report_line2[5],
-                         "874.91",
-                         "Test fail: min_cov2 -> wronng mean")
-
-        self.assertEqual(report_line2[6],
-                         "315",
-                         "Test fail: min_cov2 -> wronng kmer_nb")
-
-        self.assertEqual(report_line2[7],
-                         "0",
-                         "Test fail: min_cov2 -> wronng kmer_nb_0")
+                self.assertEqual(report_line[7],
+                                 "0",
+                                 "Test fail: min_cov2 -> wronng kmer_nb_0")
 
 
 def runTests():
