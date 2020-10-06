@@ -30,10 +30,13 @@ Contents:
   - |lk-output|_
   - |lk-output-desc|_
 
+* `rVAF`_
+
 .. _find_mutation: https://github.com/iric-soft/km/tree/master/km/tools#find_mutation
 .. _find_report: https://github.com/iric-soft/km/tree/master/km/tools#find_report
 .. _min_cov: https://github.com/iric-soft/km/tree/master/km/tools#min_cov
 .. _linear_kmin: https://github.com/iric-soft/km/tree/master/km/tools#linear_kmin
+.. _rVAF: https://github.com/iric-soft/km/tree/master/km/tools#rVAF
 
 .. _fm-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage
 .. _fr-usage: https://github.com/iric-soft/km/tree/master/km/tools#usage-1
@@ -90,10 +93,10 @@ command takes a few seconds and returns an output similar to this:
 
 .. code:: shell
 
-  Database	Query	Type	Variant_name	Ratio	Expression	Min_coverage	Start_offset  Sequence	Reference_ratio	Reference_expression	Reference_sequence	Info
-  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2870.6	2428	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	0.516	3055.2	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
-  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Reference		1.000	2379.0	2379	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	1.000	2379.0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
-  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2972.6	2428	9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	0.516	3172.9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	cluster 1 n=1
+  Database	Query	Type	Variant_name	rVAF	Expression	Min_coverage	Start_offset  Sequence	Reference_expression	Reference_sequence	Info
+  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2870.6	2428	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	3055.2	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
+  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Reference		1.000	2379.0	2379	0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	2379.0	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	vs_ref
+  ./data/jf/02H025_NPM1.jf	NPM1_4ins_exons_10-11utr	Insertion	45:/TCTG:45	0.484	2972.6	2428	9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	3172.9	CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG	cluster 1 n=1
 
 which shows that:
 
@@ -114,7 +117,7 @@ target sequence.
 * Query: Name of the target sequence examined
 * Type: Type of mutation found (Insertion, Deletion or Substitution).  A Reference type used to identify path without mutation
 * Variant name: A description of the modification in the format start_position:deleted_bases/inserted_bases:end_position
-* Ratio: Estimated ratio for the mutated allele represented by this path
+* `rVAF`_: Estimated reference Variant Alelle Frequencies for the mutated allele represented by this path.
 * Expression: Estimated expression level for the mutated allele (coverage)
 * Min_coverage: Min k-mer count of all k-mers in the path
 * Start_offset: Starting position of sequences. Usefull for cluster quantification method (see Info column).
@@ -130,7 +133,7 @@ target sequence.
 Using the -g argument, one can also obtain a coverage graph for the two	variants, for example:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/figure_1.png
-	 
+
 ------------
 find_report:
 ------------
@@ -151,7 +154,7 @@ Output:
 
 .. code:: shell
 
-  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	Ratio	Min_coverage	Exclu_min_cov  Variant	Target	Info	Variant_sequence	Reference_sequence
+  Sample	Region	Location	Type	Removed	Added	Abnormal	Normal	rVAF	Min_coverage	Exclu_min_cov  Variant	Target	Info	Variant_sequence	Reference_sequence
   ./data/jf/02H025_NPM1.jf	chr5:171410540-171410543	chr5:171410544	ITD	0	4 | 4	2870.6	3055.2	0.484	2428 0	/TCTG	NPM1_4ins_exons_10-11utr	vs_ref	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA	AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA
   ./data/jf/02H025_NPM1.jf		-	Reference	0	0	0.0	2379.0	1.000	2379	 -	NPM1_4ins_exons_10-11utr	vs_ref
 
@@ -171,7 +174,7 @@ Each line represents a path that was constructed from the target sequence.
 * Added: number of nucleotides added spliced | unspliced
 * Abnormal: estimated expression level for the mutated allele (coverage)
 * Normal: estimated expression level for the target
-* Ratio: estimated ratio for the mutated allele represented by this path
+* `rVAF`_: Estimated reference Variant Alelle Frequencies for the mutated allele represented by this path.
 * Min_coverage: Min k-mer count of all k-mers in the path
 * Exclu_min_cov: Min k-mer count of all k-mers in the variant sequence from the jf database given with "-e".
 * Variant: A description of the variant in the format: deleted_bases/inserted_bases
@@ -266,3 +269,25 @@ Output description:
 
 * target_name: name of target sequence.
 * linear_kmin: minimum k length to decompose the target sequence in linear graph.
+
+-----
+rVAF:
+-----
+rVAF reported by km currently only consider mutated events independently even
+if the signal at a given point may be spread between more than 2 alternatives.
+
+So, for example, if km returns multiple potential mutations:
+
+* M1: mutated path 1 with a coverage of 80
+* M2: mutated path 2 with a coverage of 250
+* R: reference path with a coverage of 100
+
+We currently compute the following rVAF by only comparing to the reference signal:
+
+* rVAF(M1) = 80/(80+100) = 0.44
+* rVAF(M2) = 250/(250+100) = 0.71
+* rVAF(R) will be fixed NA.
+
+For cases where M1 and M2 do not overlap, our rVAF are in fact Variant Alelle
+Frequencies. When there is overlap however, deconvoluting the total signal
+between all paths is an aspect that we have not yet developed.
