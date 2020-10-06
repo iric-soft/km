@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# cmd to run test: coverage run -m unittest discover ./km/tests
+# cmd to run test: pytest ./km --cov=km/
 
 import unittest
 
@@ -554,7 +554,7 @@ class TestkmMuttaion(unittest.TestCase):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
             start=5,
-            target_fn=[target]
+            target_fn=target
         )
 
         with captured_output() as (out, err):
