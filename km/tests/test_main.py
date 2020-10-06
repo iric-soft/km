@@ -614,38 +614,37 @@ class TestkmMuttaion(unittest.TestCase):
                          "315",
                          "Test fail: min_cov1 -> wronng kmer_nb_0")
 
-
         report_line = report_output[3].split("\t")
 
-        self.assertEqual(report_output[0],
+        self.assertEqual(report_line[0],
                          "./data/jf/03H112_IandI.jf",
                          "Test fail: min_cov2 -> wrong DB")
 
-        self.assertEqual(report_output[1],
+        self.assertEqual(report_line[1],
                          "275596",
                          "Test fail: min_cov2 -> wronng count")
 
-        self.assertEqual(report_output[2],
+        self.assertEqual(report_line[2],
                          "345",
                          "Test fail: min_cov2 -> wronng length")
 
-        self.assertEqual(report_output[3],
+        self.assertEqual(report_line[3],
                          "618",
                          "Test fail: min_cov2 -> wronng min")
 
-        self.assertEqual(report_output[4],
+        self.assertEqual(report_line[4],
                          "1368",
                          "Test fail: min_cov2 -> wronng max")
 
-        self.assertEqual(report_output[5],
+        self.assertEqual(report_line[5],
                          "874.91",
                          "Test fail: min_cov2 -> wronng mean")
 
-        self.assertEqual(report_output[6],
+        self.assertEqual(report_line[6],
                          "315",
                          "Test fail: min_cov2 -> wronng kmer_nb")
 
-        self.assertEqual(report_output[7],
+        self.assertEqual(report_line[7],
                          "0",
                          "Test fail: min_cov2 -> wronng kmer_nb_0")
 
