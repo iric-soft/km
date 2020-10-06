@@ -285,7 +285,7 @@ We currently compute the following rVAF by only comparing to the reference signa
 
 * rVAF(M1) = 80/(80+100) = 0.44
 * rVAF(M2) = 250/(250+100) = 0.71
-* rVAF(R) = NA.
+* rVAF(R) = NA
 
 For cases where M1 and M2 do not overlap, our rVAF are in fact Variant Alelle
 Frequencies. When there is overlap however, deconvoluting the total signal
