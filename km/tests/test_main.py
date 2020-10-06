@@ -554,7 +554,7 @@ class TestkmMuttaion(unittest.TestCase):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
             start=5,
-            target_fn=target
+            target_fn=[target]
         )
 
         with captured_output() as (out, err):
@@ -571,8 +571,8 @@ class TestkmMuttaion(unittest.TestCase):
     def test_min_cov(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
         args = Namespace(
-            jellyfish_fn="./data/jf/",
-            target_fn=[target]
+            jellyfish_fn=["./data/jf/"],
+            target_fn=target
         )
 
         with captured_output() as (out, err):
