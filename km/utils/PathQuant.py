@@ -13,7 +13,7 @@ class Path:
         self.db_name = db_f
         self.ref_name = ref_name
         self.variant_name = variant_name
-        self.ratio = ratio
+        self.rVAF = ratio
         self.expression = expression
         self.min_coverage = min_coverage
         self.start_off = start_off
@@ -24,23 +24,22 @@ class Path:
         self.note = note
 
     def __str__(self):
-        return "%s\t%s\t%s\t%.3f\t%.1f\t%d\t%d\t%s\t%.3f\t%.1f\t%s\t%s" % (
+        return "%s\t%s\t%s\t%.3f\t%.1f\t%d\t%d\t%s\t%.1f\t%s\t%s" % (
             self.db_name,
             self.ref_name,
             self.variant_name,
-            self.ratio,
+            self.rVAF,
             self.expression,
             self.min_coverage,
             self.start_off,
             self.sequence,
-            self.ref_ratio,
             self.ref_expression,
             self.ref_sequence,
             self.note)
 
     def __list__(self):
         return self.__str__().split('\t')
-    
+
     def __getitem__(self, i):
         return self.__list__()[i]
 
@@ -65,7 +64,7 @@ class PathQuant:
         self.counts = np.zeros((self.nb_kmer, 1), dtype=np.float32)
 
         self.coef = None
-        self.ratio = None
+        self.rVAF = None
 
         seq_i = 0
         log.debug("%d sequence(s) are observed.", self.nb_seq)
@@ -115,31 +114,27 @@ class PathQuant:
 
     def get_ratio(self):
         if max(self.coef) == 0:
-            self.ratio = self.coef
+            self.rVAF = self.coef
         else:
-            self.ratio = self.coef / np.sum(self.coef)
-        return self.ratio
+            self.rVAF = self.coef / np.sum(self.coef)
+        return self.rVAF
 
     def adjust_for_reference(self):
-        if min(self.counts) == 0:
-            self.ratio[0] = 0
-            self.ratio[1] = 0
-        else:
-            self.ratio[0] = 1
-            self.ratio[1] = 1
+        self.rVAF[0] = np.nan
+        self.rVAF[1] = np.nan
         self.coef[self.coef >= 0] = min(self.counts)[0]
 
     @staticmethod
     def output_header():
-        print("Database\tQuery\tType\tVariant_name\tRatio\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_ratio\tReference_expression\tReference_sequence\tInfo")
+        print("Database\tQuery\tType\tVariant_name\trVAF\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_expression\tReference_sequence\tInfo")
 
     def output(self, db_f, ref_name, name_f, seq_f):
         for i in range(self.nb_seq):
-            # if self.ratio[i] > 0:
+            # if self.rVAF[i] > 0:
             print("%s\t%s\t%s\t%.3f\t%.1f\t%s" % (db_f,
                                                   ref_name,
                                                   name_f(self.all_path[i]),
-                                                  self.ratio[i], self.coef[i],
+                                                  self.rVAF[i], self.coef[i],
                                                   seq_f(self.all_path[i])))
 
     def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
@@ -153,11 +148,11 @@ class PathQuant:
             if i != ref_i:
                 p = Path(db_f, ref_name,
                          name_f(self.all_path[i]),
-                         self.ratio[i], self.coef[i],
+                         self.rVAF[i], self.coef[i],
                          get_min_f(self.all_path[i]),
                          start_off,
                          seq_f(self.all_path[i]),
-                         self.ratio[ref_i], self.coef[ref_i],
+                         self.rVAF[ref_i], self.coef[ref_i],
                          seq_f(self.all_path[ref_i]), info)
                 paths += [p]
         return paths
