@@ -272,8 +272,8 @@ Output description:
 -----
 rVAF:
 -----
-rVAF reported by km currently only consider mutated events independently even
-if the signal at a given point may be spread between more than 2 alternatives.
+rVAF reported by km currently only considers mutated events independently even
+if the signal at a given point may be spread out between more than 2 alternatives.
 
 So, for example, if km returns multiple potential mutations:
 
@@ -288,5 +288,5 @@ We currently compute the following rVAF by only comparing to the reference signa
 * rVAF(R) = nan
 
 For cases where M1 and M2 do not overlap, our rVAF are in fact Variant Alelle
-Frequencies. When there is overlap however, deconvoluting the total signal
+Frequencies. However when there is overlap, deconvoluting the total signal
 between all paths is an aspect that we have not yet developed.
