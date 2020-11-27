@@ -43,7 +43,6 @@ class Path:
     def __getitem__(self, i):
         return self.__list__()[i]
 
-    @staticmethod
     def get_min_cov(self):
         return self.min_coverage
 
