@@ -141,11 +141,13 @@ class MutationFinder:
             del_seq = get_seq(deletion, kmer, True)
             ins_seq = get_seq(ins, kmer, True)
 
-            trim = 1
-            while (len(del_seq[-trim:]) > 0 and
-                    del_seq[-trim:] == ins_seq[-trim:]):
-                trim += 1
-            trim -= 1
+            trim = 1  # cannot be 0 because we use inverse indexing
+            if len(del_seq) > 0:
+                assert del_seq != ins_seq  # should never happen
+                while del_seq[-trim:] == ins_seq[-trim:]:
+                    trim += 1
+            trim -= 1  # offset by 1 to use as a right-side indexing extremity
+
             if trim != 0:
                 del_seq = del_seq[:-trim]
                 ins_seq = ins_seq[:-trim]

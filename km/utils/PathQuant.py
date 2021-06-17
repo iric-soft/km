@@ -125,7 +125,23 @@ class PathQuant:
 
     @staticmethod
     def output_header():
-        print("Database\tQuery\tType\tVariant_name\trVAF\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_expression\tReference_sequence\tInfo")
+        return print(
+            '\t'.join([
+                'Database',
+                'Query',
+                'Type',
+                'Variant_name',
+                'rVAF',
+                'Expression',
+                'Min_coverage',
+                'Start_offset',
+                'Sequence',
+                'Reference_expression',
+                'Reference_sequence',
+                'Info'
+                ]
+            )
+        )
 
     def output(self, db_f, ref_name, name_f, seq_f):
         for i in range(self.nb_seq):
