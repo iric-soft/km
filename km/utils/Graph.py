@@ -114,15 +114,21 @@ class Graph:
         # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
         i = 0
 
+        # Look for first left-side mutated kmer
         while i < len(ref) and i < len(seq) and ref[i] == seq[i]:
             i += 1
 
+        # Look for first right-side mutated kmer (if indel) or i + 31 (if snp or mnp)
+        #   - if insertion: j_seq > i + (k - 1)
+        #   - if deletion: j_ref > i + (k - 1)
         j_ref = len(ref)
         j_seq = len(seq)
-        while j_ref > i + (k - 1) and j_seq > i + (k - 1) and ref[j_ref - 1] == seq[j_seq - 1]: #  + (k - 1):to prevent kmer from overlapping
+        while j_ref > i + (k - 1) and j_seq > i + (k - 1) and ref[j_ref - 1] == seq[j_seq - 1]:
+            # '+ (k - 1)' = to prevent kmers from overlapping
             j_ref -= 1
             j_seq -= 1
 
+        # Look for first ref right-side mutated kmer ignoring 'k'
         k_ref = j_ref
         k_seq = j_seq
         while k_ref > i and ref[k_ref - 1] == seq[k_seq - 1]:
