@@ -1,13 +1,8 @@
-# find_mutation ---
+# min_cov ---
 #
-#   Usage:  find_mutation <region_fasta or directory> <jellyfish_db>
 import os
 import sys
-import time
-import logging as log
-from .. utils import MutationFinder as umf
 from .. utils import common as uc
-from .. utils.Jellyfish import Jellyfish
 
 
 # ###########################################################################
