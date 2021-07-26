@@ -50,6 +50,15 @@ class MutationFinder:
                 continue
             self.__extend([seq], 0, 0)
 
+        self.kmer = list(self.node_data.keys())
+        self.kmer_count = list(self.node_data.values())
+        self.num_k = len(self.kmer)
+
+        # reference path, with node indices
+        self.ref_index = [self.kmer.index(k) for k in self.ref_mer]
+
+        log.debug("k-mer graph contains %d nodes.", self.num_k)
+
         self.graph_analysis(graphical)
 
     def __extend(self, stack, breaks, found):
@@ -98,16 +107,96 @@ class MutationFinder:
 
         return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
 
+    def get_seq(self, path, skip_prefix=True):
+        path = list(path)
+
+        if not path:
+            # Deals with an empty sequence
+            return ""
+
+        if skip_prefix:
+            seq = self.kmer[path[0]][-1]
+        else:
+            seq = self.kmer[path[0]]
+
+        for i in path[1:]:
+            seq += self.kmer[i][-1]
+
+        return seq
+
+    def get_name(self, ref_ix, path_ix, offset=0):
+        diff = self._diff_path_without_overlap(ref_ix, path_ix)
+        deletion = diff[3]
+        ins = diff[4]
+
+        if (len(ref_ix)-len(deletion)+len(ins)) != len(path_ix):
+            sys.stderr.write(
+                "ERROR: %s %d != %d" % (
+                    "mutation identification could be incorrect",
+                    len(ref_ix) - len(deletion) + len(ins),
+                    len(path_ix)
+                )
+            )
+
+            # Fixes cases where we look at two copies of the same sequence
+            deletion = diff[3]
+            raise Exception()
+
+        # Trim end sequence when in both del and ins:
+        del_seq = self.get_seq(deletion, True)
+        ins_seq = self.get_seq(ins, True)
+
+        trim = 1
+        while (len(del_seq[-trim:]) > 0 and
+                del_seq[-trim:] == ins_seq[-trim:]):
+            trim += 1
+        trim -= 1
+
+        if trim != 0:
+            del_seq = del_seq[:-trim]
+            ins_seq = ins_seq[:-trim]
+
+        if diff[0] == diff[1] and not diff[4]:
+            return "Reference\t"
+        else:
+            variant = "Indel"
+            # SNP have equal length specific sequences
+            if diff[1] == diff[2]:
+                variant = "Substitution"
+
+            # ITD have zero kmers in ref after full trimming.
+            # However, this does not distinguish cases where there is
+            # garbage between repeats.
+            elif diff[0] == diff[5]:
+                variant = "ITD"
+            elif len(del_seq) == 0 and len(ins_seq) != 0:
+                variant = "Insertion"
+            elif len(del_seq) != 0 and len(ins_seq) == 0:
+                variant = "Deletion"
+
+            return "{}\t{}:{}:{}".format(
+                variant,
+                diff[0] + self.jf.k + offset,
+                (str.lower(del_seq) + "/" + ins_seq),
+                diff[1] + 1 + offset)
+
+    def get_counts(self, path):
+        counts = []
+        for i in path:
+            counts += [self.node_data[self.kmer[i]]]
+        # print("length counts: " + str(len(counts)))
+        # print("min counts: " + str(min(counts)))
+
+        return counts
+
     def graph_analysis(self, graphical=False):
         self.paths = []
-        kmer = list(self.node_data.keys())
+        kmer = self.kmer
 
-        num_k = len(kmer)
+        num_k = self.num_k
         graph = ug.Graph(num_k)
         # The reference path, with node numbers
-        ref_index = [kmer.index(k) for k in self.ref_mer]
-
-        log.debug("k-mer graph contains %d nodes.", num_k)
+        ref_index = self.ref_index
 
         for i in range(num_k):
             for j in range(num_k):
@@ -125,88 +214,6 @@ class MutationFinder:
         graph.init_paths(kmer.index(self.first_seq),
                          kmer.index(self.last_seq))
         short_paths = graph.all_shortest()
-
-        def get_seq(path, kmer, skip_prefix=True):
-            path = list(path)
-            if not path:
-                # Deals with an empty sequence
-                return ""
-
-            if skip_prefix:
-                seq = kmer[path[0]][-1]
-            else:
-                seq = kmer[path[0]]
-
-            for i in path[1:]:
-                seq += kmer[i][-1]
-            return seq
-
-        def get_name(a, b, offset=0):
-            k = self.jf.k
-            diff = self._diff_path_without_overlap(a, b)
-            deletion = diff[3]
-            ins = diff[4]
-
-            if (len(a)-len(deletion)+len(ins)) != len(b):
-                sys.stderr.write(
-                    "ERROR: %s %d != %d" % (
-                        "mutation identification could be incorrect",
-                        len(a) - len(deletion) + len(ins),
-                        len(b)
-                    )
-                )
-
-                # Fixes cases where we look at two copies of the same sequence
-                deletion = diff[3]
-                raise Exception()
-
-            # Trim end sequence when in both del and ins:
-            del_seq = get_seq(deletion, kmer, True)
-            ins_seq = get_seq(ins, kmer, True)
-
-            trim = 1  # cannot be 0 because we use inverse indexing
-            if len(del_seq) > 0:
-                assert del_seq != ins_seq  # should never happen
-                while del_seq[-trim:] == ins_seq[-trim:]:
-                    trim += 1
-            trim -= 1  # offset by 1 to use as a right-side indexing extremity
-
-            if trim != 0:
-                del_seq = del_seq[:-trim]
-                ins_seq = ins_seq[:-trim]
-
-            if diff[0] == diff[1] and not diff[4]:
-                return "Reference\t"
-            else:
-                variant = "Indel"
-                # SNP have equal length specific sequences
-                if diff[1] == diff[2]:
-                    variant = "Substitution"
-
-                # ITD have zero kmers in ref after full trimming.
-                # However, this does not distinguish cases where there is
-                # garbage between repeats.
-                elif diff[0] == diff[5]:
-                    variant = "ITD"
-                elif len(del_seq) == 0 and len(ins_seq) != 0:
-                    variant = "Insertion"
-                elif len(del_seq) != 0 and len(ins_seq) == 0:
-                    variant = "Deletion"
-
-                return "{}\t{}:{}:{}".format(
-                    variant,
-                    diff[0] + k + offset,
-                    (str.lower(del_seq) + "/" + ins_seq),
-                    diff[1] + 1 + offset)
-
-        def get_counts(path, kmer):
-            counts = []
-            for i in path:
-                counts += [self.node_data[kmer[i]]]
-            # print("length counts: " + str(len(counts)))
-            # print("min counts: " + str(min(counts)))
-
-            return counts
 
         # Quantify all paths independently
         individual = True
@@ -226,10 +233,10 @@ class MutationFinder:
                 self.paths_quant = quant.get_paths(
                     db_f=self.jf.filename,
                     ref_name=self.ref_name,
-                    name_f=lambda path: get_name(ref_index, path),
-                    seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
+                    name_f=lambda path: self.get_name(ref_index, path),
+                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
                     ref_path=ref_index, info="vs_ref",
-                    get_min_f=lambda path: min(get_counts(path, kmer)))
+                    get_min_f=lambda path: min(self.get_counts(path)))
 
                 self.paths += self.paths_quant
 
@@ -238,8 +245,8 @@ class MutationFinder:
 
                 plt.figure(figsize=(10, 6))
                 for path in short_paths:
-                    plt.plot(get_counts(path, kmer),
-                             label=get_name(ref_index, path).replace("\t", " "))
+                    plt.plot(self.get_counts(path),
+                             label=self.get_name(ref_index, path).replace("\t", " "))
                 plt.legend()
                 plt.show()
 
@@ -305,11 +312,11 @@ class MutationFinder:
                 self.paths_quant = quant.get_paths(
                     db_f=self.jf.filename,
                     ref_name=self.ref_name,
-                    name_f=lambda path: get_name(ref_path, path, offset),
-                    seq_f=lambda path: get_seq(path, kmer, skip_prefix=False),
+                    name_f=lambda path: self.get_name(ref_path, path, offset),
+                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
                     ref_path=ref_path,
                     info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                    get_min_f=lambda path: min(get_counts(path, kmer)),
+                    get_min_f=lambda path: min(self.get_counts(path)),
                     start_off=start_off)
 
                 self.paths_quant
@@ -322,11 +329,11 @@ class MutationFinder:
                     plt.figure(figsize=(10, 6))
                     for path, ratio in zip(clipped_paths, quant.get_ratio()):
                         if path == ref_path:
-                            plt.plot(get_counts(path, kmer),
+                            plt.plot(self.get_counts(path),
                                      label="Reference")
                         else:
-                            plt.plot(get_counts(path, kmer),
-                                     label=get_name(ref_path, path, offset).split("\t")[0])
+                            plt.plot(self.get_counts(path),
+                                     label=self.get_name(ref_path, path, offset).split("\t")[0])
                     plt.legend()
                     plt.show()
 
