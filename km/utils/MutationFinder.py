@@ -75,6 +75,29 @@ class MutationFinder:
             else:
                 self.__extend(stack + [child], breaks, found)
 
+    def _diff_path_without_overlap(self, ref, seq):
+        # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
+        i = 0
+
+        while i < len(ref) and i < len(seq) and ref[i] == seq[i]:
+            i += 1
+
+        j_ref = len(ref)
+        j_seq = len(seq)
+        while j_ref > i + (self.jf.k - 1) and j_seq > i + (self.jf.k - 1) and ref[j_ref - 1] == seq[j_seq - 1]: #  + (k - 1):to prevent kmer from overlapping
+            j_ref -= 1
+            j_seq -= 1
+
+        k_ref = j_ref
+        k_seq = j_seq
+        while k_ref > i and ref[k_ref - 1] == seq[k_seq - 1]:
+            k_ref -= 1
+            k_seq -= 1
+
+        # log.debug("diffpath : " + " ".join (str(x) for x in [i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref]))
+
+        return (i, j_ref, j_seq, ref[i:j_ref], seq[i:j_seq], k_ref)
+
     def graph_analysis(self, graphical=False):
         self.paths = []
         kmer = list(self.node_data.keys())
@@ -120,7 +143,7 @@ class MutationFinder:
 
         def get_name(a, b, offset=0):
             k = self.jf.k
-            diff = graph.diff_path_without_overlap(a, b, k)
+            diff = self._diff_path_without_overlap(a, b)
             deletion = diff[3]
             ins = diff[4]
 
@@ -227,8 +250,8 @@ class MutationFinder:
             variant_diffs = []
             variant_set = set(range(0, len(short_paths)))
             for variant in short_paths:
-                diff = graph.diff_path_without_overlap(
-                    ref_index, variant, self.jf.k)
+                diff = self._diff_path_without_overlap(
+                    ref_index, variant)
                 variant_diffs += [diff]
 
             def get_intersect(start, stop):
