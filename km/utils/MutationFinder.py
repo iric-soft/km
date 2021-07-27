@@ -213,12 +213,20 @@ class MutationFinder:
 
         graph.init_paths(kmer.index(self.first_seq),
                          kmer.index(self.last_seq))
-        short_paths = graph.all_shortest()
 
-        # Quantify all paths independently
+        self.short_paths = graph.all_shortest()
+
         individual = True
-        if individual:
-            for path in short_paths:
+        self.quantify_paths(graphical, do=individual)
+
+        cluster = True
+        self.find_clusters(graphical, do=cluster)
+
+    def quantify_paths(self, graphical=False, do=True):
+        # Quantify all paths independently
+        if do:
+            ref_index = self.ref_index
+            for path in self.short_paths:
                 quant = upq.PathQuant(all_paths=[path, ref_index],
                                       counts=list(self.node_data.values()))
 
@@ -244,21 +252,22 @@ class MutationFinder:
                 import matplotlib.pyplot as plt
 
                 plt.figure(figsize=(10, 6))
-                for path in short_paths:
+                for path in self.short_paths:
                     plt.plot(self.get_counts(path),
                              label=self.get_name(ref_index, path).replace("\t", " "))
                 plt.legend()
                 plt.show()
 
+    def find_clusters(self, graphical=False, do=True):
         # Quantify by cutting the sequence around mutations,
         # considering overlapping mutations as a cluster
-        cluster = True
-        if cluster:
+        if do:
+            ref_index = self.ref_index
             variant_diffs = []
-            variant_set = set(range(0, len(short_paths)))
-            for variant in short_paths:
+            variant_set = set(range(0, len(self.short_paths)))
+            for variant in self.short_paths:
                 diff = self._diff_path_without_overlap(
-                    ref_index, variant)
+                    self.ref_index, variant)
                 variant_diffs += [diff]
 
             def get_intersect(start, stop):
@@ -286,7 +295,7 @@ class MutationFinder:
             num_cluster = 0
             for var_gr in variant_groups:
                 if (len(var_gr[2]) == 1 and
-                        list(short_paths[var_gr[2][0]]) == ref_index):
+                        list(self.short_paths[var_gr[2][0]]) == ref_index):
                     continue
                 num_cluster += 1
 
@@ -299,7 +308,7 @@ class MutationFinder:
                 for var in var_gr[2]:
                     start_off = offset
                     stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
-                    clipped_paths += [short_paths[var][start_off:stop_off]]
+                    clipped_paths += [self.short_paths[var][start_off:stop_off]]
 
                 quant = upq.PathQuant(all_paths=clipped_paths,
                                       counts=list(self.node_data.values()))
