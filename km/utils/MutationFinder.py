@@ -299,7 +299,7 @@ class MutationFinder:
 
             self.paths.append(path_o)
 
-    def find_clusters(self, graphical=False):
+    def _find_clusters(self):
         # Quantify by cutting the sequence around mutations,
         # considering overlapping mutations as a cluster
         variant_diffs = []
@@ -357,6 +357,9 @@ class MutationFinder:
                 clipped_paths.append(new_path)
 
             self.clusters.append((ref_path, clipped_paths, offset))
+
+    def quantify_clusters(self, graphical=False):
+        self._find_clusters()
 
         if graphical:
             import matplotlib.pyplot as plt
