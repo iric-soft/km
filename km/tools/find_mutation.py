@@ -35,8 +35,12 @@ def main_find_mut(args, argparser):
 
         finder = umf.MutationFinder(
             ref_name, ref_seq, jf,
-            args.graphical, args.steps, args.branchs
+            args.steps, args.branchs
         )
+
+        finder.graph_analysis()
+        finder.quantify_paths(args.graphical)
+        finder.find_clusters(args.graphical)
 
         for path in finder.get_paths(sort=True):
             sys.stdout.write(str(path) + "\n")

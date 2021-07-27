@@ -23,7 +23,7 @@ PathDiff = namedtuple('PathDiff',
 
 
 class MutationFinder:
-    def __init__(self, ref_name, ref_seq, jf, graphical, max_stack=500,
+    def __init__(self, ref_name, ref_seq, jf, max_stack=500,
                  max_break=10):
         # Load the reference sequence and preparing ref k-mers
 
@@ -67,8 +67,6 @@ class MutationFinder:
         self.ref_index = [self.kmer.index(k) for k in self.ref_mer]
 
         log.debug("k-mer graph contains %d nodes.", self.num_k)
-
-        self.graph_analysis(graphical)
 
     def __extend(self, stack, breaks, found):
         """ Recursive depth first search """
@@ -251,12 +249,6 @@ class MutationFinder:
         )
 
         self.short_paths = graph.all_shortest()
-
-        individual = True
-        self.quantify_paths(graphical, do=individual)
-
-        cluster = True
-        self.find_clusters(graphical, do=cluster)
 
     def quantify_paths(self, graphical=False, do=True):
         # Quantify all paths independently
