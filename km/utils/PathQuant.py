@@ -135,22 +135,3 @@ class PathQuant:
         self.rVAF[1] = np.nan
         self.coef[self.coef >= 0] = min(self.counts)
 
-    def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
-                  get_min_f=lambda path: 0, start_off=0):
-        paths = []
-        ref_i = -1
-        for i in range(self.nb_seq):
-            if list(self.all_paths[i]) == list(ref_path):
-                ref_i = i
-        for i in range(self.nb_seq):
-            if i != ref_i:
-                p = Path(db_f, ref_name,
-                         name_f(self.all_paths[i]),
-                         self.rVAF[i], self.coef[i],
-                         get_min_f(self.all_paths[i]),
-                         start_off,
-                         seq_f(self.all_paths[i]),
-                         self.rVAF[ref_i], self.coef[ref_i],
-                         seq_f(self.all_paths[ref_i]), info)
-                paths += [p]
-        return paths
