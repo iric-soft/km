@@ -97,8 +97,8 @@ class MutationFinder:
 
     def _diff_path_without_overlap(self, ref, seq, k):
         # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
-        i = 0
 
+        i = 0
         while True:
             if i == len(ref):
                 break
@@ -288,15 +288,25 @@ class MutationFinder:
                 if list(path) == self.ref_index:
                     quant.adjust_for_reference()
 
-                paths_quant = quant.get_paths(
-                    db_f=self.jf.filename,
-                    ref_name=self.ref_name,
-                    name_f=lambda path: self.get_name(self.ref_index, path),
-                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
-                    ref_path=self.ref_index, info="vs_ref",
-                    get_min_f=lambda path: min(self.get_counts(path)))
+                rvaf, ref_rvaf = quant.rVAF
+                coef, ref_coef = quant.coef
 
-                self.paths += paths_quant
+                path_o = upq.Path(
+                    self.jf.filename,
+                    self.ref_name,
+                    self.get_name(self.ref_index, path),
+                    rvaf,
+                    coef,
+                    min(self.get_counts(path)),
+                    0,
+                    self.get_seq(path, skip_prefix=False),
+                    ref_rvaf,
+                    ref_coef,
+                    self.get_seq(self.ref_index, skip_prefix=False),
+                    "vs_ref"
+                )
+
+                self.paths.append(path_o)
 
     def find_clusters(self, graphical=False, do=True):
         # Quantify by cutting the sequence around mutations,
@@ -392,17 +402,26 @@ class MutationFinder:
                 quant.refine_coef()
                 quant.get_ratio()
 
-                paths_quant = quant.get_paths(
-                    db_f=self.jf.filename,
-                    ref_name=self.ref_name,
-                    name_f=lambda path: self.get_name(ref_path, path, offset),
-                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
-                    ref_path=ref_path,
-                    info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                    get_min_f=lambda path: min(self.get_counts(path)),
-                    start_off=start_off)
+                ref_rvaf, paths_rvaf = quant.rVAF[0], quant.rVAF[1:]
+                ref_coef, paths_coef = quant.coef[0], quant.coef[1:]
 
-                self.paths += paths_quant
+                for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
+                    path_o = upq.Path(
+                        self.jf.filename,
+                        self.ref_name,
+                        self.get_name(ref_path, path, start_off),
+                        rvaf,
+                        coef,
+                        min(self.get_counts(path)),
+                        start_off,
+                        self.get_seq(path, skip_prefix=False),
+                        ref_rvaf,
+                        ref_coef,
+                        self.get_seq(ref_path, skip_prefix=False),
+                        "cluster %d n=%d" % (num_cluster, len(clipped_paths))
+                    )
+
+                    self.paths.append(path_o)
 
     def get_paths(self, sort=True):
         if sort:
