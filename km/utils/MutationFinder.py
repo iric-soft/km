@@ -23,9 +23,71 @@ PathDiff = namedtuple('PathDiff',
 
 
 class MutationFinder:
+    """This class is the core of km. It sets up the environment
+    and intializes kmer data structures.
+
+    The first step is performed automatically where the jellyfish
+    database (JF DB) is queried for all kmers that fit the
+    elongation criteria given as parameters.
+
+    The following step generates the graph and deduces alternative
+    paths or shortest paths.
+
+    Finally, paths are quantified and stored in a format ready for
+    printing. An optional step is to generate mutation clusters and
+    quantify those too.
+
+    Attributes
+    ---------
+    ref_seq : str
+        Reference sequence from fasta file.
+    ref_name : str
+        Filename of the fasta file used as the name for `ref_seq`.
+    first_seq : str
+        First kmer in ref_seq.
+    last_seq : str
+        Last kmer in ref_seq.
+    ref_mer : list
+        List of kmers found in ref_seq.
+    ref_set : set
+        Set of all kmers found in ref_seq
+    jf: km.utils.Jellyfish.Jellyfish
+        Jellyfish object with an open file handle to the JF DB.
+    max_stack : int
+        Maximum kmer extensions before reference getback.
+    max_break : int
+        Maximum branches before reference getback.
+    paths : list
+        Alternative paths discovered by `PathQuant`.
+    node_data : dict
+        Maps kmer string sequences to their position in the JF DB.
+    done : set
+        Contains kmers that were already passed over.
+    kmer : list
+        List of all kmers fetched from JF DB.
+    kmer_count : list
+        Count of each kmer queried from JF DB.
+    num_k : int
+        Count of all kmers fetched from JF DB.
+    ref_index : list
+        List of kmer indices for the reference sequence.
+
+    Methods
+    -------
+    graph_analysis
+    quantify_paths
+    quantify_clusters
+    diff_path_without_overlap
+    get_seq
+    get_name
+    get_counts
+    get_paths
+    output_header
+    """
+
     def __init__(self, ref_name, ref_seq, jf, max_stack=500,
                  max_break=10):
-        # Load the reference sequence and preparing ref k-mers
+        """Load the reference sequence and prepare ref k-mers"""
 
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
@@ -69,7 +131,7 @@ class MutationFinder:
         log.debug("k-mer graph contains %d nodes.", self.num_k)
 
     def __extend(self, stack, breaks, found):
-        """ Recursive depth first search """
+        """Recursive depth first search"""
 
         if len(stack) > self.max_stack:
             return
@@ -94,9 +156,122 @@ class MutationFinder:
                 self.__extend(stack + [child], breaks, found)
 
     def _diff_path_without_overlap(self, ref, seq, k):
-        # Returns (start, stop_ref, stop_variant, kmers_ref, kmers_variant, stop_ref_fully_trimmed)
+        """Compares a reference sequence to an alternative path
+        discovered through kmer walking.
+
+        Results from this function are used to pinpoint the exact
+        location of the occurance of a mutation as well as the type
+        of mutation detected.
+
+        Here are some illustrative examples for the most common use-cases.
+
+        - Reference (k=3)
+            ref
+                | ``(•••)•••••••••••••(•••)``
+                | ``(000)0000000111111(1  )``
+                | ``(0  )3456789012345(6  )``
+            alt
+                | ``(•••)•••••••••••••(•••)``
+                | ``(000)0000000111111(1  )``
+                | ``(0  )3456789012345(6  )``
+            calculcated positions
+                | ``> i     = 16``
+                | ``> j_ref = 16``
+                | ``> j_alt = 16``
+                | ``> k_ref = 16 (unused)``
+
+        - Substitution (k=3)
+            ref
+                | ``•••••••(•••)(•••)•••(•••)``
+                | ``0000000(000)(111)111(1  )``
+                | ``0123456(7  )(0  )345(6  )``
+            alt
+                | ``•••••••(••*)(•••)•••(•••)``
+                | ``0000000(000)(111)111(1  )``
+                | ``0123456(7  )(0  )345(6  )``
+            calculcated positions
+                | ``> i     = 07``
+                | ``> j_ref = 10``
+                | ``> j_alt = 10``
+                | ``> k_ref = 10 (unused)``
+
+        - ITD (k=3)
+            ref
+                | ``(•••)•••••••••••••[•••]••(•••)``
+                | ``(000)0000000111111[1  ]12(2  )``
+                | ``(0  )3456789012345[6  ]90(1  )``
+            alt
+                | ``(•••)••••••••••••••••[•••]•••••••••••••[•••]••(•••)``
+                | ``(000)0000000111111111[122]2222222233333[3  ]33(4  )``
+                | ``(0  )3456789012345678[9  ]2345678901234[5  ]89(0  )``
+            calculcated positions
+                | ``> i     = 16``
+                | ``> j_ref = 19``
+                | ``> j_alt = 38``
+                | ``> k_ref = 16 (instantly checks at k_ref == i)``
+
+        - Insertion (k=3)
+            ref
+                | ``• • • • • •(• • •)       (• • •)• • • •(• • •)``
+                | ``0 0 0 0 0 0(0 0 0)       (0 1 1)1 1 1 1(1    )``
+                | ``0 1 2 3 4 5(6    )       (9    )2 3 4 5(6    )``
+            alt
+                | ``• • • • • • •(• • *)* * *(• • •)• • • •(• • •)``
+                | ``0 0 0 0 0 0 0(0 0 0)1 1 1(1 1 1)1 1 1 1(2    )``
+                | ``0 1 2 3 4 5 6(7    )0 1 2(3    )6 7 8 9(0    )``
+            calculcated positions
+                | ``> i     = 07``
+                | ``> j_ref = 09``
+                | ``> j_alt = 13``
+                | ``> k_ref = 09 (unused)``
+
+        - Deletion (k=3)
+            ref
+                | ``• • • • • • •(• • •)• • •(• • •)•(• • •)``
+                | ``0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1(1    )``
+                | ``0 1 2 3 4 5 6(7    )0 1 2(3    )6(7    )``
+            alt
+                | ``• • • • • •(• • •)       (• • •)•(• • •)``
+                | ``0 0 0 0 0 0 0 0 0         0 1 1 1(1    )``
+                | ``0 1 2 3 4 5(6    )       (9    )2(3    )``
+            calculcated positions
+                | ``> i     = 07``
+                | ``> j_ref = 13``
+                | ``> j_alt = 09``
+                | ``> k_ref = 13 (unused)``
+
+        Parameters
+        ---------
+        ref : list
+            List of kmer indices for the reference sequence.
+        seq : list
+            List of kmer indices for the alternative sequence.
+
+        Returns
+        -------
+        namedtuple
+            Named tuple with the following fields
+                - start
+                    Mutation start position (inclusive)
+                - end_ref
+                    Mutation end position on reference (last
+                    position or last mutated kmer + 1)
+                - end_var
+                    Mutation end position on variant sequence (last
+                    position or last mutated kmer + 1)
+                - kmers_ref
+                    List of kmer indices specific to the reference /
+                    Deletion
+                - kmers_var
+                    List of kmer indices specific to the variant
+                    sequence / Insertion
+                - end_ref_overlap
+                    Mutation end position on reference without k-mer
+                    overlap; only used to detect ITDs for now
+        """
 
         i = 0
+        # Look for first left-side mutated kmer
         while True:
             if i == len(ref):
                 break
@@ -110,6 +285,15 @@ class MutationFinder:
 
         j_ref = len(ref)
         j_seq = len(seq)
+        # Look for:
+        #   - first right-side mutated kmer (if indel)
+        # or
+        #   - i + 31 (if snp or mnp)
+        #
+        # Conditions to look out for:
+        #   - if insertion: j_seq > i + (k - 1)
+        #   - if deletion: j_ref > i + (k - 1)
+        #
         # Note:
         #   - `+ k` == to prevent kmers from overlapping
         while True:
@@ -125,6 +309,8 @@ class MutationFinder:
 
         k_ref = j_ref
         k_seq = j_seq
+        # Look for first right-side mutated kmer in ref (ignoring 'k' -> with overlap)
+        # Useful for ITD detection
         while True:
             if k_ref <= i:
                 break
@@ -139,6 +325,21 @@ class MutationFinder:
         return path_diff
 
     def get_seq(self, path, skip_prefix=True):
+        """Generate a string from a list of kmer indices.
+
+        Parameters
+        ----------
+        path : list
+            The list of kmer IDs to join.
+        skip_prefix : bool, optional
+            If set to True only keep last nt. from first kmer.
+
+        Returns
+        -------
+        str
+            The resulting merge of kmers given as input.
+        """
+
         path = list(path)
 
         if not path:
@@ -156,6 +357,29 @@ class MutationFinder:
         return seq
 
     def get_name(self, ref_ix, path_ix, offset=0):
+        """Compare a reference path to an alternative path and deduce
+        mutation type and positions.
+
+        Parameters
+        ----------
+        ref_ix : list
+            Kmer IDs for the reference.
+        path_ix : list
+            Kmer IDs for the alternative path.
+        offset : int, optional
+            A precalculated offset measure to include in the output.
+
+        Raises
+        ------
+        ...
+
+        Returns
+        -------
+        str
+            A string containing the mutation type and its positions
+            in the reference sequence.
+        """
+
         diff = self._diff_path_without_overlap(ref_ix, path_ix, self.jf.k)
 
         if len(ref_ix) - len(diff.kmers_ref) + len(diff.kmers_var) != len(path_ix):
@@ -173,12 +397,13 @@ class MutationFinder:
         del_seq = self.get_seq(diff.kmers_ref, skip_prefix=True)
         ins_seq = self.get_seq(diff.kmers_var, skip_prefix=True)
 
-        trim = 1
+        # Trim common end sequence (right-side) between del and ins
+        trim = 1  # cannot be 0 because we use inverse indexing
         if len(del_seq) > 0:
-            assert del_seq != ins_seq
+            assert del_seq != ins_seq  # should never happen
             while del_seq[-trim:] == ins_seq[-trim:]:
                 trim += 1
-        trim -= 1
+        trim -= 1  # offset by 1 to use as a right-side indexing extremity
 
         if trim != 0:
             del_seq = del_seq[:-trim]
@@ -217,10 +442,20 @@ class MutationFinder:
             )
 
     def get_counts(self, path):
+        """Return kmer counts fetched from JF DB."""
+
         counts = [self.node_data[self.kmer[k]] for k in path]
         return counts
 
-    def graph_analysis(self, graphical=False):
+    def graph_analysis(self):
+        """Perform kmer walking and find alternative paths
+
+        Generate a 2-dimensional graph with all kmers queried
+        at initialization. Nodes represent individual kmers and
+        weighted edges are used to do the walking by prioritizing
+        alternative paths.
+        """
+
         self.paths = []
 
         # Initialize graph
@@ -248,10 +483,25 @@ class MutationFinder:
             self.kmer.index(self.last_seq)
         )
 
+        # Locate shortest paths from non-reference edges
         self.short_paths = graph.all_shortest()
 
     def quantify_paths(self, graphical=False):
-        # Quantify all paths independently
+        """Quantify paths independently.
+
+        Go through shortest paths one by one and quantify their
+        expression. The result from the quantification method
+        will be used in the final output.
+
+        After quantification, paths are formatted and compiled
+        into their final format for printing.
+
+        Parameters
+        ----------
+        graphical : bool, optional
+            If True generate a plot showing kmer coverage.
+        """
+
         if graphical:
             import matplotlib.pyplot as plt
             plt.figure(figsize=(10, 6))
@@ -300,8 +550,10 @@ class MutationFinder:
             self.paths.append(path_o)
 
     def _find_clusters(self):
-        # Quantify by cutting the sequence around mutations,
-        # considering overlapping mutations as a cluster
+        """Generate clusters by cutting the sequence around mutations
+        considering overlapping mutations as a cluster.
+        """
+
         variant_diffs = []
         variant_set = set(range(0, len(self.short_paths)))
         for variant in self.short_paths:
@@ -359,6 +611,28 @@ class MutationFinder:
             self.clusters.append((ref_path, clipped_paths, offset))
 
     def quantify_clusters(self, graphical=False):
+        """Detect and quantify cluster groups.
+
+        In some cases, the complete sequence will contain at least
+        2 homozygous mutations, which causes the overall minimumn
+        coverage to be 0 for all paths. By defining clusters, we
+        only keep the part of the sequence where there is only one
+        mutation. Additinally, when multiple mutations overlap, they
+        are grouped together into a cluster in order to get
+        quantified as a single group. Then, go through clusters and
+        quantify them in groups. The rest is similar to
+        `quantify_paths`.
+
+        After quantification, paths are formatted and compiled
+        into their final format for printing.
+
+        Parameters
+        ----------
+        graphical : bool, optional
+            If True generate a plot showing kmer coverage for
+            each cluster.
+        """
+
         self._find_clusters()
 
         if graphical:
@@ -417,6 +691,17 @@ class MutationFinder:
                 self.paths.append(path_o)
 
     def get_paths(self, sort=True):
+        """Return all quantified paths from kmer walking.
+
+        To be run after path quantification.
+
+        Parameters
+        ----------
+        sort : bool, optional
+            If True, sort based on variant position, type and
+            minimum coverage.
+        """
+
         if sort:
             paths = sorted(self.paths, key=lambda x: (x[3], x[2], x[6]))
         else:
@@ -426,4 +711,6 @@ class MutationFinder:
 
     @staticmethod
     def output_header():
+        """Prints header output."""
+
         upq.Path.output_header()
