@@ -250,170 +250,168 @@ class MutationFinder:
 
         self.short_paths = graph.all_shortest()
 
-    def quantify_paths(self, graphical=False, do=True):
+    def quantify_paths(self, graphical=False):
         # Quantify all paths independently
-        if do:
+        if graphical:
+            import matplotlib.pyplot as plt
+            plt.figure(figsize=(10, 6))
+            for path in self.short_paths:
+                plt.plot(
+                    self.get_counts(path),
+                    label=self.get_name(
+                            self.ref_index,
+                            path
+                        ).replace("\t", " ")
+                )
+            plt.legend()
+            plt.show()
+
+        for path in self.short_paths:
+            quant = upq.PathQuant(
+                all_paths=[path, self.ref_index],
+                counts=self.kmer_count
+            )
+            quant.compute_coef()
+            quant.refine_coef()
+            quant.get_ratio()
+
+            # Reference
+            if list(path) == self.ref_index:
+                quant.adjust_for_reference()
+
+            rvaf, ref_rvaf = quant.rVAF
+            coef, ref_coef = quant.coef
+
+            path_o = upq.Path(
+                self.jf.filename,
+                self.ref_name,
+                self.get_name(self.ref_index, path),
+                rvaf,
+                coef,
+                min(self.get_counts(path)),
+                0,
+                self.get_seq(path, skip_prefix=False),
+                ref_rvaf,
+                ref_coef,
+                self.get_seq(self.ref_index, skip_prefix=False),
+                "vs_ref"
+            )
+
+            self.paths.append(path_o)
+
+    def find_clusters(self, graphical=False):
+        # Quantify by cutting the sequence around mutations,
+        # considering overlapping mutations as a cluster
+        variant_diffs = []
+        variant_set = set(range(0, len(self.short_paths)))
+        for variant in self.short_paths:
+            diff = self._diff_path_without_overlap(self.ref_index, variant, self.jf.k)
+            variant_diffs.append(diff)
+
+        def get_intersect(start, stop):
+            for var in variant_set:
+                cur_start = variant_diffs[var].start
+                cur_end = variant_diffs[var].end_ref
+                if cur_end >= start and cur_start <= stop:
+                    return var
+            return -1
+
+        variant_groups = []
+        while len(variant_set) > 0:
+            seed = variant_set.pop()
+            grp = [seed]
+            start = variant_diffs[seed].start
+            stop = variant_diffs[seed].end_ref
+            variant = get_intersect(start, stop)
+            while variant != -1:
+                variant_set.remove(variant)
+                grp += [variant]
+                start = min(start, variant_diffs[variant].start)
+                stop = max(stop, variant_diffs[variant].end_ref)
+                variant = get_intersect(start, stop)
+            variant_groups.append((start, stop, grp))
+
+        self.clusters = []
+
+        for var_gr in variant_groups:
+            start, stop, grp_ixs = var_gr
+
+            if len(grp_ixs) == 1:
+                var = grp_ixs[0]
+                path_index = list(self.short_paths[var])
+                if path_index == self.ref_index:
+                    continue
+
+            var_diffs = [variant_diffs[v] for v in grp_ixs]
+            var_size = max(
+                [abs(d.end_var - d.end_ref + 1) for d in var_diffs]
+            )
+            offset = max(0, start - var_size)
+            ref_path = self.ref_index[offset:stop]
+
+            clipped_paths = []
+            for var in grp_ixs:
+                cur_diff = variant_diffs[var]
+                stop_off = cur_diff.end_var + stop - cur_diff.end_ref
+                new_path = self.short_paths[var][offset:stop_off]
+                clipped_paths.append(new_path)
+
+            self.clusters.append((ref_path, clipped_paths, offset))
+
+        if graphical:
+            import matplotlib.pyplot as plt
+
+        for i, cluster in enumerate(self.clusters):
+            ref_path, clipped_paths, start_off = cluster
+            num_cluster = i + 1
+
             if graphical:
-                import matplotlib.pyplot as plt
                 plt.figure(figsize=(10, 6))
-                for path in self.short_paths:
+                plt.plot(
+                    self.get_counts(ref_path),
+                    label="Reference"
+                )
+                for path in clipped_paths:
+                    assert path != ref_path
                     plt.plot(
                         self.get_counts(path),
                         label=self.get_name(
-                                self.ref_index,
-                                path
-                            ).replace("\t", " ")
+                            ref_path,
+                            path,
+                            start_off
+                        ).split("\t")[0]
                     )
                 plt.legend()
                 plt.show()
 
-            for path in self.short_paths:
-                quant = upq.PathQuant(
-                    all_paths=[path, self.ref_index],
-                    counts=self.kmer_count
-                )
-                quant.compute_coef()
-                quant.refine_coef()
-                quant.get_ratio()
+            quant = upq.PathQuant(
+                all_paths=[ref_path] + clipped_paths,
+                counts=self.kmer_count
+            )
+            quant.compute_coef()
+            quant.refine_coef()
+            quant.get_ratio()
 
-                # Reference
-                if list(path) == self.ref_index:
-                    quant.adjust_for_reference()
+            ref_rvaf, paths_rvaf = quant.rVAF[0], quant.rVAF[1:]
+            ref_coef, paths_coef = quant.coef[0], quant.coef[1:]
 
-                rvaf, ref_rvaf = quant.rVAF
-                coef, ref_coef = quant.coef
-
+            for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
                 path_o = upq.Path(
                     self.jf.filename,
                     self.ref_name,
-                    self.get_name(self.ref_index, path),
+                    self.get_name(ref_path, path, start_off),
                     rvaf,
                     coef,
                     min(self.get_counts(path)),
-                    0,
+                    start_off,
                     self.get_seq(path, skip_prefix=False),
                     ref_rvaf,
                     ref_coef,
-                    self.get_seq(self.ref_index, skip_prefix=False),
-                    "vs_ref"
+                    self.get_seq(ref_path, skip_prefix=False),
+                    "cluster %d n=%d" % (num_cluster, len(clipped_paths))
                 )
 
                 self.paths.append(path_o)
-
-    def find_clusters(self, graphical=False, do=True):
-        # Quantify by cutting the sequence around mutations,
-        # considering overlapping mutations as a cluster
-        if do:
-            variant_diffs = []
-            variant_set = set(range(0, len(self.short_paths)))
-            for variant in self.short_paths:
-                diff = self._diff_path_without_overlap(self.ref_index, variant, self.jf.k)
-                variant_diffs.append(diff)
-
-            def get_intersect(start, stop):
-                for var in variant_set:
-                    cur_start = variant_diffs[var].start
-                    cur_end = variant_diffs[var].end_ref
-                    if cur_end >= start and cur_start <= stop:
-                        return var
-                return -1
-
-            variant_groups = []
-            while len(variant_set) > 0:
-                seed = variant_set.pop()
-                grp = [seed]
-                start = variant_diffs[seed].start
-                stop = variant_diffs[seed].end_ref
-                variant = get_intersect(start, stop)
-                while variant != -1:
-                    variant_set.remove(variant)
-                    grp += [variant]
-                    start = min(start, variant_diffs[variant].start)
-                    stop = max(stop, variant_diffs[variant].end_ref)
-                    variant = get_intersect(start, stop)
-                variant_groups.append((start, stop, grp))
-
-            self.clusters = []
-
-            for var_gr in variant_groups:
-                start, stop, grp_ixs = var_gr
-
-                if len(grp_ixs) == 1:
-                    var = grp_ixs[0]
-                    path_index = list(self.short_paths[var])
-                    if path_index == self.ref_index:
-                        continue
-
-                var_diffs = [variant_diffs[v] for v in grp_ixs]
-                var_size = max(
-                    [abs(d.end_var - d.end_ref + 1) for d in var_diffs]
-                )
-                offset = max(0, start - var_size)
-                ref_path = self.ref_index[offset:stop]
-
-                clipped_paths = []
-                for var in grp_ixs:
-                    cur_diff = variant_diffs[var]
-                    stop_off = cur_diff.end_var + stop - cur_diff.end_ref
-                    new_path = self.short_paths[var][offset:stop_off]
-                    clipped_paths.append(new_path)
-
-                self.clusters.append((ref_path, clipped_paths, offset))
-
-            if graphical:
-                import matplotlib.pyplot as plt
-
-            for i, cluster in enumerate(self.clusters):
-                ref_path, clipped_paths, start_off = cluster
-                num_cluster = i + 1
-
-                if graphical:
-                    plt.figure(figsize=(10, 6))
-                    plt.plot(
-                        self.get_counts(ref_path),
-                        label="Reference"
-                    )
-                    for path in clipped_paths:
-                        assert path != ref_path
-                        plt.plot(
-                            self.get_counts(path),
-                            label=self.get_name(
-                                ref_path,
-                                path,
-                                start_off
-                            ).split("\t")[0]
-                        )
-                    plt.legend()
-                    plt.show()
-
-                quant = upq.PathQuant(
-                    all_paths=[ref_path] + clipped_paths,
-                    counts=self.kmer_count
-                )
-                quant.compute_coef()
-                quant.refine_coef()
-                quant.get_ratio()
-
-                ref_rvaf, paths_rvaf = quant.rVAF[0], quant.rVAF[1:]
-                ref_coef, paths_coef = quant.coef[0], quant.coef[1:]
-
-                for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
-                    path_o = upq.Path(
-                        self.jf.filename,
-                        self.ref_name,
-                        self.get_name(ref_path, path, start_off),
-                        rvaf,
-                        coef,
-                        min(self.get_counts(path)),
-                        start_off,
-                        self.get_seq(path, skip_prefix=False),
-                        ref_rvaf,
-                        ref_coef,
-                        self.get_seq(ref_path, skip_prefix=False),
-                        "cluster %d n=%d" % (num_cluster, len(clipped_paths))
-                    )
-
-                    self.paths.append(path_o)
 
     def get_paths(self, sort=True):
         if sort:
