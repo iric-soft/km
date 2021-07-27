@@ -261,29 +261,6 @@ class MutationFinder:
     def quantify_paths(self, graphical=False, do=True):
         # Quantify all paths independently
         if do:
-            for path in self.short_paths:
-                quant = upq.PathQuant(
-                    all_paths=[path, self.ref_index],
-                    counts=self.kmer_count
-                )
-                quant.compute_coef()
-                quant.refine_coef()
-                quant.get_ratio()
-
-                # Reference
-                if list(path) == self.ref_index:
-                    quant.adjust_for_reference()
-
-                self.paths_quant = quant.get_paths(
-                    db_f=self.jf.filename,
-                    ref_name=self.ref_name,
-                    name_f=lambda path: self.get_name(self.ref_index, path),
-                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
-                    ref_path=self.ref_index, info="vs_ref",
-                    get_min_f=lambda path: min(self.get_counts(path)))
-
-                self.paths += self.paths_quant
-
             if graphical:
                 import matplotlib.pyplot as plt
                 plt.figure(figsize=(10, 6))
@@ -298,6 +275,28 @@ class MutationFinder:
                 plt.legend()
                 plt.show()
 
+            for path in self.short_paths:
+                quant = upq.PathQuant(
+                    all_paths=[path, self.ref_index],
+                    counts=self.kmer_count
+                )
+                quant.compute_coef()
+                quant.refine_coef()
+                quant.get_ratio()
+
+                # Reference
+                if list(path) == self.ref_index:
+                    quant.adjust_for_reference()
+
+                paths_quant = quant.get_paths(
+                    db_f=self.jf.filename,
+                    ref_name=self.ref_name,
+                    name_f=lambda path: self.get_name(self.ref_index, path),
+                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
+                    ref_path=self.ref_index, info="vs_ref",
+                    get_min_f=lambda path: min(self.get_counts(path)))
+
+                self.paths += paths_quant
 
     def find_clusters(self, graphical=False, do=True):
         # Quantify by cutting the sequence around mutations,
@@ -349,6 +348,7 @@ class MutationFinder:
                 )
                 offset = max(0, start - var_size)
                 ref_path = self.ref_index[offset:stop]
+
                 clipped_paths = []
                 for var in grp_ixs:
                     cur_diff = variant_diffs[var]
@@ -358,35 +358,14 @@ class MutationFinder:
 
                 self.clusters.append((ref_path, clipped_paths, offset))
 
+            if graphical:
+                import matplotlib.pyplot as plt
+
             for i, cluster in enumerate(self.clusters):
                 ref_path, clipped_paths, start_off = cluster
                 num_cluster = i + 1
 
-                quant = upq.PathQuant(
-                    all_paths=[ref_path] + clipped_paths,
-                    counts=self.kmer_count
-                )
-                quant.compute_coef()
-                quant.refine_coef()
-                quant.get_ratio()
-
-                self.paths_quant = quant.get_paths(
-                    db_f=self.jf.filename,
-                    ref_name=self.ref_name,
-                    name_f=lambda path: self.get_name(ref_path, path, offset),
-                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
-                    ref_path=ref_path,
-                    info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
-                    get_min_f=lambda path: min(self.get_counts(path)),
-                    start_off=start_off)
-
-                self.paths_quant
-
-                self.paths += self.paths_quant
-
                 if graphical:
-                    import matplotlib.pyplot as plt
-
                     plt.figure(figsize=(10, 6))
                     plt.plot(
                         self.get_counts(ref_path),
@@ -405,14 +384,33 @@ class MutationFinder:
                     plt.legend()
                     plt.show()
 
+                quant = upq.PathQuant(
+                    all_paths=[ref_path] + clipped_paths,
+                    counts=self.kmer_count
+                )
+                quant.compute_coef()
+                quant.refine_coef()
+                quant.get_ratio()
+
+                paths_quant = quant.get_paths(
+                    db_f=self.jf.filename,
+                    ref_name=self.ref_name,
+                    name_f=lambda path: self.get_name(ref_path, path, offset),
+                    seq_f=lambda path: self.get_seq(path, skip_prefix=False),
+                    ref_path=ref_path,
+                    info="cluster %d n=%d" % (num_cluster, len(var_gr[2])),
+                    get_min_f=lambda path: min(self.get_counts(path)),
+                    start_off=start_off)
+
+                self.paths += paths_quant
 
     def get_paths(self, sort=True):
         if sort:
-            self.paths = sorted(self.paths, key=lambda x: (x[3], x[2], x[6]))
-        return self.paths
+            paths = sorted(self.paths, key=lambda x: (x[3], x[2], x[6]))
+        else:
+            paths = self.paths
 
-    def get_paths_quant(self):
-        return self.paths_quant
+        return paths
 
     @staticmethod
     def output_header():
