@@ -85,9 +85,8 @@ class MutationFinder:
     output_header
     """
 
-    def __init__(self, ref_name, ref_seq, jf, max_stack=500,
-                 max_break=10):
-        """Load the reference sequence and prepare ref k-mers"""
+    def __init__(self, ref_name, ref_seq, jf, max_stack=500, max_break=10):
+        """Load the reference sequence and preparing ref k-mers"""
 
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
