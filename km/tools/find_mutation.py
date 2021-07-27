@@ -34,8 +34,7 @@ def main_find_mut(args, argparser):
         ref_seq = uc.file_2_seq(seq_f)
 
         finder = umf.MutationFinder(
-            ref_name, ref_seq, jf,
-            args.steps, args.branchs
+            ref_name, ref_seq, jf, args.steps, args.branchs
         )
 
         finder.graph_analysis()
