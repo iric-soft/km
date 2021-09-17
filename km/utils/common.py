@@ -1,4 +1,5 @@
 import os
+from itertools import groupby
 from .Jellyfish import Jellyfish
 
 
@@ -20,16 +21,27 @@ def target_2_seqfiles(target_fn):
     return(args_2_list_files(target_fn))
 
 
-def file_2_seq(seq_f):
-    ref_seq = []
-    for line in open(seq_f, "r"):
-        line = line.strip()
-        if len(line) > 0 and line[0] == '>':
-            continue
-        ref_seq.append(line)
-    ref_seq = ''.join(ref_seq)
+def fasta_parser(fa_f):
+    with open(fa_f, 'r') as f:
+        groups = groupby(f, key=lambda x: x.startswith(">"))
+        for is_header, lines in groups:
+            if is_header:
+                header = list(lines)[0].strip()
+                sequence = "".join([l.strip() for l in next(groups)[1]])
+                yield header, sequence
 
-    return(ref_seq)
+
+def file_2_seq(seq_f):
+    sequences = []
+    attributes = []
+    for header, sequence in fasta_parser(seq_f):
+        attr = {}
+        for x in header.replace(">", "location=", 1).split("|"):
+            k, v = x.split("=")
+            attr[k.strip()] = v.strip()
+        sequences.append(sequence.upper())
+        attributes.append(attr)
+    return sequences, attributes
 
 
 def get_ref_kmer(ref_seq, ref_name, k_len):

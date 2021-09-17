@@ -56,5 +56,6 @@ def main_linear_kmin(args, argparser):
 
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
-        ref_seq = uc.file_2_seq(seq_f)
+        ref_seq, ref_attr = uc.file_2_seq(seq_f)
+        ref_seq = ''.join(ref_seq)
         find_kmin(ref_name, ref_seq, args.start)
