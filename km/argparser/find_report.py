@@ -7,7 +7,8 @@ def get_argparser_find_report(parser):
     parser._action_groups.pop()
     required = parser.add_argument_group('required arguments')
     optional = parser.add_argument_group('optional arguments')
-    required.add_argument(
+
+    optional.add_argument(
         "-t",
         dest="target",
         help="Filename of the target sequence file",
@@ -36,10 +37,11 @@ def get_argparser_find_report(parser):
     optional.add_argument(
         "-e", "--exclu",
         dest="exclu",
-        help="Filename of a jf database, containing k-mers which can create false positive variants (as, a jf build on the transcriptome)",
+        help="Filename of a jf database, containing k-mers which can " +\
+             "create false positive variants (as, a jf build on the transcriptome)",
         default="",
         type=str)
-    
+
     optional.add_argument(
         "-f", "--format",
         dest="format",

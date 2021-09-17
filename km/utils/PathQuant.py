@@ -88,7 +88,7 @@ class PathQuant:
         self.coef = None
         self.rVAF = None
 
-        log.debug("%d sequence(s) are observed.", self.nb_seq)
+        log.info("%d sequence(s) are observed.", self.nb_seq)
 
     def compute_coef(self):
         # Set coefficient to zero if all paths use a kmer with 0 coverage
@@ -121,7 +121,7 @@ class PathQuant:
                 num_iter,
                 last_max_grad
             )
-        log.debug("Refined fitting = %s", self.coef)
+        log.info("Refined fitting = %s", self.coef)
 
     def get_ratio(self):
         if max(self.coef) == 0:

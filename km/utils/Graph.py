@@ -224,7 +224,7 @@ class Graph:
             List of unique shortest paths walked from all edges
         """
 
-        log.debug("%d edges in non-ref edge set.", len(self.edge_set))
+        log.info("%d edges in non-ref edge set.", len(self.edge_set))
 
         all_paths = set()
         for (i, j) in self.edge_set:

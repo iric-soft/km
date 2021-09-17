@@ -16,7 +16,7 @@ from .tools.min_cov import main_min_cov
 def main():
     # print("\n--------------------------------------------------------------")
     # print("km.py: Tools for targeted variant detection.")
-    # print("This program was written by IRIC's bioinformatic platform")
+    # print("This program was written by IRIC's bioinformatics platform")
     # print("----------------------------------------------------------------\n")
 
     argparser = argparse.ArgumentParser(prog='PROG')
@@ -33,7 +33,7 @@ def main():
     # create the argparser for the "find_report" command
     find_report = subparsers.add_parser(
         'find_report',
-        help='Parse find_mutation output to reformat it in tabulated file more user friendly.'
+        help='Parse find_mutation output and reformat it in a more user-friendly tabulated file.'
     )
     find_report.set_defaults(func=main_find_report)
     get_argparser_find_report(find_report)

@@ -43,7 +43,8 @@ class TestkmMuttaion(unittest.TestCase):
             steps=500,
             branchs=10,
             target_fn=[target],
-            verbose=False
+            verbose=False,
+            debug=False
         )
 
         with captured_output() as (out, err):
@@ -51,7 +52,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[11].split("\t")
+        find_output = find_output[12].split("\t")
 
         self.assertEqual(find_output[2],
                          "Insertion",
@@ -146,7 +147,8 @@ class TestkmMuttaion(unittest.TestCase):
             steps=500,
             branchs=10,
             target_fn=[target],
-            verbose=False
+            verbose=False,
+            debug=False
         )
 
         with captured_output() as (out, err):
@@ -154,7 +156,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[11].split("\t")
+        find_output = find_output[12].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
@@ -252,7 +254,8 @@ class TestkmMuttaion(unittest.TestCase):
             steps=500,
             branchs=10,
             target_fn=[target],
-            verbose=False
+            verbose=False,
+            debug=False
         )
 
         with captured_output() as (out, err):
@@ -260,7 +263,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[11].split("\t")
+        find_output = find_output[12].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
@@ -364,7 +367,8 @@ class TestkmMuttaion(unittest.TestCase):
             steps=500,
             branchs=10,
             target_fn=[target],
-            verbose=False
+            verbose=False,
+            debug=False
         )
 
         with captured_output() as (out, err):
@@ -372,7 +376,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[11].split("\t")
+        find_output = find_output[12].split("\t")
 
         self.assertEqual(find_output[2],
                          "Deletion",
@@ -449,7 +453,8 @@ class TestkmMuttaion(unittest.TestCase):
             steps=500,
             branchs=10,
             target_fn=[target],
-            verbose=False
+            verbose=False,
+            debug=False
         )
 
         with captured_output() as (out, err):
@@ -457,7 +462,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[11].split("\t")
+        find_output = find_output[12].split("\t")
 
         self.assertEqual(find_output[2],
                          "Substitution",

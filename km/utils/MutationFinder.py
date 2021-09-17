@@ -93,7 +93,7 @@ class MutationFinder:
 
         self.ref_mer = uc.get_ref_kmer(ref_seq, jf.k, ref_name)
         self.ref_set = set(self.ref_mer)
-        log.debug("Ref. set contains %d kmers.", len(self.ref_set))
+        log.info("Ref. set contains %d kmers.", len(self.ref_set))
 
         self.ref_seq = ref_seq
         self.ref_name = ref_name
@@ -127,7 +127,7 @@ class MutationFinder:
         # reference path, with node indices
         self.ref_index = tuple([self.kmer.index(k) for k in self.ref_mer])
 
-        log.debug("k-mer graph contains %d nodes.", self.num_k)
+        log.info("k-mer graph contains %d nodes.", self.num_k)
 
     def __extend(self, stack, breaks, found):
         """Recursive depth first search"""
