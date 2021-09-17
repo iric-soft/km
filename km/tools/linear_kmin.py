@@ -13,7 +13,7 @@ def find_kmin(ref_name, ref_seq, start):
         k_len += 1
 
         try:
-            ref_mer = uc.get_ref_kmer(ref_seq, k_len, ref_name)
+            ref_mer = uc.get_ref_kmer(ref_seq, ref_name, k_len)
             uniq = True
         except ValueError:
             continue

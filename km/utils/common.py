@@ -32,20 +32,22 @@ def file_2_seq(seq_f):
     return(ref_seq)
 
 
-def get_ref_kmer(ref_seq, k_len, ref_name):
+def get_ref_kmer(ref_seq, ref_name, k_len):
     """ Load reference kmers. """
+
     ref_mer = []
+    ref_set = set()
     for i in range(len(ref_seq) - k_len + 1):
         kmer = ref_seq[i:(i + k_len)]
-        if kmer in ref_mer:
+        if kmer in ref_set:
             raise ValueError(
                 "%s found multiple times in reference %s, at pos. %d" % (
                     kmer, ref_name, i)
             )
-
         ref_mer.append(kmer)
+        ref_set.add(kmer)
 
-    return(ref_mer)
+    return ref_mer
 
 
 def mean(v):

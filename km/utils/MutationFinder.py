@@ -98,7 +98,7 @@ class MutationFinder:
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
 
-        self.ref_mer = uc.get_ref_kmer(ref_seq, jf.k, ref_name)
+        self.ref_mer = uc.get_ref_kmer(ref_seq, ref_name, jf.k)
         self.ref_set = set(self.ref_mer)
         log.info("Ref. set contains %d kmers.", len(self.ref_set))
 
