@@ -181,17 +181,21 @@ class Graph:
         # path of least resistance). We would also get to the same result
         # by starting with the last node in list `before`.
         #path = [self.first_node]
-        cur = self.first_node
-        last_cur = None  # ensures we keep only one edge from the reference
-        while self.after[cur] != -1:
-            cur = self.after[cur]
-            #path.append(cur)
-            if last_cur:
-                self.edge_set.remove((last_cur, cur))
-                log.debug("Removing (%d, %d)", last_cur, cur)
-            last_cur = cur
-
-        #self.ref_path = path
+        removed = 0
+        curs = set(np.where(self.before == self.first_node)[0])
+        for cur in curs:
+            #path = [self.first_node]
+            last_cur = None  # ensures we keep only one edge from the reference
+            while self.after[cur] != -1:
+                cur = self.after[cur]
+                #path.append(cur)
+                if last_cur and (last_cur, cur) in self.edge_set:  # we might have taken care of this edge already
+                    self.edge_set.remove((last_cur, cur))
+                    log.debug("Removing (%d, %d)", last_cur, cur)
+                    removed += 1
+                last_cur = cur
+            #self.ref_path.append(path)
+        log.info("Removed %d ref edges.", removed)
 
     def _get_shortest(self, a, b):
         """Return shortest path passing through edge (a, b)"""
