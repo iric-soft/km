@@ -4,6 +4,7 @@
 
 import os
 import sys
+import json
 import logging as log
 try:
     import dna_jellyfish as jellyfish
@@ -12,13 +13,29 @@ except ModuleNotFoundError:
 
 class Jellyfish:
 
-    def __init__(self, filename, cutoff=0.30, n_cutoff=500, canonical=True):
+    def __init__(self, filename, cutoff=0.30, n_cutoff=500):
         self.jf = jellyfish.QueryMerFile(filename)
         self.k = jellyfish.MerDNA.k()
         self.filename = filename
         self.cutoff = cutoff
         self.n_cutoff = n_cutoff
-        self.canonical = canonical
+        with open(filename, mode='rb') as f:
+            header = f.readline().decode("ascii", errors='ignore')
+        header = "{" + header.split("{", 1)[1]
+        closed = -1
+        h = "{"
+        for x in header[1:]:
+            if closed:
+                h += x
+                if x == "{":
+                    closed -= 1
+                elif x == "}":
+                    closed += 1
+            else:
+                break
+        header = h
+        header = json.loads(header)
+        self.canonical = header["canonical"]
 
     def query(self, seq):
         kmer = jellyfish.MerDNA(seq)
