@@ -19,7 +19,8 @@ PathDiff = namedtuple('PathDiff',
         'kmers_ref',
         'kmers_var',
         'end_ref_overlap'
-    ])
+    ]
+)
 
 
 class MutationFinder:
@@ -43,9 +44,9 @@ class MutationFinder:
         Reference sequence from fasta file.
     ref_name : str
         Filename of the fasta file used as the name for `ref_seq`.
-    first_seq : str
+    first_kmer : str
         First kmer in ref_seq.
-    last_seq : str
+    last_kmer : str
         Last kmer in ref_seq.
     ref_mer : list
         List of kmers found in ref_seq.
@@ -65,7 +66,7 @@ class MutationFinder:
         Contains kmers that were already passed over.
     kmer : list
         List of all kmers fetched from JF DB.
-    kmer_count : list
+    counts : list
         Count of each kmer queried from JF DB.
     num_k : int
         Count of all kmers fetched from JF DB.
@@ -85,8 +86,14 @@ class MutationFinder:
     output_header
     """
 
-    def __init__(self, ref_name, ref_seq, jf, max_stack=500, max_break=10):
-        """Load the reference sequence and preparing ref k-mers"""
+    def __init__(self,
+            ref_name,
+            ref_seq,
+            jf,
+            max_stack=500,
+            max_break=10,
+            max_node=10000
+        ):
 
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
@@ -100,14 +107,10 @@ class MutationFinder:
         self.jf = jf
         self.max_stack = max_stack
         self.max_break = max_break
+        self.max_node = max_node
 
         self.node_data = {}
         self.done = set()
-
-        self.done.add(self.first_seq)
-        self.node_data[self.first_seq] = self.jf.query(self.first_seq)
-        self.done.add(self.last_seq)
-        self.node_data[self.last_seq] = self.jf.query(self.last_seq)
 
         # register all k-mers from the ref
         for s in self.ref_set:
@@ -118,10 +121,10 @@ class MutationFinder:
         for seq in self.ref_set:
             if seq == self.last_seq:
                 continue
-            self.__extend([seq], 0, 0)
+            self.__extend([seq])
 
         self.kmer = list(self.node_data.keys())
-        self.kmer_count = list(self.node_data.values())
+        self.counts = list(self.node_data.values())
         self.num_k = len(self.kmer)
 
         # reference path, with node indices
@@ -129,11 +132,18 @@ class MutationFinder:
 
         log.info("k-mer graph contains %d nodes.", self.num_k)
 
-    def __extend(self, stack, breaks, found):
+    def __extend(self, stack, breaks=0):
         """Recursive depth first search"""
 
         if len(stack) > self.max_stack:
             return
+
+        if len(self.done) > self.max_node:
+            sys.exit(
+                "ERROR: Node query count limit exceeded: max={}".format(
+                    self.max_node
+                )
+            )
 
         cur_seq = stack[-1]
         childs = self.jf.get_child(cur_seq, forward=True)
@@ -144,15 +154,13 @@ class MutationFinder:
                 return
 
         for child in childs:
+            ustack = stack + [child]
             if child in self.done:
-                self.done.update(stack)
-                self.done.add(child)
+                self.done.update(ustack)
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
-                self.node_data[cur_seq] = self.jf.query(cur_seq)
-                found += 1
             else:
-                self.__extend(stack + [child], breaks, found)
+                self.__extend(ustack, breaks)
 
     @staticmethod
     def diff_path_without_overlap(ref, seq, k):
@@ -517,7 +525,7 @@ class MutationFinder:
         for path in self.short_paths:
             quant = upq.PathQuant(
                 all_paths=[path, self.ref_index],
-                counts=self.kmer_count
+                counts=self.counts
             )
             quant.compute_coef()
             quant.refine_coef()
@@ -663,7 +671,7 @@ class MutationFinder:
 
             quant = upq.PathQuant(
                 all_paths=[ref_path] + clipped_paths,
-                counts=self.kmer_count
+                counts=self.counts
             )
             quant.compute_coef()
             quant.refine_coef()

@@ -42,6 +42,7 @@ class TestkmMuttaion(unittest.TestCase):
             ratio=0.05,
             steps=500,
             branchs=10,
+            nodes=10000,
             target_fn=[target],
             verbose=False,
             debug=False
@@ -52,7 +53,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[12].split("\t")
+        find_output = find_output[13].split("\t")
 
         self.assertEqual(find_output[2],
                          "Insertion",
@@ -146,6 +147,7 @@ class TestkmMuttaion(unittest.TestCase):
             ratio=0.05,
             steps=500,
             branchs=10,
+            nodes=10000,
             target_fn=[target],
             verbose=False,
             debug=False
@@ -156,7 +158,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[12].split("\t")
+        find_output = find_output[13].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
@@ -253,6 +255,7 @@ class TestkmMuttaion(unittest.TestCase):
             ratio=0.05,
             steps=500,
             branchs=10,
+            nodes=10000,
             target_fn=[target],
             verbose=False,
             debug=False
@@ -263,7 +266,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[12].split("\t")
+        find_output = find_output[13].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
@@ -366,6 +369,7 @@ class TestkmMuttaion(unittest.TestCase):
             ratio=0.05,
             steps=500,
             branchs=10,
+            nodes=10000,
             target_fn=[target],
             verbose=False,
             debug=False
@@ -376,7 +380,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[12].split("\t")
+        find_output = find_output[13].split("\t")
 
         self.assertEqual(find_output[2],
                          "Deletion",
@@ -452,6 +456,7 @@ class TestkmMuttaion(unittest.TestCase):
             ratio=0.05,
             steps=500,
             branchs=10,
+            nodes=10000,
             target_fn=[target],
             verbose=False,
             debug=False
@@ -462,7 +467,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[12].split("\t")
+        find_output = find_output[13].split("\t")
 
         self.assertEqual(find_output[2],
                          "Substitution",
