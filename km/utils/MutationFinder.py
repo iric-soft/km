@@ -88,12 +88,15 @@ class MutationFinder:
 
     def __init__(self,
             ref_name,
-            ref_seq,
+            ref_seqs,
+            ref_attr,
             jf,
             max_stack=500,
             max_break=10,
             max_node=10000
         ):
+
+        ref_seq = ''.join(ref_seqs)
 
         self.first_seq = ref_seq[0:(jf.k)]
         self.last_seq = ref_seq[-(jf.k):]
@@ -104,6 +107,7 @@ class MutationFinder:
 
         self.ref_seq = ref_seq
         self.ref_name = ref_name
+        self.ref_attr = ref_attr
         self.jf = jf
         self.max_stack = max_stack
         self.max_break = max_break
