@@ -70,7 +70,7 @@ class MutationFinder:
         Count of each kmer queried from JF DB.
     num_k : int
         Count of all kmers fetched from JF DB.
-    ref_index : list
+    refpaths : list
         List of kmer indices for the reference sequence.
 
     Methods
@@ -513,7 +513,7 @@ class MutationFinder:
         )
 
         # Locate shortest paths from non-reference edges
-        self.short_paths = graph.all_shortest()
+        self.alt_paths = graph.all_shortest()
 
     def quantify_paths(self, graphical=False):
         """Quantify paths independently.
@@ -534,20 +534,20 @@ class MutationFinder:
         if graphical:
             import matplotlib.pyplot as plt
             plt.figure(figsize=(10, 6))
-            for path in self.short_paths:
+            for alt_index in self.alt_paths:
                 plt.plot(
-                    self.get_counts(path),
+                    self.get_counts(alt_index),
                     label=self.get_name(
                             self.ref_index,
-                            path
+                            alt_index
                         ).replace("\t", " ")
                 )
             plt.legend()
             plt.show()
 
-        for path in self.short_paths:
+        for alt_index in self.alt_paths:
             quant = upq.PathQuant(
-                all_paths=[path, self.ref_index],
+                all_paths=[alt_index, self.ref_index],
                 counts=self.counts
             )
             quant.compute_coef()
@@ -555,7 +555,7 @@ class MutationFinder:
             quant.get_ratio()
 
             # Reference
-            if path == self.ref_index:
+            if alt_index == self.ref_index:
                 quant.adjust_for_reference()
 
             rvaf, ref_rvaf = quant.rVAF
@@ -564,12 +564,12 @@ class MutationFinder:
             path_o = upq.Path(
                 self.jf.filename,
                 self.ref_name,
-                self.get_name(self.ref_index, path),
+                self.get_name(self.ref_index, alt_index),
                 rvaf,
                 coef,
-                min(self.get_counts(path)),
+                min(self.get_counts(alt_index)),
                 0,
-                self.get_seq(path, skip_prefix=False),
+                self.get_seq(alt_index, skip_prefix=False),
                 ref_rvaf,
                 ref_coef,
                 self.get_seq(self.ref_index, skip_prefix=False),
@@ -584,8 +584,8 @@ class MutationFinder:
         """
 
         variant_diffs = []
-        variant_set = set(range(0, len(self.short_paths)))
-        for variant in self.short_paths:
+        variant_set = set(range(0, len(self.alt_paths)))
+        for variant in self.alt_paths:
             diff = self.diff_path_without_overlap(
                 self.ref_index, variant, self.jf.k
             )
@@ -621,7 +621,7 @@ class MutationFinder:
 
             if len(grp_ixs) == 1:
                 var = grp_ixs[0]
-                path_index = tuple(self.short_paths[var])
+                path_index = tuple(self.alt_paths[var])
                 if path_index == self.ref_index:
                     continue
 
@@ -636,7 +636,7 @@ class MutationFinder:
             for var in grp_ixs:
                 cur_diff = variant_diffs[var]
                 stop_off = cur_diff.end_var + stop - cur_diff.end_ref
-                new_path = tuple(self.short_paths[var][offset:stop_off])
+                new_path = tuple(self.alt_paths[var][offset:stop_off])
                 clipped_paths.append(new_path)
 
             self.clusters.append((ref_path, clipped_paths, offset))
