@@ -100,8 +100,8 @@ class MutationFinder:
         ref_seq = ''.join(ref_seqs)
         self.refpath = us.RefSeq(ref_seq, ref_name, jf.k)
 
-        self.first_seq = self.refpath.first_kmer
-        self.last_seq = self.refpath.last_kmer
+        self.first_seq = "BigBang"
+        self.last_seq = "BigCrunch"
 
         self.ref_set = set(self.refpath.ref_mer)
         log.info("Ref. set contains %d kmers.", len(self.ref_set))
@@ -122,12 +122,14 @@ class MutationFinder:
         # kmer walking from each k-mer of ref_seq
         self.done.update(self.ref_set)
         for seq in self.ref_set:
-            if seq == self.last_seq:
-                continue
+            # note: rightmost exons will extend purposelessly
+            # because we removed check:
+            # if seq == self.last_seq:
+            #     continue
             self.__extend([seq])
 
-        self.kmer = list(self.node_data.keys())
-        self.counts = list(self.node_data.values())
+        self.kmer = list(self.node_data.keys()) + [self.first_seq, self.last_seq]
+        self.counts = list(self.node_data.values()) + [-1, -1]
         self.num_k = len(self.kmer)
 
         log.info("k-mer graph contains %d nodes.", self.num_k)
@@ -137,6 +139,10 @@ class MutationFinder:
 
         self.first_seq_ix = self.kmer.index(self.first_seq)
         self.last_seq_ix = self.kmer.index(self.last_seq)
+
+        self.__define_edges()
+
+
     def __extend(self, stack, breaks=0):
         """Recursive depth first search"""
 
@@ -166,6 +172,29 @@ class MutationFinder:
                     self.node_data[p] = self.jf.query(p)
             else:
                 self.__extend(ustack, breaks)
+
+
+    def __define_edges(self):
+        self.start_kmers = set()
+        self.end_kmers = set()
+
+        if type(self.refpath) == us.RefSeq:
+            first = self.refpath.first_kmer
+            last = self.refpath.last_kmer
+
+            self.start_kmers.add(first)
+
+            self.end_kmers.add(last)
+
+        self.start_kmers_ix = set([self.kmer.index(k) for k in self.start_kmers])
+        self.end_kmers_ix = set([self.kmer.index(k) for k in self.end_kmers])
+
+        log.info("BigBang=%d, BigCrunch=%d" % (self.first_seq_ix, self.last_seq_ix))
+        for s in self.start_kmers:
+            log.info("Start kmer %d %s" % (self.kmer.index(s), s))
+        for e in self.end_kmers:
+            log.info("End   kmer %d %s" % (self.kmer.index(e), e))
+
 
     @staticmethod
     def diff_path_without_overlap(ref, seq, k):
@@ -507,6 +536,14 @@ class MutationFinder:
 
         adjust_graph_weights(self.refpath.seq_index)
 
+        first_ix = self.kmer.index(self.first_seq)
+        for start_ix in self.start_kmers_ix:
+            graph[first_ix, start_ix] = weight
+
+        last_ix = self.kmer.index(self.last_seq)
+        for end_ix in self.end_kmers_ix:
+            graph[end_ix, last_ix] = weight
+
         # Initialize paths and remove reference edges
         graph.init_paths(
             self.kmer.index(self.first_seq),
@@ -515,6 +552,8 @@ class MutationFinder:
 
         # Locate shortest paths from non-reference edges
         short_paths = graph.all_shortest()
+        # remove capping nodes from paths
+        short_paths = [tuple(p[1:-1]) for p in short_paths]
         self.alt_paths = [us.AltSeq(s, self) for s in short_paths]
 
         # Group alternative paths with the same origin (ref_name) together
