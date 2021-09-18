@@ -10,6 +10,13 @@ import jellyfish
 
 
 class Jellyfish:
+    """A python interface for querying a Jellyfish database.
+
+    Methods
+    -------
+    query
+    get_child
+    """
 
     def __init__(self, filename, cutoff=0.30, n_cutoff=500):
         self.jf = jellyfish.QueryMerFile(filename)
@@ -36,12 +43,18 @@ class Jellyfish:
         self.canonical = header["canonical"]
 
     def query(self, seq):
+        """Fetch kmer count data from database."""
+
         kmer = jellyfish.MerDNA(seq)
         if (self.canonical):
             kmer.canonicalize()
         return self.jf[kmer]
 
     def get_child(self, seq, forward=True):
+        """Return all existing kmers that continue from input
+        sequence.
+        """
+
         child = []
         sum = 0
         for c in ['A', 'C', 'G', 'T']:

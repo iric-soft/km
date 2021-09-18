@@ -8,6 +8,16 @@ import sys
 
 
 class Path:
+    """Path object. Wraps path data into a printable format.
+
+    Methods
+    -------
+    get_min_cov
+    get_sequence
+    get_variant_name
+    output_header
+    """
+
     def __init__(self, db_f, ref_name, variant_name, ratio, expression,
                  min_coverage, start_off, sequence, ref_ratio, ref_expression,
                  ref_sequence, note):
@@ -45,16 +55,24 @@ class Path:
         return self.__list__()[i]
 
     def get_min_cov(self):
+        """Return minimum coverage"""
+
         return self.min_coverage
 
     def get_sequence(self):
+        """Return variant sequence"""
+
         return self.sequence
 
     def get_variant_name(self):
+        """Return variant description (also called variant name)"""
+
         return self.variant_name
 
     @staticmethod
     def output_header():
+        """Output pre-formatted header"""
+
         sys.stdout.write("\t".join([
                 "Database",
                 "Query",
