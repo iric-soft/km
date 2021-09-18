@@ -8,7 +8,7 @@ from collections import namedtuple
 
 from . import Graph as ug
 from . import PathQuant as upq
-from .. utils import common as uc
+from . import common as uc
 
 
 PathDiff = namedtuple('PathDiff',
@@ -474,18 +474,37 @@ class MutationFinder:
         # For all kmers, find the next kmers with k - 1 overlap
         # and assign a weight of 1
         weight = 1
-        for i in range(self.num_k):
-            for j in range(self.num_k):
-                if i != j:
-                    if self.kmer[i][1:] == self.kmer[j][:-1]:
-                        graph[i, j] = weight
 
-        # Change the weights for reference from 1 to 0.01 in the graph
+        # Match contiguous kmers
+        prefix_dct = {}
+        for i in range(self.num_k):
+            prefix = self.kmer[i][:-1]
+            try:
+                prefix_dct[prefix].add(i)
+            except KeyError:
+                prefix_dct[prefix] = set([i])
+
+        for i in range(self.num_k):
+            suffix = self.kmer[i][1:]
+            try:
+                matches = prefix_dct[suffix]
+            except KeyError:
+                matches = set()
+            for j in matches:
+                if i != j:  # useful?
+                    graph[i, j] = weight
+
+        # Change the weights for contiguous kmers in reference
+        # from 1 to 0.01 in graph
         weight = 0.01
-        for k in range(len(self.ref_index)-1):
-            i = self.ref_index[k]
-            j = self.ref_index[k+1]
-            graph[i, j] = weight
+
+        def adjust_graph_weights(ref_index):
+            for k in range(len(ref_index)-1):
+                i = ref_index[k]
+                j = ref_index[k+1]
+                graph[i, j] = weight
+
+        adjust_graph_weights(self.ref_index)
 
         # Initialize paths and remove reference edges
         graph.init_paths(
