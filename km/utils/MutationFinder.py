@@ -8,6 +8,7 @@ from collections import namedtuple
 
 from . import Graph as ug
 from . import PathQuant as upq
+from . import Sequence as us
 from . import common as uc
 
 
@@ -97,16 +98,14 @@ class MutationFinder:
         ):
 
         ref_seq = ''.join(ref_seqs)
+        self.refpath = us.RefSeq(ref_seq, ref_name, jf.k)
 
-        self.first_seq = ref_seq[0:(jf.k)]
-        self.last_seq = ref_seq[-(jf.k):]
+        self.first_seq = self.refpath.first_kmer
+        self.last_seq = self.refpath.last_kmer
 
-        self.ref_mer = uc.get_ref_kmer(ref_seq, ref_name, jf.k)
-        self.ref_set = set(self.ref_mer)
+        self.ref_set = set(self.refpath.ref_mer)
         log.info("Ref. set contains %d kmers.", len(self.ref_set))
 
-        self.ref_seq = ref_seq
-        self.ref_name = ref_name
         self.ref_attr = ref_attr
         self.jf = jf
         self.max_stack = max_stack
@@ -132,7 +131,7 @@ class MutationFinder:
         self.num_k = len(self.kmer)
 
         # reference path, with node indices
-        self.ref_index = tuple([self.kmer.index(k) for k in self.ref_mer])
+        self.refpath.set_index(self.kmer)
 
         log.info("k-mer graph contains %d nodes.", self.num_k)
 
@@ -504,7 +503,7 @@ class MutationFinder:
                 j = ref_index[k+1]
                 graph[i, j] = weight
 
-        adjust_graph_weights(self.ref_index)
+        adjust_graph_weights(self.refpath.seq_index)
 
         # Initialize paths and remove reference edges
         graph.init_paths(
@@ -538,16 +537,19 @@ class MutationFinder:
                 plt.plot(
                     self.get_counts(alt_index),
                     label=self.get_name(
-                            self.ref_index,
+                            self.refpath.seq_index,
                             alt_index
                         ).replace("\t", " ")
                 )
             plt.legend()
             plt.show()
 
+        ref_index = self.refpath.seq_index
+        ref_name = self.refpath.name
+
         for alt_index in self.alt_paths:
             quant = upq.PathQuant(
-                all_paths=[alt_index, self.ref_index],
+                all_paths=[alt_index, ref_index],
                 counts=self.counts
             )
             quant.compute_coef()
@@ -555,7 +557,7 @@ class MutationFinder:
             quant.get_ratio()
 
             # Reference
-            if alt_index == self.ref_index:
+            if alt_index == ref_index:
                 quant.adjust_for_reference()
 
             rvaf, ref_rvaf = quant.rVAF
@@ -563,8 +565,8 @@ class MutationFinder:
 
             path_o = upq.Path(
                 self.jf.filename,
-                self.ref_name,
-                self.get_name(self.ref_index, alt_index),
+                ref_name,
+                self.get_name(ref_index, alt_index),
                 rvaf,
                 coef,
                 min(self.get_counts(alt_index)),
@@ -572,7 +574,7 @@ class MutationFinder:
                 self.get_seq(alt_index, skip_prefix=False),
                 ref_rvaf,
                 ref_coef,
-                self.get_seq(self.ref_index, skip_prefix=False),
+                self.get_seq(ref_index, skip_prefix=False),
                 "vs_ref"
             )
 
@@ -585,9 +587,10 @@ class MutationFinder:
 
         variant_diffs = []
         variant_set = set(range(0, len(self.alt_paths)))
+        ref_index = self.refpath.seq_index
         for variant in self.alt_paths:
             diff = self.diff_path_without_overlap(
-                self.ref_index, variant, self.jf.k
+                ref_index, variant, self.jf.k
             )
             variant_diffs.append(diff)
 
@@ -616,13 +619,15 @@ class MutationFinder:
 
         self.clusters = []
 
+        ref_index = self.refpath.seq_index
+
         for var_gr in variant_groups:
             start, stop, grp_ixs = var_gr
 
             if len(grp_ixs) == 1:
                 var = grp_ixs[0]
                 path_index = tuple(self.alt_paths[var])
-                if path_index == self.ref_index:
+                if path_index == ref_index:
                     continue
 
             var_diffs = [variant_diffs[v] for v in grp_ixs]
@@ -630,7 +635,7 @@ class MutationFinder:
                 [abs(d.end_var - d.end_ref + 1) for d in var_diffs]
             )
             offset = max(0, start - var_size)
-            ref_path = tuple(self.ref_index[offset:stop])
+            ref_path = tuple(ref_index[offset:stop])
 
             clipped_paths = []
             for var in grp_ixs:
@@ -706,7 +711,7 @@ class MutationFinder:
             for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
                 path_o = upq.Path(
                     self.jf.filename,
-                    self.ref_name,
+                    self.refpath.name,
                     self.get_name(ref_path, path, start_off),
                     rvaf,
                     coef,
