@@ -130,11 +130,13 @@ class MutationFinder:
         self.counts = list(self.node_data.values())
         self.num_k = len(self.kmer)
 
+        log.info("k-mer graph contains %d nodes.", self.num_k)
+
         # reference path, with node indices
         self.refpath.set_index(self.kmer)
 
-        log.info("k-mer graph contains %d nodes.", self.num_k)
-
+        self.first_seq_ix = self.kmer.index(self.first_seq)
+        self.last_seq_ix = self.kmer.index(self.last_seq)
     def __extend(self, stack, breaks=0):
         """Recursive depth first search"""
 
@@ -512,7 +514,18 @@ class MutationFinder:
         )
 
         # Locate shortest paths from non-reference edges
-        self.alt_paths = graph.all_shortest()
+        short_paths = graph.all_shortest()
+        self.alt_paths = [us.AltSeq(s, self) for s in short_paths]
+
+        # Group alternative paths with the same origin (ref_name) together
+        alt_groups = {}
+        for path in self.alt_paths:
+            try:
+                alt_groups[path.ref_name].append(path)
+            except KeyError:
+                alt_groups[path.ref_name] = [path]
+        self.alt_groups = alt_groups
+
 
     def quantify_paths(self, graphical=False):
         """Quantify paths independently.
@@ -532,22 +545,28 @@ class MutationFinder:
 
         if graphical:
             import matplotlib.pyplot as plt
+
+        def plot(paths):
             plt.figure(figsize=(10, 6))
-            for alt_index in self.alt_paths:
+            for path in paths:
+                ref_name, ref_index, alt_index = path.ref_name, path.ref_index, path.seq_index
                 plt.plot(
                     self.get_counts(alt_index),
                     label=self.get_name(
-                            self.refpath.seq_index,
+                            ref_index,
                             alt_index
-                        ).replace("\t", " ")
+                        ).replace("\t", " ") +\
+                        ' (%s)' % ref_name
                 )
             plt.legend()
             plt.show()
 
-        ref_index = self.refpath.seq_index
-        ref_name = self.refpath.name
+        if graphical:
+            for paths in self.alt_groups.values():
+                plot(paths)
 
-        for alt_index in self.alt_paths:
+        for path in self.alt_paths:
+            ref_name, ref_index, alt_index = path.ref_name, path.ref_index, path.seq_index
             quant = upq.PathQuant(
                 all_paths=[alt_index, ref_index],
                 counts=self.counts
@@ -580,17 +599,18 @@ class MutationFinder:
 
             self.paths.append(path_o)
 
-    def _find_clusters(self):
+
+    def _find_clusters(self, alt_paths):
         """Generate clusters by cutting the sequence around mutations
         considering overlapping mutations as a cluster.
         """
 
         variant_diffs = []
-        variant_set = set(range(0, len(self.alt_paths)))
-        ref_index = self.refpath.seq_index
-        for variant in self.alt_paths:
+        variant_set = set(range(0, len(alt_paths)))
+        for path in alt_paths:
+            ref_name, ref_index, alt_index = path.ref_name, path.ref_index, path.seq_index
             diff = self.diff_path_without_overlap(
-                ref_index, variant, self.jf.k
+                ref_index, alt_index, self.jf.k
             )
             variant_diffs.append(diff)
 
@@ -617,17 +637,17 @@ class MutationFinder:
                 variant = get_intersect(start, stop)
             variant_groups.append((start, stop, grp))
 
-        self.clusters = []
-
-        ref_index = self.refpath.seq_index
+        # we know they all share the same reference
+        ref_index = alt_paths[0].ref_index
+        ref_name = alt_paths[0].ref_name
 
         for var_gr in variant_groups:
             start, stop, grp_ixs = var_gr
 
             if len(grp_ixs) == 1:
                 var = grp_ixs[0]
-                path_index = tuple(self.alt_paths[var])
-                if path_index == ref_index:
+                path = alt_paths[var]
+                if path.seq_index == path.ref_index:
                     continue
 
             var_diffs = [variant_diffs[v] for v in grp_ixs]
@@ -641,10 +661,11 @@ class MutationFinder:
             for var in grp_ixs:
                 cur_diff = variant_diffs[var]
                 stop_off = cur_diff.end_var + stop - cur_diff.end_ref
-                new_path = tuple(self.alt_paths[var][offset:stop_off])
+                new_path = tuple(alt_paths[var][offset:stop_off])
                 clipped_paths.append(new_path)
 
-            self.clusters.append((ref_path, clipped_paths, offset))
+            yield (ref_name, ref_path, clipped_paths, offset)
+
 
     def quantify_clusters(self, graphical=False):
         """Detect and quantify cluster groups.
@@ -669,13 +690,16 @@ class MutationFinder:
             each cluster.
         """
 
-        self._find_clusters()
+        clusters = []
+        for alt_paths in self.alt_groups.values():
+            for cluster in self._find_clusters(alt_paths):
+                clusters.append(cluster)
 
         if graphical:
             import matplotlib.pyplot as plt
 
-        for i, cluster in enumerate(self.clusters):
-            ref_path, clipped_paths, start_off = cluster
+        for i, cluster in enumerate(clusters):
+            ref_name, ref_path, clipped_paths, start_off = cluster
             num_cluster = i + 1
 
             if graphical:
@@ -711,7 +735,7 @@ class MutationFinder:
             for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
                 path_o = upq.Path(
                     self.jf.filename,
-                    self.refpath.name,
+                    ref_name,
                     self.get_name(ref_path, path, start_off),
                     rvaf,
                     coef,

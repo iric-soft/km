@@ -38,3 +38,25 @@ class RefSeq:
         except AttributeError:
             sys.stderr.write('Attribute `seq_index` is not set yet\n')
             return None
+
+
+class AltSeq:
+    """"""
+
+    def __init__(self, alt_index, finder):
+        """"""
+
+        self.finder = finder
+
+        self.seq_index = alt_index
+        self.seq = self.finder.get_seq(self.seq_index, skip_prefix=False)
+        self.first_ix = self.seq_index[0]
+        self.last_ix = self.seq_index[-1]
+
+        self.seq_len = len(self.seq_index)
+
+        self.ref_index = self.finder.refpath.seq_index
+        self.ref_name = self.finder.refpath.name
+
+    def __getitem__(self, item):
+        return self.seq_index[item]
