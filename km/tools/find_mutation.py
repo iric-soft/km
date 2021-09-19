@@ -7,11 +7,13 @@ import time
 import logging as log
 from .. utils import MutationFinder as umf
 from .. utils import common as uc
+from .. utils import Sequence as us
 from .. utils.Jellyfish import Jellyfish
 
 
 # ###########################################################################
 # Main function
+
 def main_find_mut(args, argparser):
     time_start = time.time()
 
@@ -30,14 +32,22 @@ def main_find_mut(args, argparser):
 
     umf.MutationFinder.output_header()
 
+    refpaths = []
+
     for seq_f in seq_files:
 
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
-        ref_seq, ref_attr = uc.file_2_seq(seq_f)
+        ref_seqs, ref_attr = uc.file_2_seq(seq_f)
+
+        refpath = us.RefSeq(''.join(ref_seqs), ref_name, jf.k)
+
+        refpaths.append(refpath)
+
+    for refpath in refpaths:
 
         finder = umf.MutationFinder(
-            ref_name, ref_seq, ref_attr, jf, args.steps, args.branchs, args.nodes
+            refpath, jf, args.steps, args.branchs, args.nodes
         )
 
         finder.graph_analysis()

@@ -41,16 +41,12 @@ class MutationFinder:
 
     Attributes
     ---------
-    ref_seq : str
-        Reference sequence from fasta file.
-    ref_name : str
-        Filename of the fasta file used as the name for `ref_seq`.
+    refpath : km.utils.Sequence.RefSeq
+        Reference path object.
     first_kmer : str
-        First kmer in ref_seq.
+        Source capping node.
     last_kmer : str
-        Last kmer in ref_seq.
-    ref_mer : list
-        List of kmers found in ref_seq.
+        Sink capping node.
     ref_set : set
         Set of all kmers found in ref_seq
     jf: km.utils.Jellyfish.Jellyfish
@@ -88,17 +84,14 @@ class MutationFinder:
     """
 
     def __init__(self,
-            ref_name,
-            ref_seqs,
-            ref_attr,
+            refpath,
             jf,
             max_stack=500,
             max_break=10,
             max_node=10000
         ):
 
-        ref_seq = ''.join(ref_seqs)
-        self.refpath = us.RefSeq(ref_seq, ref_name, jf.k)
+        self.refpath = refpath
 
         self.first_seq = "BigBang"
         self.last_seq = "BigCrunch"
@@ -106,7 +99,6 @@ class MutationFinder:
         self.ref_set = set(self.refpath.ref_mer)
         log.info("Ref. set contains %d kmers.", len(self.ref_set))
 
-        self.ref_attr = ref_attr
         self.jf = jf
         self.max_stack = max_stack
         self.max_break = max_break
