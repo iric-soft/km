@@ -8,10 +8,30 @@ from . import common as uc
 
 
 class RefSeq:
-    """"""
+    """Reference path object that contains information on
+    sequence, sequence name, kmers and kmer indices.
+
+    Attributes
+    ---------
+    seq : str
+        Reference sequence from fasta file.
+    k : int
+        K-mer size.
+    first_kmer : str
+        First kmer in seq.
+    last_kmer : str
+        Last kmer in seq.
+    name : str
+        Path name.
+    ref_mer : list
+        List of kmers found in seq.
+
+    Methods
+    -------
+    set_index
+    """
 
     def __init__(self, seq, name, k):
-        """"""""
 
         self.seq = seq
         self.k = k

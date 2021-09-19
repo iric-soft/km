@@ -1,9 +1,10 @@
 import argparse
+import sys
 
-from .argparser.find_mutation import *
-from .argparser.find_report import *
-from .argparser.linear_kmin import *
-from .argparser.min_cov import *
+from .argparser.find_mutation import get_argparser_find_mut
+from .argparser.find_report import get_argparser_find_report
+from .argparser.linear_kmin import get_argparser_linear_kmin
+from .argparser.min_cov import get_argparser_min_cov
 
 from .tools.find_mutation import main_find_mut
 from .tools.find_report import main_find_report
@@ -14,10 +15,10 @@ from .tools.min_cov import main_min_cov
 # ###########################################################################
 # Main function
 def main():
-    # print("\n--------------------------------------------------------------")
-    # print("km.py: Tools for targeted variant detection.")
-    # print("This program was written by IRIC's bioinformatics platform")
-    # print("----------------------------------------------------------------\n")
+    # sys.stderr.write("\n--------------------------------------------------------------\n")
+    # sys.stderr.write("km.py: Tools for targeted variant detection.\n")
+    # sys.stderr.write("This program was written by IRIC's bioinformatics platform\n")
+    # sys.stderr.write("----------------------------------------------------------------\n\n")
 
     argparser = argparse.ArgumentParser(prog='PROG')
     subparsers = argparser.add_subparsers(help='sub-command help')
