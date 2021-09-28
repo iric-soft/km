@@ -6,7 +6,6 @@ import sys
 import logging as log
 from collections import namedtuple
 from itertools import groupby
-import uuid
 
 from . import common as uc
 
