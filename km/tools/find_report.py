@@ -4,281 +4,240 @@ from collections import namedtuple
 
 from .. utils import common as uc
 
-
-Exon = namedtuple('Exon',
-    [
-        'chro',
-        'strand',
-        'nts'
-    ]
-)
+Exon = namedtuple('Exon', ['chro', 'strand', 'nts'])
 
 
-def print_line(sample, region, location, type_var, removed,
-               added, abnormal, normal, ratio, min_cov, min_exclu,
-               variant, target, info, var_seq, ref_seq):
-    line = "\t".join([sample, region, location, type_var, removed,
-                      added, abnormal, normal, ratio, min_cov, min_exclu,
-                      variant, target, info, var_seq, ref_seq])
-    sys.stdout.write(line + "\n")
+class Line:
+    def __init__(self, tok, ref_exons, exclu):
+        self.samp = tok[0]
+        self.query = tok[1]
+        self.ratio = tok[4]
+        self.alt_exp = tok[5]
+        self.ref_exp = tok[9]
+        self.min_cov = tok[6]
+        self.start_off = tok[7]
+        self.alt_seq = tok[8]
+        self.ref_seq = tok[10]
+        self.info = tok[11]
 
+        self.variant = (tok[2], tok[3])
 
-def print_vcf_header():
-    header  = '##fileformat=VCFv4.1\n'
-    header += '##INFO=<ID=TYPE,Number=A,Type=String,Description='
-    header += '"The type of variant, either Insertion, ITD, I&I, Deletion, Substitution or Indel.">\n'
-    header += '##INFO=<ID=TARGET,Number=A,Type=String,Description='
-    header += '"Name of the sequencing that contains the mutation.">\n'
-    header += '##INFO=<ID=RATIO,Number=A,Type=String,Description="Ratio of mutation to reference.">\n'
-    header += '##INFO=<ID=MINCOV,Number=A,Type=String,Description='
-    header += '"Minimum k-mer coverage of alternative allele.">\n'
-    header += '##INFO=<ID=REMOVED,Number=A,Type=String,Description="Number of removed bases.">\n'
-    header += '##INFO=<ID=ADDED,Number=A,Type=String,Description="Number of added bases.">\n'
-    header += '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
-    sys.stdout.write(header)
+        if exclu != "" and alt_seq != "":
+            res = uc.get_cov(exclu, alt_seq)
+            self.min_exclu = str(res[2])
+        else:
+            self.min_exclu = ""
 
-
-def print_vcf_line(chro, loc, ref_var, alt_var, type_var, target, ratio, min_cov, rem, ad):
-    line = "\t".join([chro, str(loc), ".", ref_var, alt_var, ".", ".",
-                      "TYPE="+type_var+";TARGET="+target+";RATIO="+ratio+";MINCOV="+min_cov +
-                      ";REMOVED="+str(rem)+";ADDED="+str(ad)])
-    sys.stdout.write(line + "\n")
-
-
-def parse_exon(exon):
-    chro, loc, strand = exon.split(':')
-    refstart, refstop = loc.split('-')
-    refstart = int(refstart)
-    refstop = int(refstop)
-    nts = list(range(refstart, refstop + 1)) # BE 1-based
-    if strand == "-":
-        nts = nts[::-1]
-    nts = tuple(nts)
-
-    return Exon(chro, strand, nts)
-
-
-# Find correct extremities of a mutation
-sys.setrecursionlimit(10000)
-
-def get_extremities(va, p, rs):
-    if p - 1 > 0 and rs[p - 1] == va[-1]:
-        return get_extremities(rs[p - 1] + va[:-1], p - 1, rs)
-    return p - 1
-
-
-def create_report(args):
-    if args.format == "vcf" and args.info == "cluster":
-        # Note: could salvage that option if we get the fill ref from vs_ref entries
-        sys.exit("ERROR: -f vcf and -i cluster options are incompatible")
-
-    variants = {}
-    samples = {}
-    data = {}
-    vcf = True if args.format == 'vcf' else False
-    table = True if args.format == 'table' else False
-
-    if vcf:
-        print_vcf_header()
-    elif not table:
-        print_line("Sample", "Region", "Location", "Type", "Removed",
-                   "Added", "Abnormal", "Normal", "rVAF", "Min_coverage",
-                   "Exclu_min_cov", "Variant", "Target", "Info", "Variant_sequence",
-                   "Reference_sequence")
-
-    ref_exons = {}
-
-    for line in args.infile:
-        # filter header
-        if line[0] == "#":
-            if line.startswith('#target:'):
-                exon = line.strip().split(':')[1].replace('/', ':')
-                exon_id, exon_loc = exon.split('=')
-                ref_exons[exon_id] = parse_exon(exon_loc)
-            continue
-
-        tok = line.strip("\n").split("\t")
-
-        # filter on info column
-        if not re.search(args.info, line) or tok[0] == "Database" or len(tok) <= 1:
-            continue
-
-        samp = tok[0]
-        query = tok[1]
-        ratio = tok[4]
-        alt_exp = tok[5]
-        ref_exp = tok[9]
-        min_cov = tok[6]
-        start_off = tok[7]
-        alt_seq = tok[8]
-        refSeq = tok[10]
-        info = tok[11]
-
-        min_exclu = ""
-        variant = (tok[2], tok[3])
-        ref_seq = refSeq.upper()
-
-        if int(min_cov) < args.min_cov:
-            continue
-
-        if args.exclu != "" and alt_seq != "":
-            res = uc.get_cov(args.exclu, alt_seq)
-            min_exclu = str(res[2])
-
-        ref_pair = query.split('::')
+        ref_pair = self.query.split('::')
         assert len(ref_pair) <= 2
 
         chro = set([ref_exons[r].chro for r in ref_pair])
         assert len(chro) == 1  # TODO: Implement > 1 chromosome
-        chro = chro.pop()
+        self.chro = chro.pop()
 
         strand = set([ref_exons[r].strand for r in ref_pair])
         assert len(strand) == 1  # TODO: Implement mixed strand
-        strand = strand.pop()
+        self.strand = strand.pop()
 
-        nts = [x for r in ref_pair for x in ref_exons[r].nts]
+        self.nts = [x for r in ref_pair for x in ref_exons[r].nts]
 
         # case: entries with no mutations
-        if variant[0] == 'Reference':
-            mod = ""
-            if strand == "-":
-                region = "{}:{}-{}".format(chro, nts[-1], nts[0])
-            else:
-                region = "{}:{}-{}".format(chro, nts[0], nts[-1])
-            if not vcf and not table:
-                print_line(samp, region, '-', variant[0], '0', '0',
-                           '0.0', alt_exp, tok[4], min_cov, min_exclu, '-',
-                           query, tok[-1], "", "")
-                continue
-            elif vcf:
-                continue
+        if self.variant[0] == 'Reference':
+            self.isref = True
 
-        # case: there is a mutation
+            first, last = self.nts[0], self.nts[-1]
+            if self.strand == "-":
+                first, last = last, first
+
+            self.region = "{}:{}-{}".format(self.chro, first, last)
+
+            self.location = '-'
+            self.insert_type = self.variant[0]
+            self.removed = '0'
+            self.added = '0'
+            self.ref_exp = self.alt_exp
+            self.alt_exp = '0.0'
+            self.mod = '-'
+            self.alt_seq = ''
+            self.ref_seq = ''
         else:
-            start, mod, stop = variant[1].split(":")
-            delet, insert = mod.split("/")
 
-            added = str(len(insert))
-            removed = str(len(delet))
+            self.isref = False
 
-            # start and end positions in 0-based coordinates
-            pos = int(start) - 1
-            pos -= int(start_off)
-            end = int(stop) - 2  # one to go back to last position, the other for 0-base
-            end -= int(start_off)
+            self.region = None
+            self.location = None
+            self.insert_type = None
+            self.removed = None
+            self.added = None
+            self.mod = None
 
-            if strand == "+":
-                start_pos = nts[pos]
-                end_pos = nts[end]
-            elif strand == "-":
-                start_pos = nts[end]
-                end_pos = nts[pos]
 
-            region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
+    def process_variant(self):
+        # case: there is a mutation
 
-            ref_var = delet.upper()
-            alt_var = insert.upper()
-            loc_var = start_pos
-            end_var = end_pos
+        start, self.mod, stop = self.variant[1].split(":")
+        delet, insert = self.mod.split("/")
 
-            if len(delet) == 0 and len(insert) != 0:
-                if strand == "+":
-                    start_pos = nts[pos]
-                    end_pos = nts[end + 1]  # insertions end at last position
-                elif strand == "-":
-                    start_pos = nts[end + 1]
-                    end_pos = nts[pos]
-                region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
-                insert_type = variant[0]
+        self.added = str(len(insert))
+        self.removed = str(len(delet))
 
-                var = insert.upper()
-                ibef = get_extremities(var, pos, ref_seq)  # include current position
-                before = ref_seq[ibef:pos]
-                iaft = get_extremities(var[::-1], len(ref_seq)-pos, ref_seq[::-1])
-                after = ref_seq[::-1][iaft:len(ref_seq)-pos][::-1]
-                iaft = len(ref_seq) - iaft - 1
-                ref_var = before + after
-                alt_var = before + var + after
-                loc_var = nts[iaft] if strand == "-" else nts[ibef]
-                end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
+        self.insert_type = self.variant[0]
 
-                if loc_var + len(ref_var) - 1 != end_var and vcf:
-                    sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
-                    continue
+        # start and end positions in 0-based coordinates
+        pos = int(start) - 1
+        pos -= int(self.start_off)
+        end = int(stop) - 2  # one to go back to last position, the other for 0-base
+        end -= int(self.start_off)
 
-                if insert_type == "ITD":
-                    added += " | " + str(end_pos - start_pos + 1)
-                elif insert_type == "I&I":
-                    added += " | " + str(end_pos - start_pos + 1)
+        start_pos, end_pos = self.nts[pos], self.nts[end]
+        if self.strand == "-":
+            start_pos, end_pos = end_pos, start_pos
+        self.region = "{}:{}-{}".format(self.chro, start_pos, end_pos + 1)
 
-                location = chro + ":" + str(end_pos)
+        if len(delet) == 0 and len(insert) != 0:
+            start_pos, end_pos = self.nts[pos], self.nts[end + 1]  # insertions end at last position
+            if self.strand == "-":
+                start_pos, end_pos = end_pos, start_pos
+            self.region = "{}:{}-{}".format(self.chro, start_pos, end_pos + 1)
 
-            elif variant[0] == 'Deletion':
-                region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
-                location = ""
-                insert_type = variant[0]
+            self.location = self.chro + ":" + str(end_pos)
 
-                var = delet.upper()
-                ibef = get_extremities(var, pos, ref_seq)
-                before = ref_seq[ibef:pos]
-                iaft = get_extremities(var[::-1], len(ref_seq)-pos-1-len(var)+1, ref_seq[::-1])
-                after = ref_seq[::-1][iaft:len(ref_seq)-pos-1-len(var)+1][::-1]
-                iaft = len(ref_seq) - iaft - 1
-                ref_var = before + var + after
-                alt_var = before + after
-                loc_var = nts[iaft] if strand == "-" else nts[ibef]
-                end_var = nts[iaft-len(ref_var)+1] if strand == "-" else nts[ibef+len(ref_var)-1]
+            if self.insert_type == "ITD":
+                self.added += " | " + str(end_pos - start_pos + 1)
+            elif self.insert_type == "I&I":
+                self.added += " | " + str(end_pos - start_pos + 1)
 
-                if loc_var + len(ref_var) - 1 != end_var and vcf:
-                    continue
+        elif self.variant[0] == 'Deletion':
+            self.location = ""
 
-            elif variant[0] == 'Substitution':
-                location = chro + ":" + str(start_pos)
-                insert_type = variant[0]
+        elif self.variant[0] == 'Substitution':
+            self.location = self.chro + ":" + str(start_pos)
 
-                if loc_var + len(ref_var) - 1 != end_var and vcf:
-                    sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
-                    continue
+        elif self.variant[0] == 'Indel':
+            self.location = self.chro + ":" + str(end_pos)
 
-            elif variant[0] == 'Indel':
-                location = chro + ":" + str(end_pos)
-                insert_type = variant[0]
+        else:
+            sys.stderr.write("WARNING: This variant isn't taken account\n")
+            sys.stderr.write(" - variant: " + str(variant[0]) + "\n")
+            sys.stderr.write(" - line: " + line)
+            sys.exit()
 
-                ref_var = ref_seq[pos-1] + delet.upper() + ref_seq[end + 1]
-                alt_var = ref_seq[pos-1] + insert.upper() + ref_seq[end + 1]
-                loc_var = start_pos - 1
-                end_var = end_pos + 1
+        self.delet = delet
+        self.insert = insert
+        self.pos = pos
 
-                if loc_var + len(ref_var) - 1 != end_var and vcf:
-                    sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
-                    continue
+    def __str__(self):
+        return "\t".join([
+                self.samp,
+                self.region,
+                self.location,
+                self.insert_type,
+                self.removed,
+                self.added,
+                self.alt_exp,
+                self.ref_exp,
+                self.ratio,
+                self.min_cov,
+                self.min_exclu,
+                self.mod,
+                self.query,
+                self.info,
+                self.alt_seq,
+                self.ref_seq
+            ])
 
+
+class Report:
+    header = [
+            "Sample",
+            "Region",
+            "Location",
+            "Type",
+            "Removed",
+            "Added",
+            "Abnormal",
+            "Normal",
+            "rVAF",
+            "Min_coverage",
+            "Exclu_min_cov",
+            "Variant",
+            "Target",
+            "Info",
+            "Variant_sequence",
+            "Reference_sequence"
+        ]
+
+    def __init__(self, infile, info, min_cov, exclu):
+        self.infile = infile
+        self.info = info
+        self.min_cov = min_cov
+        self.exclu = exclu
+
+    def print_header(self):
+        sys.stdout.write("\t".join(self.header) + "\n")
+
+    def parse(self):
+        for line in self._parse():
+            if not line.isref:
+                line.process_variant()
+            sys.stdout.write(str(line) + "\n")
+
+    def _parse(self):
+        self.ref_exons = {}
+
+        for line in self.infile:
+            # filter header
+            if line[0] == "#":
+                if line.startswith('#target:'):
+                    exon = line.strip().split(':')[1].replace('/', ':')
+                    exon_id, exon_loc = exon.split('=')
+                    self.ref_exons[exon_id] = self.parse_exon(exon_loc)
             else:
-                sys.stderr.write("WARNING: This variant isn't taken account\n")
-                sys.stderr.write(" - variant: " + str(variant[0]) + "\n")
-                sys.stderr.write(" - line: " + line)
-                sys.exit()
+                tok = line.strip("\n").split("\t")
+                # filter on info column
+                if re.search(self.info, line) and tok[0] != "Database" and len(tok) > 1:
+                    line_obj = Line(tok, self.ref_exons, self.exclu)
+                    if int(line_obj.min_cov) >= self.min_cov:
+                        yield line_obj
 
-        if not vcf and not table:
-            print_line(samp, region, location, insert_type,
-                       removed, added, alt_exp, ref_exp, ratio,
-                       min_cov, min_exclu, mod, query, info,
-                       alt_seq, refSeq)
+    @staticmethod
+    def parse_exon(exon):
+        chro, loc, strand = exon.split(':')
+        refstart, refstop = loc.split('-')
+        refstart = int(refstart)
+        refstop = int(refstop)
+        nts = list(range(refstart, refstop + 1)) # BE 1-based
+        if strand == "-":
+            nts = nts[::-1]
+        nts = tuple(nts)
 
-        elif vcf:
-            complement = str.maketrans('ATGCU', 'TACGA')
-            ref_var = ref_var.translate(complement)[::-1] if strand == '-' else ref_var
-            alt_var = alt_var.translate(complement)[::-1] if strand == '-' else alt_var
-            print_vcf_line(chro, loc_var, ref_var, alt_var, insert_type,
-                           query, ratio, min_cov, removed, added.replace(" ", ""))
+        return Exon(chro, strand, nts)
 
-        elif table:
-            var_name = variant[0] + "/" + query if "/" not in variant[0] else variant[0]
-            region_mod = region + ":" + mod if mod else region
+
+class TableReport(Report):
+    def print_header(self):
+        return
+
+    def parse(self):
+        variants = {}
+        samples = {}
+        data = {}
+
+        for line in self._parse():
+            if not line.isref:
+                line.process_variant()
+
+            if "/" not in line.variant[0]:
+                var_name = line.variant[0] + "/" + line.query
+            else:
+                var_name = line.variant[0]
+            region_mod = line.region + ":" + line.mod if line.mod != "-" else line.region
             var = (var_name, region_mod)
             if var not in variants:
                 variants[var] = 0
             variants[var] += 1
+
+            samp = line.samp
 
             if samp not in samples:
                 samples[samp] = set()
@@ -286,9 +245,8 @@ def create_report(args):
 
             if samp not in data:
                 data[samp] = {}
-            data[samp][var] = float(ratio)
+            data[samp][var] = float(line.ratio)
 
-    if table:
         sorted_variants = sorted(variants, key=variants.get, reverse=True)
 
         sys.stdout.write("Sample")
@@ -312,6 +270,133 @@ def create_report(args):
             sys.stdout.write("\n")
 
 
+class VCFReport(Report):
+    header  = '##fileformat=VCFv4.1\n'
+    header += '##INFO=<ID=TYPE,Number=A,Type=String,Description='
+    header += '"The type of variant: Insertion, ITD, I&I, Deletion, Substitution or Indel.">\n'
+    header += '##INFO=<ID=TARGET,Number=A,Type=String,Description='
+    header += '"Name of the sequencing that contains the mutation.">\n'
+    header += '##INFO=<ID=RATIO,Number=A,Type=String,Description="Mutation to reference ratio.">\n'
+    header += '##INFO=<ID=MINCOV,Number=A,Type=String,Description='
+    header += '"Minimum k-mer coverage of alternative allele.">\n'
+    header += '##INFO=<ID=REMOVED,Number=A,Type=String,Description="Number of removed bases.">\n'
+    header += '##INFO=<ID=ADDED,Number=A,Type=String,Description="Number of added bases.">\n'
+    header += '#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def print_header(self):
+        sys.stdout.write(self.header)
+
+    def parse(self):
+        for line in self._parse():
+            if line.isref:
+                continue
+
+            line.process_variant()
+
+            res = self.canonicalize(line.delet, line.insert, line.pos, line.ref_seq)
+            ref_var, alt_var, ibef, iaft = res
+
+            if line.strand == "+":
+                loc_var = line.nts[ibef]
+                end_var = line.nts[ibef+len(ref_var)-1]
+            elif line.strand == "-":
+                loc_var = line.nts[iaft]
+                end_var = line.nts[iaft-len(ref_var)+1]
+
+            if loc_var + len(ref_var) - 1 != end_var:
+                sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
+            else:
+                if line.strand == '-':
+                    complement = str.maketrans('ATGCU', 'TACGA')
+                    ref_var = ref_var.translate(complement)[::-1]
+                    alt_var = alt_var.translate(complement)[::-1]
+
+                flags = "TYPE=%s;TARGET=%s;RATIO=%s;MINCOV=%s;REMOVED=%s;ADDED=%s" % (
+                        line.insert_type,
+                        line.query,
+                        line.ratio,
+                        line.min_cov,
+                        line.removed,
+                        line.added
+                    )
+
+                out_line = "\t".join([
+                        line.chro,
+                        str(loc_var),
+                        ".",
+                        ref_var,
+                        alt_var,
+                        ".",
+                        ".",
+                        flags
+                    ])
+
+                sys.stdout.write(out_line + "\n")
+
+
+    @staticmethod
+    def canonicalize(delet, insert, pos, ref_seq):
+        sys.setrecursionlimit(10000)
+
+        def get_extremities(va, p, rs):
+            if p - 1 > 0 and rs[p - 1] == va[-1]:
+                return get_extremities(rs[p - 1] + va[:-1], p - 1, rs)
+            return p - 1
+
+        delet = delet.upper()
+        insert = insert.upper()
+        ref_seq = ref_seq.upper()
+        reflen = len(ref_seq)
+
+        #for a, b in list(zip(delet, insert)):
+        #    if a == b:
+        #        delet = delet[1:]
+        #        insert = insert[1:]
+        #        continue
+        #    break
+        #for a, b in list(zip(delet[::-1], insert[::-1])):
+        #    if a == b:
+        #        delet = delet[:-1]
+        #        insert = insert[:-1]
+        #        continue
+        #    break
+
+        end = pos + len(delet)
+
+        if delet and insert:
+            if len(delet) == len(insert):
+                ibef = pos
+                iaft = end
+                ref_var = delet
+                alt_var = insert
+            else:
+                ibef = pos - 1
+                iaft = end + 1
+                ref_var = ref_seq[pos-1] + delet + ref_seq[end + 1]
+                alt_var = ref_seq[pos-1] + insert + ref_seq[end + 1]
+        elif not delet:
+            ibef = get_extremities(insert, pos, ref_seq)  # include current position
+            iaft = reflen - get_extremities(insert[::-1], reflen-pos, ref_seq[::-1]) - 1
+            b = ref_seq[ibef:pos]  # before
+            a = ref_seq[pos:iaft+1]  # after
+            ref_var = b + a
+            alt_var = b + insert + a
+        elif not insert:
+            ibef = get_extremities(delet, pos, ref_seq)
+            iaft = reflen - get_extremities(delet[::-1], reflen-pos-len(delet), ref_seq[::-1]) - 1
+            b = ref_seq[ibef:pos]
+            a = ref_seq[pos+len(delet):iaft+1]
+            ref_var = b + delet + a
+            alt_var = b + a
+        else:
+            assert delet or insert  # will fail
+
+        return ref_var, alt_var, ibef, iaft
+
+
 def main_find_report(args, argparser):
 
     if args.infile.isatty():
@@ -321,7 +406,20 @@ def main_find_report(args, argparser):
     if args.target is not None:
         sys.stderr.write(
             'DEPRECATED: Target file (-t option) is ignored and ' +
-            'will be removed in future versions.\n\n'
+            'will be removed from future versions of km.\n\n'
         )
 
-    create_report(args)
+    if args.format == "vcf" and args.info == "cluster":
+        # Note: could salvage that option if we get the fill ref from vs_ref entries
+        sys.exit("ERROR: -f vcf and -i cluster options are incompatible")
+
+    if args.format == "vcf":
+        cls = VCFReport
+    elif args.format == "table":
+        cls = TableReport
+    else:
+        cls = Report
+
+    report = cls(args.infile, args.info, args.min_cov, args.exclu)
+    report.print_header()
+    report.parse()
