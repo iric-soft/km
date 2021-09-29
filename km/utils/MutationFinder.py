@@ -490,15 +490,41 @@ class MutationFinder:
                 # we retraced the whole reference
                 # ITD have zero kmers in ref after trimming, but I&I do.
                 variant = "ITD"
+                # NOTE that this method will miss ITDs < 30 nts in length
+                # NOTE that this method might return I&Is or in rare cases
+                # false positives for ITDs > 30 nts
+                reinterpret = True
             else:
                 # we have an indel
                 variant = "Indel"
                 if diff.end_ref < diff.end_var:
                     if len(del_seq) == 0:
                         variant = "Insertion"
+                        # NOTE that the mutation could be a short ITD or I&I
+                        reinterpret = True
                 else:
                     if len(ins_seq) == 0:
                         variant = "Deletion"
+
+        if reinterpret:
+            # Reinterpret mutations for small ITDs
+            new_variant = variant
+            pos = diff.start + self.jf.k - 1  # 0-based coordinate
+            insert = ins_seq
+            if pos-len(insert) >= 0 and len(insert) >= 3:
+                alt_seq = self.get_seq(path_ix, skip_prefix=False)
+                # careful, going upstream may put us outside the reference.
+                upstream = alt_seq[pos-len(insert):pos]
+                if insert == upstream:
+                    new_variant = "ITD"
+                else:
+                    comm = [insert[i] == upstream[i] for i in range(len(insert))]
+                    match = sum(comm) / len(insert)
+                    if match > 0.5:
+                        new_variant = "I&I"
+            if variant != new_variant:
+                log.info('Reinterpreting %s as %s.' % (variant, new_variant))
+                variant = new_variant
 
         if variant == "Reference":
             return variant + "\t"

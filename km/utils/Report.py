@@ -83,6 +83,9 @@ class Line:
         start, self.mod, stop = self.variant[1].split(":")
         delet, insert = self.mod.split("/")
 
+        self.delet = delet
+        self.insert = insert
+
         self.added = str(len(insert))
         self.removed = str(len(delet))
 
@@ -93,56 +96,16 @@ class Line:
         pos -= int(self.start_off)
         end = int(stop) - 2  # one to go back to last position, the other for 0-base
         end -= int(self.start_off)
+        if len(delet) == 0 and len(insert) != 0:  # insertions end at last position
+            end += 1
+
+        self.pos = pos
 
         start_pos, end_pos = self.nts[pos], self.nts[end]
         if self.strand == "-":
             start_pos, end_pos = end_pos, start_pos
         self.region = "{}:{}-{}".format(self.chro, start_pos, end_pos + 1)
-
-        if len(delet) == 0 and len(insert) != 0:
-            start_pos, end_pos = self.nts[pos], self.nts[end + 1]  # insertions end at last position
-            if self.strand == "-":
-                start_pos, end_pos = end_pos, start_pos
-            self.region = "{}:{}-{}".format(self.chro, start_pos, end_pos + 1)
-
-            self.location = self.chro + ":" + str(end_pos)
-
-            # Reinterpret mutations for small ITDs
-
-            self.insert_type = "Insertion"
-            # careful, going upstream may put us outside the reference.
-            upstream = self.alt_seq[pos-len(insert):pos]
-            match = 0
-            if pos-len(insert) >= 0:
-                for i in range(0, len(insert)):
-                    if insert[i] == upstream[i]:
-                        match += 1
-                match = float(match)/len(insert)
-                if len(insert) >= 3:
-                    self.added += " | " + str(end_pos - start_pos + 1)
-                    if insert == upstream:
-                        self.insert_type = "ITD"
-                    elif match > 0.5:
-                        self.insert_type = "I&I"
-
-        elif self.variant[0] == 'Deletion':
-            self.location = ""
-
-        elif self.variant[0] == 'Substitution':
-            self.location = self.chro + ":" + str(start_pos)
-
-        elif self.variant[0] == 'Indel':
-            self.location = self.chro + ":" + str(end_pos)
-
-        else:
-            sys.stderr.write("WARNING: This variant isn't taken account\n")
-            sys.stderr.write(" - variant: " + str(variant[0]) + "\n")
-            sys.stderr.write(" - line: " + line)
-            sys.exit()
-
-        self.delet = delet
-        self.insert = insert
-        self.pos = pos
+        self.location = self.chro + ":" + str(start_pos)
 
     def __str__(self):
         return "\t".join([
