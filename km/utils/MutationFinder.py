@@ -59,8 +59,6 @@ class MutationFinder:
         Alternative paths discovered by `PathQuant`.
     node_data : dict
         Maps kmer string sequences to their position in the JF DB.
-    done : set
-        Contains kmers that were already passed over.
     kmer : list
         List of all kmers fetched from JF DB.
     counts : list
@@ -105,14 +103,12 @@ class MutationFinder:
         self.max_node = max_node
 
         self.node_data = {}
-        self.done = set()
 
         # register all k-mers from the ref
         for s in self.ref_set:
             self.node_data[s] = self.jf.query(s)
 
         # kmer walking from each k-mer of ref_seq
-        self.done.update(self.ref_set)
         for seq in self.ref_set:
             # note: rightmost exons will extend purposelessly
             # because we removed check:
@@ -141,7 +137,7 @@ class MutationFinder:
         if len(stack) > self.max_stack:
             return
 
-        if len(self.done) > self.max_node:
+        if len(self.node_data.keys()) > self.max_node:
             sys.exit(
                 "ERROR: Node query count limit exceeded: max={}".format(
                     self.max_node
@@ -158,8 +154,7 @@ class MutationFinder:
 
         for child in childs:
             ustack = stack + [child]
-            if child in self.done:
-                self.done.update(ustack)
+            if child in self.node_data:
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
             else:
