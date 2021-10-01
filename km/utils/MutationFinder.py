@@ -125,7 +125,7 @@ class MutationFinder:
         self.num_k = len(self.kmer)
 
         # reference path, with node indices
-        self.ref_index = [self.kmer.index(k) for k in self.ref_mer]
+        self.ref_index = tuple([self.kmer.index(k) for k in self.ref_mer])
 
         log.debug("k-mer graph contains %d nodes.", self.num_k)
 
@@ -339,8 +339,6 @@ class MutationFinder:
             The resulting merge of kmers given as input.
         """
 
-        path = list(path)
-
         if not path:
             # Deals with an empty sequence
             return ""
@@ -525,7 +523,7 @@ class MutationFinder:
             quant.get_ratio()
 
             # Reference
-            if list(path) == self.ref_index:
+            if path == self.ref_index:
                 quant.adjust_for_reference()
 
             rvaf, ref_rvaf = quant.rVAF
@@ -589,7 +587,7 @@ class MutationFinder:
 
             if len(grp_ixs) == 1:
                 var = grp_ixs[0]
-                path_index = list(self.short_paths[var])
+                path_index = tuple(self.short_paths[var])
                 if path_index == self.ref_index:
                     continue
 
@@ -598,13 +596,13 @@ class MutationFinder:
                 [abs(d.end_var - d.end_ref + 1) for d in var_diffs]
             )
             offset = max(0, start - var_size)
-            ref_path = self.ref_index[offset:stop]
+            ref_path = tuple(self.ref_index[offset:stop])
 
             clipped_paths = []
             for var in grp_ixs:
                 cur_diff = variant_diffs[var]
                 stop_off = cur_diff.end_var + stop - cur_diff.end_ref
-                new_path = self.short_paths[var][offset:stop_off]
+                new_path = tuple(self.short_paths[var][offset:stop_off])
                 clipped_paths.append(new_path)
 
             self.clusters.append((ref_path, clipped_paths, offset))
