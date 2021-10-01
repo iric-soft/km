@@ -4,6 +4,7 @@
 
 import numpy as np
 import logging as log
+import sys
 
 
 class Path:
@@ -52,12 +53,30 @@ class Path:
     def get_variant_name(self):
         return self.variant_name
 
+    @staticmethod
+    def output_header():
+        sys.stdout.write("\t".join([
+                "Database",
+                "Query",
+                "Type",
+                "Variant_name",
+                "rVAF",
+                "Expression",
+                "Min_coverage",
+                "Start_offset",
+                "Sequence",
+                "Reference_expression",
+                "Reference_sequence",
+                "Info"
+            ]) + "\n"
+        )
+
 
 class PathQuant:
-    def __init__(self, all_path, counts):
-        self.all_path = all_path
+    def __init__(self, all_paths, counts):
+        self.all_paths = all_paths
         self.nb_kmer = len(counts)
-        self.nb_seq = len(all_path)
+        self.nb_seq = len(all_paths)
 
         self.contrib = np.zeros((self.nb_kmer, self.nb_seq), dtype=np.int32)
         self.counts = np.zeros((self.nb_kmer, 1), dtype=np.float32)
@@ -68,7 +87,7 @@ class PathQuant:
         seq_i = 0
         log.debug("%d sequence(s) are observed.", self.nb_seq)
 
-        for s in all_path:
+        for s in all_paths:
             for i in s:
                 self.contrib[i, seq_i] += 1
             seq_i += 1
@@ -106,9 +125,11 @@ class PathQuant:
             self.coef[self.coef < 0] = 0
             last_max_grad = np.max(np.abs(grad))
             num_iter += 1
-            log.debug("Iteration = %d, max_gradient = %f",
-                      num_iter,
-                      last_max_grad)
+            log.debug(
+                "Iteration = %d, max_gradient = %f",
+                num_iter,
+                last_max_grad
+            )
         log.debug("Refined fitting = %s", self.coef.flatten())
 
     def get_ratio(self):
@@ -123,51 +144,31 @@ class PathQuant:
         self.rVAF[1] = np.nan
         self.coef[self.coef >= 0] = min(self.counts)[0]
 
-    @staticmethod
-    def output_header():
-        return print(
-            '\t'.join([
-                'Database',
-                'Query',
-                'Type',
-                'Variant_name',
-                'rVAF',
-                'Expression',
-                'Min_coverage',
-                'Start_offset',
-                'Sequence',
-                'Reference_expression',
-                'Reference_sequence',
-                'Info'
-                ]
-            )
-        )
-
     def output(self, db_f, ref_name, name_f, seq_f):
         for i in range(self.nb_seq):
             # if self.rVAF[i] > 0:
             print("%s\t%s\t%s\t%.3f\t%.1f\t%s" % (db_f,
                                                   ref_name,
-                                                  name_f(self.all_path[i]),
+                                                  name_f(self.all_paths[i]),
                                                   self.rVAF[i], self.coef[i],
-                                                  seq_f(self.all_path[i])))
+                                                  seq_f(self.all_paths[i])))
 
     def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
                   get_min_f=lambda path: 0, start_off=0):
         paths = []
         ref_i = -1
         for i in range(self.nb_seq):
-            if list(self.all_path[i]) == list(ref_path):
+            if list(self.all_paths[i]) == list(ref_path):
                 ref_i = i
         for i in range(self.nb_seq):
             if i != ref_i:
                 p = Path(db_f, ref_name,
-                         name_f(self.all_path[i]),
+                         name_f(self.all_paths[i]),
                          self.rVAF[i], self.coef[i],
-                         get_min_f(self.all_path[i]),
+                         get_min_f(self.all_paths[i]),
                          start_off,
-                         seq_f(self.all_path[i]),
+                         seq_f(self.all_paths[i]),
                          self.rVAF[ref_i], self.coef[ref_i],
-                         seq_f(self.all_path[ref_i]), info)
+                         seq_f(self.all_paths[ref_i]), info)
                 paths += [p]
         return paths
