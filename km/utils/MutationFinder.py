@@ -212,7 +212,7 @@ class MutationFinder:
         individual = True
         if individual:
             for path in short_paths:
-                quant = upq.PathQuant(all_path=[path, ref_index],
+                quant = upq.PathQuant(all_paths=[path, ref_index],
                                       counts=list(self.node_data.values()))
 
                 quant.compute_coef()
@@ -294,7 +294,7 @@ class MutationFinder:
                     stop_off = variant_diffs[var][2] + (stop - variant_diffs[var][1])
                     clipped_paths += [short_paths[var][start_off:stop_off]]
 
-                quant = upq.PathQuant(all_path=clipped_paths,
+                quant = upq.PathQuant(all_paths=clipped_paths,
                                       counts=list(self.node_data.values()))
 
                 quant.compute_coef()
@@ -340,4 +340,4 @@ class MutationFinder:
 
     @staticmethod
     def output_header():
-        upq.PathQuant.output_header()
+        upq.Path.output_header()
