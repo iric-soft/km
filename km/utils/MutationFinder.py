@@ -154,8 +154,9 @@ class MutationFinder:
             else:
                 self.__extend(stack + [child], breaks, found)
 
-    def _diff_path_without_overlap(self, ref, seq, k):
-        """Compares a reference sequence to an alternative path
+    @staticmethod
+    def diff_path_without_overlap(ref, seq, k):
+        """Compare a reference sequence to an alternative path
         discovered through kmer walking.
 
         Results from this function are used to pinpoint the exact
@@ -377,7 +378,7 @@ class MutationFinder:
             in the reference sequence.
         """
 
-        diff = self._diff_path_without_overlap(ref_ix, path_ix, self.jf.k)
+        diff = self.diff_path_without_overlap(ref_ix, path_ix, self.jf.k)
 
         if len(ref_ix) - len(diff.kmers_ref) + len(diff.kmers_var) != len(path_ix):
             sys.stderr.write(
@@ -554,7 +555,9 @@ class MutationFinder:
         variant_diffs = []
         variant_set = set(range(0, len(self.short_paths)))
         for variant in self.short_paths:
-            diff = self._diff_path_without_overlap(self.ref_index, variant, self.jf.k)
+            diff = self.diff_path_without_overlap(
+                self.ref_index, variant, self.jf.k
+            )
             variant_diffs.append(diff)
 
         def get_intersect(start, stop):
