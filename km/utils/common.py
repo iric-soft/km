@@ -1,4 +1,5 @@
 import os
+import re
 from itertools import groupby
 from .Jellyfish import Jellyfish
 
@@ -89,3 +90,22 @@ def get_cov(db, ref_seq):
 
     return(count, len(ref_seq), min(cnt_stack), max(cnt_stack),
            mean(cnt_stack), len(cnt_stack), cpt_count_0)
+
+
+def natsortkey(*args, rev_ix=[]):
+    class reversor:
+        def __init__(self, obj):
+            self.obj = obj
+
+        def __eq__(self, other):
+            return other.obj == self.obj
+
+        def __lt__(self, other):
+            return self.obj > other.obj
+
+    convert = lambda text: int(text) if text.isdigit() else text.lower()
+    alphanum_split = lambda key: [convert(c) for c in re.split('([0-9]+)', key)]
+    split = lambda *l: tuple(alphanum_split(x) for x in l)
+    reverse = lambda l, ix: tuple(reversor(x) if i in ix else x for i, x in enumerate(l))
+
+    return reverse(split(*args), rev_ix)

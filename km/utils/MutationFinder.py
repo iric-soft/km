@@ -740,7 +740,8 @@ class MutationFinder:
         """
 
         clusters = []
-        for alt_paths in self.alt_groups.values():
+        for common_ref in sorted(self.alt_groups.keys(), key=lambda x: uc.natsortkey(x)):
+            alt_paths = self.alt_groups[common_ref]
             for cluster in self._find_clusters(alt_paths):
                 clusters.append(cluster)
 
@@ -813,7 +814,10 @@ class MutationFinder:
         """
 
         if sort:
-            paths = sorted(self.paths, key=lambda x: (x[3], x[2], x[6]))
+            paths = sorted(
+                self.paths,
+                key=lambda x: uc.natsortkey(*x[11].split(' '), x[1], x[3], x[2], x[6], rev_ix=[0])
+            )
         else:
             paths = self.paths
 
