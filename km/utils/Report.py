@@ -164,7 +164,9 @@ class Report:
             sys.stdout.write(str(line) + "\n")
 
     def _parse(self):
-        self.ref_exons = {}
+        ready = False
+        parsed_exons = {}
+        ref_exons = {}
 
         for line in self.infile:
             # filter header
@@ -172,12 +174,17 @@ class Report:
                 if line.startswith('#target:'):
                     exon = line.strip().split(':')[1].replace('/', ':')
                     exon_id, exon_loc = exon.split('=')
-                    self.ref_exons[exon_id] = self.parse_exon(exon_loc)
+                    parsed_exons[exon_id] = self.parse_exon(exon_loc)
+                    ready = False
             else:
+                if not ready:
+                    ref_exons = parsed_exons
+                    parsed_exons = {}
+                    ready = True
                 tok = line.strip("\n").split("\t")
                 # filter on info column
                 if re.search(self.info, line) and tok[0] != "Database" and len(tok) > 1:
-                    line_obj = Line(tok, self.ref_exons, self.exclu)
+                    line_obj = Line(tok, ref_exons, self.exclu)
                     if int(line_obj.min_cov) >= self.min_cov:
                         yield line_obj
 
