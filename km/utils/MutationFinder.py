@@ -230,14 +230,29 @@ class MutationFinder:
                 | ``(000)0000000111111[1  ]12(2  )``
                 | ``(0  )3456789012345[6  ]90(1  )``
             alt
-                | ``(•••)••••••••••••••••[•••]•••••••••••••[•••]••(•••)``
-                | ``(000)0000000111111111[122]2222222233333[3  ]33(4  )``
-                | ``(0  )3456789012345678[9  ]2345678901234[5  ]89(0  )``
+                | ``(•••)•••••••••••••[•••]•••••••••••••[•••]••(•••)``
+                | ``(000)0000000111111[111]1222222222233[333]33(3  )``
+                | ``(0  )3456789012345[6  ]9012345678901[2  ]56(7  )``
             calculcated positions
                 | ``> i     = 16``
                 | ``> j_ref = 19``
-                | ``> j_alt = 38``
-                | ``> k_ref = 16 (instantly checks at k_ref == i)``
+                | ``> j_alt = 35``
+                | ``> k_ref = 16``
+
+        - Terminal ITD (k=3)
+            ref
+                | ``(•••)•••••••••••••[•••]``
+                | ``(000)0000000111111[111]``
+                | ``(0  )3456789012345[6  ]``
+            alt
+                | ``(•••)•••••••••••••[•••]•••••••••••••[•••]``
+                | ``(000)0000000111111[111]1222222222233[333]``
+                | ``(0  )3456789012345[6  ]9012345678901[2  ]``
+            calculcated positions
+                | ``> i     = 16``
+                | ``> j_ref = 16``
+                | ``> j_alt = 32``
+                | ``> k_ref = 16``
 
         - Insertion (k=3)
             ref
@@ -645,7 +660,15 @@ class MutationFinder:
                 cur_start = variant_diffs[var].start
                 cur_end = variant_diffs[var].end_ref
                 if cur_end >= start and cur_start <= stop:
-                    return var
+                    if start == stop == cur_start == cur_end:
+                        log.info('Terminal ITD ignored in cluster mode.')
+                    elif stop == cur_end and (start == stop or cur_start == cur_end):
+                        # meaning one is the reference and the other ends at ref end,
+                        # which can happen when the ITD instantly checks at end
+                        # extremities because it ends at `< end - k`
+                        log.info('Quasi-terminal ITD ignored in cluster mode.')
+                    else:
+                        return var
             return -1
 
         variant_groups = []
@@ -759,6 +782,7 @@ class MutationFinder:
             ref_coef, paths_coef = quant.coef[0], quant.coef[1:]
 
             for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
+                assert path != ref_path
                 path_o = upq.Path(
                     self.jf.filename,
                     ref_name,
