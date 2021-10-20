@@ -715,7 +715,6 @@ class MutationFinder:
                 rvaf,
                 expression,
                 ref_expression,
-                '0',
                 min(self.get_counts(alt_index)),
                 min(self.get_counts(ref_index)),
                 self.get_seq(alt_index, skip_prefix=False),
@@ -874,12 +873,11 @@ class MutationFinder:
                     rvaf,
                     expression,
                     ref_expression,
-                    start_off,
                     min(self.get_counts(path)),
                     min(self.get_counts(ref_path)),
                     self.get_seq(path, skip_prefix=False),
                     self.get_seq(ref_path, skip_prefix=False),
-                    "cluster %d n=%d" % (num_cluster, len(clipped_paths))
+                    "cluster %d offset=%d n=%d" % (num_cluster, start_off, len(clipped_paths))
                 )
 
                 self.paths.append(path_o)

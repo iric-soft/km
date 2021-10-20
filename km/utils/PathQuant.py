@@ -19,7 +19,7 @@ class Path:
     """
 
     def __init__(self, db_f, ref_name, variant_name, rvaf,
-                 expression, ref_expression, start_off, min_coverage,
+                 expression, ref_expression, min_coverage,
                  ref_min_coverage, sequence, ref_sequence, note):
         self.db_name = db_f
         self.ref_name = ref_name
@@ -27,7 +27,6 @@ class Path:
         self.rvaf = rvaf
         self.expression = expression
         self.ref_expression = ref_expression
-        self.start_off = start_off
         self.min_coverage = min_coverage
         self.ref_min_coverage = ref_min_coverage
         self.sequence = sequence
@@ -35,16 +34,16 @@ class Path:
         self.note = note
 
     def __str__(self):
-        return "%s\t%s\t%s\t%.3f\t%.1f\t%d\t%s\t%s\t%.1f\t%s\t%s" % (
+        return "%s\t%s\t%s\t%.3f\t%.1f\t%.1f\t%d\t%d\t%s\t%s\t%s" % (
             self.db_name,
             self.ref_name,
             self.variant_name,
             self.rvaf,
             self.expression,
-            self.min_coverage,
-            self.start_off,
-            self.sequence,
             self.ref_expression,
+            self.min_coverage,
+            self.ref_min_coverage,
+            self.sequence,
             self.ref_sequence,
             self.note)
 
@@ -80,10 +79,10 @@ class Path:
                 "Variant",
                 "rVAF",
                 "Expression",
-                "Min_coverage",
-                "Start_offset",
-                "Sequence",
                 "Ref_expression",
+                "Min_coverage",
+                "Ref_min_coverage",
+                "Sequence",
                 "Reference_sequence",
                 "Info"
             ]) + "\n"

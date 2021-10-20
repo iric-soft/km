@@ -18,14 +18,19 @@ class Line:
         self.query = tok[1]
         self.ratio = tok[4]
         self.alt_exp = tok[5]
-        self.ref_exp = tok[9]
-        self.min_cov = tok[6]
-        self.start_off = tok[7]
-        self.alt_seq = tok[8]
+        self.ref_exp = tok[6]
+        self.min_cov = tok[7]
+        self.ref_min_cov = tok[8]
+        self.alt_seq = tok[9]
         self.ref_seq = tok[10]
         self.info = tok[11]
 
         self.variant = (tok[2], tok[3])
+
+        if 'offset' in self.info:
+            self.start_off = self.info.split('offset=')[1]
+        else:
+            self.start_off = '0'
 
         if exclu != "" and alt_seq != "":
             res = uc.get_cov(exclu, alt_seq)
@@ -119,6 +124,7 @@ class Line:
                 self.ref_exp,
                 self.ratio,
                 self.min_cov,
+                self.ref_min_cov,
                 self.min_exclu,
                 self.mod,
                 self.query,
@@ -140,6 +146,7 @@ class Report:
             "Normal",
             "rVAF",
             "Min_coverage",
+            "Ref_min_coverage",
             "Exclu_min_cov",
             "Variant",
             "Target",
