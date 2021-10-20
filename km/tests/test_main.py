@@ -61,7 +61,7 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "49:/TCTG:49",
                          "Test fail: NPM1 -> find variant")
-        self.assertEqual(find_output[8],
+        self.assertEqual(find_output[9],
                          "CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG",
                          "Test fail: NPM1 -> find sequence")
 
@@ -105,10 +105,10 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[9],
                          "2428",
                          "Test fail: NPM1 -> report Min_coverage")
-        self.assertEqual(report_output[11],
+        self.assertEqual(report_output[12],
                          "/TCTG",
                          "Test fail: NPM1 -> report variant")
-        self.assertEqual(report_output[14],
+        self.assertEqual(report_output[15],
                          "GAAGAATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
                          "Test fail: NPM1 -> report sequence")
 
@@ -167,7 +167,7 @@ class TestkmMuttaion(unittest.TestCase):
                          "47:atattctctgaaatcaacgtagaagtactcattatctgaggagccggtcacctgtaccatctgtagctggctt" +
                          "tcatacctaaattgctttcagcattttgacggcaacctggattgagactcctgttttgctaattccataagctg/TC:194",
                          "Test fail: FLT3-IandI -> find variant")
-        self.assertEqual(find_output[8],
+        self.assertEqual(find_output[9],
                          "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTG",
                          "Test fail: FLT3-IandI -> find sequence")
 
@@ -211,11 +211,11 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[9],
                          "285",
                          "Test fail: FLT3-IandI -> report Min_coverage")
-        self.assertEqual(report_output[11],
+        self.assertEqual(report_output[12],
                          "atattctctgaaatcaacgtagaagtactcattatctgaggagccggtcacctgtaccatctgtagctggctttcat" +
                          "acctaaattgctttcagcattttgacggcaacctggattgagactcctgttttgctaattccataagctg/TC",
                          "Test fail: FLT3-IandI -> report variant")
-        self.assertEqual(report_output[14],
+        self.assertEqual(report_output[15],
                          "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCT" +
                          "GATCCTAGTACCTTCC",
                          "Test fail: FLT3-IandI -> report sequence")
@@ -267,7 +267,7 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "99:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:99",
                          "Test fail: FLT3-ITD -> find variant")
-        self.assertEqual(find_output[8],
+        self.assertEqual(find_output[9],
                          "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGA" +
                          "AGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAG" +
                          "TACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
@@ -313,10 +313,10 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[9],
                          "443",
                          "Test fail: FLT3-ITD -> report Min_coverage")
-        self.assertEqual(report_output[11],
+        self.assertEqual(report_output[12],
                          "/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC",
                          "Test fail: FLT3-ITD -> report variant")
-        self.assertEqual(report_output[14],
+        self.assertEqual(report_output[15],
                          "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATA" +
                          "TTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC" +
                          "AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGT" +
@@ -380,7 +380,7 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "32:gat/:35",
                          "Test fail: FLT3-TKD -> find variant")
-        self.assertEqual(find_output[8],
+        self.assertEqual(find_output[9],
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTT",
                          "Test fail: FLT3-TKD -> find sequence")
 
@@ -406,10 +406,10 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[3],
                          "Deletion",
                          "Test fail: FLT3-TKD -> report type")
-        self.assertEqual(report_output[11],
+        self.assertEqual(report_output[12],
                          "gat/",
                          "Test fail: FLT3-TKD -> report variant")
-        self.assertEqual(report_output[14],
+        self.assertEqual(report_output[15],
                          "TGCCCCTGACAACATAGTTGGAATCACTCATATCTCGAGCCAATCCAAAGTCACATATCTTCACC",
                          "Test fail: FLT3-TKD -> report sequence")
 
@@ -467,7 +467,7 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(find_output[3],
                          "33:c/T:34",
                          "Test fail: DNMT3A -> find variant")
-        self.assertEqual(find_output[8],
+        self.assertEqual(find_output[9],
                          "TGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGA",
                          "Test fail: DNMT3A -> find sequence")
 
@@ -511,10 +511,10 @@ class TestkmMuttaion(unittest.TestCase):
         self.assertEqual(report_output[9],
                          "32",
                          "Test fail: DNMT3A -> report Min_coverage")
-        self.assertEqual(report_output[11],
+        self.assertEqual(report_output[12],
                          "c/T",
                          "Test fail: DNMT3A -> report variant")
-        self.assertEqual(report_output[14],
+        self.assertEqual(report_output[15],
                          "ATGACCGGCCCAGCAGTCTCTGCCTCGCCAAGTGGCTCATGTTGGAGACGTCAGTATAGTGGACT",
                          "Test fail: DNMT3A -> report sequence")
 
