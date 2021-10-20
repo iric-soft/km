@@ -134,6 +134,8 @@ class MutationFinder:
     def __extend(self, stack, breaks=0):
         """Recursive depth first search"""
 
+        sys.setrecursionlimit(10000)
+
         if len(stack) > self.max_stack:
             return
 
