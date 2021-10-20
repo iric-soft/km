@@ -89,8 +89,8 @@ class MutationFinder:
             max_node=10000
         ):
 
-        self.first_seq = "BigBang"
-        self.last_seq = "BigCrunch"
+        self.first_kmer = "BigBang"
+        self.last_kmer = "BigCrunch"
 
         self.refpaths = refpaths
         self.ref_set = set([kmer for s in self.refpaths for kmer in s.ref_mer])
@@ -109,14 +109,14 @@ class MutationFinder:
             self.node_data[s] = self.jf.query(s)
 
         # kmer walking from each k-mer of ref_seq
-        for seq in self.ref_set:
+        for kmer in self.ref_set:
             # note: rightmost exons will extend purposelessly
             # because we removed check:
-            # if seq == self.last_seq:
+            # if seq == self.last_kmer:
             #     continue
-            self.__extend([seq])
+            self.__extend([kmer])
 
-        self.kmer = list(self.node_data.keys()) + [self.first_seq, self.last_seq]
+        self.kmer = list(self.node_data.keys()) + [self.first_kmer, self.last_kmer]
         self.counts = list(self.node_data.values()) + [-1, -1]
         self.num_k = len(self.kmer)
 
@@ -126,8 +126,8 @@ class MutationFinder:
         for sequence in self.refpaths:
             sequence.set_index(self.kmer)
 
-        self.first_seq_ix = self.kmer.index(self.first_seq)
-        self.last_seq_ix = self.kmer.index(self.last_seq)
+        self.first_kmer_ix = self.kmer.index(self.first_kmer)
+        self.last_kmer_ix = self.kmer.index(self.last_kmer)
 
         self.__define_edges()
 
@@ -197,7 +197,7 @@ class MutationFinder:
         self.start_kmers_all_ix = self.start_kmers_ix.union(self.start_kmers_nested_ix)
         self.end_kmers_all_ix = self.end_kmers_ix.union(self.end_kmers_nested_ix)
 
-        log.info("BigBang=%d, BigCrunch=%d" % (self.first_seq_ix, self.last_seq_ix))
+        log.info("BigBang=%d, BigCrunch=%d" % (self.first_kmer_ix, self.last_kmer_ix))
         for s in self.start_kmers:
             log.info("Start kmer %d %s" % (self.kmer.index(s), s))
         for e in self.end_kmers:
@@ -610,18 +610,18 @@ class MutationFinder:
             # should we remove start and end kmers (as these were already processed)
             adjust_graph_weights(sequence.seq_index)
 
-        first_ix = self.kmer.index(self.first_seq)
+        first_ix = self.kmer.index(self.first_kmer)
         for start_ix in self.start_kmers_ix:
             graph[first_ix, start_ix] = weight
 
-        last_ix = self.kmer.index(self.last_seq)
+        last_ix = self.kmer.index(self.last_kmer)
         for end_ix in self.end_kmers_ix:
             graph[end_ix, last_ix] = weight
 
         # Initialize paths and remove reference edges
         graph.init_paths(
-            self.kmer.index(self.first_seq),
-            self.kmer.index(self.last_seq)
+            self.kmer.index(self.first_kmer),
+            self.kmer.index(self.last_kmer)
         )
 
         # Locate shortest paths from non-reference edges
