@@ -674,28 +674,25 @@ class MutationFinder:
                 all_paths=[alt_index, ref_index],
                 counts=self.counts
             )
-            quant.compute_coef()
-            quant.refine_coef()
-            quant.get_ratio()
+            quant.quantify()
 
-            # Reference
             if alt_index == ref_index:
                 quant.adjust_for_reference()
 
-            rvaf, ref_rvaf = quant.rVAF
-            coef, ref_coef = quant.coef
+            rvaf, _ = quant.ratio
+            expression, ref_expression = quant.expression
 
             path_o = upq.Path(
                 self.jf.filename,
                 ref_name,
                 self.get_name(ref_index, alt_index),
                 rvaf,
-                coef,
+                expression,
+                ref_expression,
+                '0',
                 min(self.get_counts(alt_index)),
-                0,
+                min(self.get_counts(ref_index)),
                 self.get_seq(alt_index, skip_prefix=False),
-                ref_rvaf,
-                ref_coef,
                 self.get_seq(ref_index, skip_prefix=False),
                 "vs_ref"
             )
@@ -837,26 +834,24 @@ class MutationFinder:
                 all_paths=[ref_path] + clipped_paths,
                 counts=self.counts
             )
-            quant.compute_coef()
-            quant.refine_coef()
-            quant.get_ratio()
+            quant.quantify()
 
-            ref_rvaf, paths_rvaf = quant.rVAF[0], quant.rVAF[1:]
-            ref_coef, paths_coef = quant.coef[0], quant.coef[1:]
+            rvaf_list = quant.ratio[1:]
+            ref_expression, expr_list = quant.expression[0], quant.expression[1:]
 
-            for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
+            for path, rvaf, expression in zip(clipped_paths, rvaf_list, expr_list):
                 assert path != ref_path
                 path_o = upq.Path(
                     self.jf.filename,
                     ref_name,
                     self.get_name(ref_path, path, start_off),
                     rvaf,
-                    coef,
-                    min(self.get_counts(path)),
+                    expression,
+                    ref_expression,
                     start_off,
+                    min(self.get_counts(path)),
+                    min(self.get_counts(ref_path)),
                     self.get_seq(path, skip_prefix=False),
-                    ref_rvaf,
-                    ref_coef,
                     self.get_seq(ref_path, skip_prefix=False),
                     "cluster %d n=%d" % (num_cluster, len(clipped_paths))
                 )
