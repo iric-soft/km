@@ -5,8 +5,10 @@
 import os
 import sys
 import logging as log
-import jellyfish
-
+try:
+    import dna_jellyfish as jellyfish
+except ModuleNotFoundError:
+    import jellyfish
 
 class Jellyfish:
 
