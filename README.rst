@@ -42,6 +42,7 @@ in the virtual environement directory: $HOME/.virtualenvs/km.
 Requirements:
 *************
 * Python 3.5.0 or later with `pip`_ and installed.
+
 .. _pip: https://pip.pypa.io/en/stable/installing/
 
 Usage:
@@ -58,6 +59,7 @@ Test:
 *****
 
 * 4bp insertion in NPM1
+
 .. code:: shell
 
   $ cd [your_km_folder]
@@ -69,6 +71,7 @@ Test:
   $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf -g
 
 * ITD of 75 bp
+
 .. code:: shell
 
   $ cd [your_km_folder]
