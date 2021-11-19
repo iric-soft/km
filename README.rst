@@ -39,7 +39,7 @@ Recommended method: With pip
   python3 -m venv $HOME/.virtualenvs/km
   source $HOME/.virtualenvs/km/bin/activate
   pip install --upgrade pip setuptools wheel
-  pip install km
+  pip install km-walk
 
 Alternative method: Easy install script
 ---------------------------------------
