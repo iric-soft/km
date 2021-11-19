@@ -32,7 +32,7 @@ def get_argparser_find_mut(parser):
         type=int)
     parser.add_argument(
         "-n", "--nodes",
-        help="Maximum nodes queried from jellyfish database (default: -n 5000)",
+        help="Maximum nodes/kmers queried from jellyfish database (default: -n 5000)",
         action="store",
         nargs='?',
         default=10000,
