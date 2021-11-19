@@ -4,13 +4,13 @@ km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
 
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
-| .. image:: https://img.shields.io/badge/python-3.5-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
-|    :target: https://www.python.org/download/releases/3.5.0/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
+| .. image:: https://img.shields.io/badge/python-3.6-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
+|    :target: https://www.python.org/download/releases/3.6.0/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 
--------------
-Introduction:
--------------
+------------
+Introduction
+------------
 
 This tool was developed to identify and quantify the occurence of single
 nucleotide variants, insertions, deletions and duplications in RNA-seq data.  Contrary to most tools that try to report all variants in a complete genome, here we instead propose to focus the analysis on small regions of interest.
@@ -21,18 +21,28 @@ that can be be created between the two end k-mers according to the
 sequenced reads will be reported. A ratio of variant allele vs WT will be
 computed for each possible sequence constructed.
 
--------
-Citing:
--------
+------
+Citing
+------
 * Targeted variant detection using unaligned RNA-Seq reads. Life science Alliance 2019 Aug 19;2(4); doi: https://doi.org/10.26508/lsa.201900336
 * Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
 
--------------
-Install:
--------------
+-------
+Install
+-------
 
-Easy install:
--------------
+Recommended method: With pip
+----------------------------
+
+.. code:: shell
+
+  python3 -m venv $HOME/.virtualenvs/km
+  source $HOME/.virtualenvs/km/bin/activate
+  pip install --upgrade pip setuptools wheel
+  pip install km
+
+Alternative method: Easy install script
+---------------------------------------
 
 `easy_install.sh`_ will install jellyfish with python binding, km in a virtual
 environement, and test it. Without modification, all the code source will be
@@ -41,15 +51,15 @@ in the virtual environement directory: $HOME/.virtualenvs/km.
 
 Requirements:
 *************
-* Python 3.5.0 or later with `pip`_ and installed.
+* Python 3.6.0 or later with `pip`_ installed.
 
 .. _pip: https://pip.pypa.io/en/stable/installing/
 
 Usage:
 ******
 
-* Copy/past each line in a terminal.
-* The virtual environment need to be loaded each time you open a new terminal, with this command:
+* Copy/paste each line in a terminal.
+* The virtual environment needs to be loaded each time you open a new terminal, with this command:
 
 .. code:: shell
 
@@ -84,32 +94,14 @@ Test:
 
 .. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
-Setup install:
---------------
-
-If you have already installed Jellyfish with Python `bindings`_, you can install km using setup.py.
-
-Requirements:
-*************
-* Python 3.5.0 or later
-* Jellyfish 2.2 or later **with** Python `bindings`_.
-
-Usage:
-******
-
-.. code:: shell
-
-  $ python setup.py install
-
-
-Without install:
+Without install: Directly from source code
 ----------------
 km can be executed directly from source code.
 
 Requirements:
 *************
-* Python 3.5.0 or later
-* Jellyfish 2.2 or later **with** Python `bindings`_.
+* Python 3.6.0 or later
+* pyJellyfish python module or Jellyfish 2.2 or later **with** Python `bindings`_.
 
 Usage:
 ******
@@ -121,9 +113,9 @@ Usage:
 
 .. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
-----------------------------
-Design your target sequence:
-----------------------------
+---------------------------
+Design your target sequence
+---------------------------
 * km is designed to make targeted analysis based on **target sequences**. These target sequences **need to be designed** and given to km as input.
 * A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provided in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
 * To fit your specific needs, you will have to create your own target sequences.
@@ -131,7 +123,7 @@ Design your target sequence:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 
-* A web portal is available to assist you in the creation of your target sequences (of case 1 and 2).
+* A web portal is available to assist you in the creation of your target sequences (for cases 1 and 2).
 
   - km-target: https://bioinfo.iric.ca/km-target/
 
@@ -141,9 +133,9 @@ Design your target sequence:
   - Using get DNA from `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
 
 
--------------
-Display help:
--------------
+------------
+Display help
+------------
 
 .. code:: shell
 
@@ -166,7 +158,7 @@ Display help:
 
 
 --------------------
-km's tools overview:
+km's tools overview
 --------------------
 
 For more detailed documentation click `here <https://github.com/iric-soft/km/tree/master/km/tools>`_.
