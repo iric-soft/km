@@ -4,9 +4,20 @@
 
 import numpy as np
 import logging as log
+import sys
 
 
 class Path:
+    """Path object. Wraps path data into a printable format.
+
+    Methods
+    -------
+    get_min_cov
+    get_sequence
+    get_variant_name
+    output_header
+    """
+
     def __init__(self, db_f, ref_name, variant_name, ratio, expression,
                  min_coverage, start_off, sequence, ref_ratio, ref_expression,
                  ref_sequence, note):
@@ -44,72 +55,91 @@ class Path:
         return self.__list__()[i]
 
     def get_min_cov(self):
+        """Return minimum coverage"""
+
         return self.min_coverage
 
     def get_sequence(self):
+        """Return variant sequence"""
+
         return self.sequence
 
     def get_variant_name(self):
+        """Return variant description (also called variant name)"""
+
         return self.variant_name
+
+    @staticmethod
+    def output_header():
+        """Output pre-formatted header"""
+
+        sys.stdout.write("\t".join([
+                "Database",
+                "Query",
+                "Type",
+                "Variant_name",
+                "rVAF",
+                "Expression",
+                "Min_coverage",
+                "Start_offset",
+                "Sequence",
+                "Reference_expression",
+                "Reference_sequence",
+                "Info"
+            ]) + "\n"
+        )
 
 
 class PathQuant:
-    def __init__(self, all_path, counts):
-        self.all_path = all_path
+    def __init__(self, all_paths, counts):
+        self.all_paths = all_paths
         self.nb_kmer = len(counts)
-        self.nb_seq = len(all_path)
+        self.nb_seq = len(all_paths)
 
+        self.counts = np.array(counts, dtype=np.float32)
         self.contrib = np.zeros((self.nb_kmer, self.nb_seq), dtype=np.int32)
-        self.counts = np.zeros((self.nb_kmer, 1), dtype=np.float32)
+        for seq_i, seq in enumerate(all_paths):
+            for i in seq:
+                self.contrib[i, seq_i] += 1
+            # note: self.contrib[seq, seq_i] += 1 would not work in the case of ITDs
 
         self.coef = None
         self.rVAF = None
 
-        seq_i = 0
-        log.debug("%d sequence(s) are observed.", self.nb_seq)
-
-        for s in all_path:
-            for i in s:
-                self.contrib[i, seq_i] += 1
-            seq_i += 1
-
-        self.counts[:, 0] = counts
+        log.info("%d sequence(s) are observed.", self.nb_seq)
 
     def compute_coef(self):
         # Set coefficient to zero if all paths use a kmer with 0 coverage
-        # for c,d in zip(self.contrib,self.counts):
-        #     print c, d
-        #     if min(c) == 1 and d == 0:
-        #         self.coef = np.zeros((len(c), 1), dtype=np.float32)
-        #         return
+        #if self.contrib[self.counts == 0].min(axis=1).max() == 1:
+        #    self.coef = np.zeros((len(c), 1), dtype=np.float32)
+        #    return
         (coef, residual, rank, s) = np.linalg.lstsq(self.contrib, self.counts, rcond=None)
         self.coef = coef
-        log.debug("Linear fitting = %s", self.coef.flatten())
+        log.debug("Linear fitting = %s", self.coef)
 
     def refine_coef(self):
         # if max(self.coef) == 0: return
         # applies a gradient descent to get rid of negative coefficients
         self.coef[self.coef < 0] = 0
         last_max_grad = np.inf
-        num_iter = 0
 
         # convergence threshold
+        num_iter = 0
         while last_max_grad > 0.01:
-            grad = np.zeros_like(self.coef, dtype=np.float32)
             counts_hat = np.dot(self.contrib, self.coef)
-            for j in range(self.nb_seq):
-                grad[j, 0] = np.sum(2 * (self.counts - counts_hat) *
-                                    self.contrib[:, j].reshape(counts_hat.shape))
-            grad /= self.nb_kmer
+            grad = 2 * (self.counts - counts_hat) * self.contrib.T
+            grad = grad.sum(axis=1) / self.nb_kmer
             self.coef += 0.1 * grad
             grad[self.coef < 0] = 0
             self.coef[self.coef < 0] = 0
             last_max_grad = np.max(np.abs(grad))
             num_iter += 1
-            log.debug("Iteration = %d, max_gradient = %f",
-                      num_iter,
-                      last_max_grad)
-        log.debug("Refined fitting = %s", self.coef.flatten())
+            log.debug(
+                "Iteration = %d, max_gradient = %f",
+                num_iter,
+                last_max_grad
+            )
+        log.info("Refined fitting = %s", self.coef)
 
     def get_ratio(self):
         if max(self.coef) == 0:
@@ -121,37 +151,5 @@ class PathQuant:
     def adjust_for_reference(self):
         self.rVAF[0] = np.nan
         self.rVAF[1] = np.nan
-        self.coef[self.coef >= 0] = min(self.counts)[0]
+        self.coef[self.coef >= 0] = min(self.counts)
 
-    @staticmethod
-    def output_header():
-        print("Database\tQuery\tType\tVariant_name\trVAF\tExpression\tMin_coverage\tStart_offset\tSequence\tReference_expression\tReference_sequence\tInfo")
-
-    def output(self, db_f, ref_name, name_f, seq_f):
-        for i in range(self.nb_seq):
-            # if self.rVAF[i] > 0:
-            print("%s\t%s\t%s\t%.3f\t%.1f\t%s" % (db_f,
-                                                  ref_name,
-                                                  name_f(self.all_path[i]),
-                                                  self.rVAF[i], self.coef[i],
-                                                  seq_f(self.all_path[i])))
-
-    def get_paths(self, db_f, ref_name, name_f, seq_f, ref_path, info="",
-                  get_min_f=lambda path: 0, start_off=0):
-        paths = []
-        ref_i = -1
-        for i in range(self.nb_seq):
-            if list(self.all_path[i]) == list(ref_path):
-                ref_i = i
-        for i in range(self.nb_seq):
-            if i != ref_i:
-                p = Path(db_f, ref_name,
-                         name_f(self.all_path[i]),
-                         self.rVAF[i], self.coef[i],
-                         get_min_f(self.all_path[i]),
-                         start_off,
-                         seq_f(self.all_path[i]),
-                         self.rVAF[ref_i], self.coef[ref_i],
-                         seq_f(self.all_path[ref_i]), info)
-                paths += [p]
-        return paths

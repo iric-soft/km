@@ -1,13 +1,8 @@
-# find_mutation ---
+# min_cov ---
 #
-#   Usage:  find_mutation <region_fasta or directory> <jellyfish_db>
 import os
 import sys
-import time
-import logging as log
-from .. utils import MutationFinder as umf
 from .. utils import common as uc
-from .. utils.Jellyfish import Jellyfish
 
 
 # ###########################################################################
@@ -17,7 +12,8 @@ def main_min_cov(args, argparser):
 
     ref_seq = args.target_fn
     if os.path.isfile(args.target_fn):
-        ref_seq = uc.file_2_seq(args.target_fn)
+        ref_seq, ref_attr = uc.file_2_seq(args.target_fn)
+        ref_seq = ''.join(ref_seq)
 
     sys.stdout.write("DB\tcount\tlength\tmin\tmax\tmean\tkmer_nb\tkmer_nb_0\n")
 

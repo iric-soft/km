@@ -13,7 +13,7 @@ def find_kmin(ref_name, ref_seq, start):
         k_len += 1
 
         try:
-            ref_mer = uc.get_ref_kmer(ref_seq, k_len, ref_name)
+            ref_mer = uc.get_ref_kmer(ref_seq, ref_name, k_len)
             uniq = True
         except ValueError:
             continue
@@ -56,5 +56,6 @@ def main_linear_kmin(args, argparser):
 
         (ref_name, ext) = os.path.splitext(os.path.basename(seq_f))
 
-        ref_seq = uc.file_2_seq(seq_f)
+        ref_seq, ref_attr = uc.file_2_seq(seq_f)
+        ref_seq = ''.join(ref_seq)
         find_kmin(ref_name, ref_seq, args.start)

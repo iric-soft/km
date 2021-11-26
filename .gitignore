@@ -24,7 +24,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-*.eggs
+*.eggs/
 # C extensions
 *.so
 

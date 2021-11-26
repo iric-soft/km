@@ -31,12 +31,23 @@ def get_argparser_find_mut(parser):
         default=10,
         type=int)
     parser.add_argument(
+        "-n", "--nodes",
+        help="Maximum nodes queried from jellyfish database (default: -n 5000)",
+        action="store",
+        nargs='?',
+        default=10000,
+        type=int)
+    parser.add_argument(
         "-g", "--graphical",
         help="Display coverage graph.",
         action="store_true")
     parser.add_argument(
         "-v", "--verbose",
         help="Get more information.",
+        action="store_true")
+    parser.add_argument(
+        "-vv", "--debug",
+        help="Get much more information.",
         action="store_true")
     parser.add_argument(
         "target_fn",
