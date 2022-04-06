@@ -93,6 +93,11 @@ def get_cov(db, ref_seq):
 
 
 def natsortkey(*args, rev_ix=[]):
+    """Natural sorting of a string. For example: exon12 would
+    come before exon2 with a regular sort, with natural sort
+    the order would be exon2, exon12.
+    """
+
     class reversor:
         def __init__(self, obj):
             self.obj = obj
