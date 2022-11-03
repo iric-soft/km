@@ -55,6 +55,11 @@ def main():
     min_cov.set_defaults(func=main_min_cov)
     get_argparser_min_cov(min_cov)
 
+    # display help if no arguments given
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
     # recover arguments
     args = parser.parse_args()
 
