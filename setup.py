@@ -75,7 +75,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy>=1.18.1', 'matplotlib>=3.4.2', 'pyjellyfish>=1.0.0', 'pytest>=6.2.0'],
+    install_requires=['numpy>=1.18.1', 'matplotlib>=3.3.4', 'pyjellyfish>=1.1.1', 'pytest>=6.2.0'],
     python_requires='>=3.6',
 
     # List additional groups of dependencies here (e.g. development
