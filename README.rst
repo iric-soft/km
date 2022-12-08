@@ -8,9 +8,9 @@ km : a software for RNA-seq investigation using k-mer decomposition
 |    :target: https://www.python.org/download/releases/3.6.0/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 
-------------
-Introduction
-------------
+-------------
+Introduction:
+-------------
 
 This tool was developed to identify and quantify the occurence of single
 nucleotide variants, insertions, deletions and duplications in RNA-seq data.  Contrary to most tools that try to report all variants in a complete genome, here we instead propose to focus the analysis on small regions of interest.
@@ -21,18 +21,18 @@ that can be be created between the two end k-mers according to the
 sequenced reads will be reported. A ratio of variant allele vs WT will be
 computed for each possible sequence constructed.
 
-------
-Citing
-------
+-------
+Citing:
+-------
 * Targeted variant detection using unaligned RNA-Seq reads. Life science Alliance 2019 Aug 19;2(4); doi: https://doi.org/10.26508/lsa.201900336
 * Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
 
--------
-Install
--------
+--------
+Install:
+--------
 
-Recommended method: With pip
-----------------------------
+Recommended method - using pip:
+-------------------------------
 
 .. code:: shell
 
@@ -41,8 +41,8 @@ Recommended method: With pip
   pip install --upgrade pip setuptools wheel
   pip install km-walk
 
-Alternative method: Easy install script
----------------------------------------
+Alternative method - easy install script:
+-----------------------------------------
 
 `easy_install.sh`_ will install jellyfish with python binding, km in a virtual
 environement, and test it. Without modification, all the code source will be
@@ -90,11 +90,9 @@ Test:
   ./data/jf/03H116_ITD.jf		-	Reference	0	0	0.0	443.0	1.000	912		-	FLT3-ITD_exons_13-15	vs_ref
   ./data/jf/03H116_ITD.jf	chr13:28034105-28034179	chr13:28034180	ITD	0	75 | 75	417.6	1096.7	0.276	443		/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC	FLT3-ITD_exons_13-15	vs_ref	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC
 
-
-
 .. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
-Without install: Directly from source code
+Without install:
 ----------------
 km can be executed directly from source code.
 
@@ -113,9 +111,10 @@ Usage:
 
 .. _bindings: https://github.com/gmarcais/Jellyfish#binding-to-script-languages
 
----------------------------
-Design your target sequence
----------------------------
+----------------------------
+Design your target sequence:
+----------------------------
+
 * km is designed to make targeted analysis based on **target sequences**. These target sequences **need to be designed** and given to km as input.
 * A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provided in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
 * To fit your specific needs, you will have to create your own target sequences.
@@ -133,9 +132,9 @@ Design your target sequence
   - Using get DNA from `ucsc <https://genome.ucsc.edu/cgi-bin/hgc?hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R&o=25234340&g=getDna&i=mixed&c=chr2&l=25234340&r=25234405&db=hg38&hgsid=730614743_K2u5W9UIMXrPzrUlC5KaXmWjzf4R>`_.
 
 
-------------
-Display help
-------------
+-------------
+Display help:
+-------------
 
 .. code:: shell
 
@@ -158,7 +157,7 @@ Display help
 
 
 --------------------
-km's tools overview
+km's tools overview:
 --------------------
 
 For more detailed documentation click `here <https://github.com/iric-soft/km/tree/master/km/tools>`_.
@@ -177,6 +176,7 @@ a target sequence and a k-mer jellyfish database.
 
 find_report:
 ------------
+
 This tool parse find_mutation output to reformat it in more user friendly
 tabulated file.
 

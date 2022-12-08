@@ -20,8 +20,8 @@ def main():
     # sys.stderr.write("This program was written by IRIC's bioinformatics platform\n")
     # sys.stderr.write("----------------------------------------------------------------\n\n")
 
-    argparser = argparse.ArgumentParser(prog='PROG')
-    subparsers = argparser.add_subparsers(help='sub-command help')
+    parser = argparse.ArgumentParser(prog='PROG')
+    subparsers = parser.add_subparsers(help='sub-command help')
 
     # create the argparser for the "find_mutation" command
     find_mut = subparsers.add_parser(
@@ -55,8 +55,13 @@ def main():
     min_cov.set_defaults(func=main_min_cov)
     get_argparser_min_cov(min_cov)
 
+    # display help if no arguments given
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
     # recover arguments
-    args = argparser.parse_args()
+    args = parser.parse_args()
 
     # execute the command
-    args.func(args, argparser)
+    args.func(args, parser)
