@@ -4,8 +4,8 @@ km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
 
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
-| .. image:: https://img.shields.io/badge/python-3.5-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
-|    :target: https://www.python.org/download/releases/3.5.0/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
+| .. image:: https://img.shields.io/badge/python-3.6-blue.svg | .. image:: https://travis-ci.org/iric-soft/km.svg?branch=master | .. image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg |
+|    :target: https://www.python.org/download/releases/3.6.0/ |    :target: https://travis-ci.org/iric-soft/km                  |    :target: https://codecov.io/gh/iric-soft/km/                             |
 +-------------------------------------------------------------+-----------------------------------------------------------------+-----------------------------------------------------------------------------+
 
 -------------
@@ -27,12 +27,22 @@ Citing:
 * Targeted variant detection using unaligned RNA-Seq reads. Life science Alliance 2019 Aug 19;2(4); doi: https://doi.org/10.26508/lsa.201900336
 * Target variant detection in leukemia using unaligned RNA-Seq reads. bioRxiv 295808; doi: https://doi.org/10.1101/295808
 
--------------
+--------
 Install:
--------------
+--------
 
-Easy install:
--------------
+Recommended method - using pip:
+-------------------------------
+
+.. code:: shell
+
+  python3 -m venv $HOME/.virtualenvs/km
+  source $HOME/.virtualenvs/km/bin/activate
+  pip install --upgrade pip setuptools wheel
+  pip install km-walk
+
+Alternative method - easy install script:
+-----------------------------------------
 
 `easy_install.sh`_ will install jellyfish with python binding, km in a virtual
 environement, and test it. Without modification, all the code source will be
@@ -41,15 +51,15 @@ in the virtual environement directory: $HOME/.virtualenvs/km.
 
 Requirements:
 *************
-* Python 3.5.0 or later with `pip`_ and installed.
+* Python 3.6.0 or later with `pip`_ installed.
 
 .. _pip: https://pip.pypa.io/en/stable/installing/
 
 Usage:
 ******
 
-* Copy/past each line in a terminal.
-* The virtual environment need to be loaded each time you open a new terminal, with this command:
+* Copy/paste each line in a terminal.
+* The virtual environment needs to be loaded each time you open a new terminal, with this command:
 
 .. code:: shell
 
@@ -80,27 +90,7 @@ Test:
   ./data/jf/03H116_ITD.jf		-	Reference	0	0	0.0	443.0	1.000	912		-	FLT3-ITD_exons_13-15	vs_ref
   ./data/jf/03H116_ITD.jf	chr13:28034105-28034179	chr13:28034180	ITD	0	75 | 75	417.6	1096.7	0.276	443		/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC	FLT3-ITD_exons_13-15	vs_ref	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC
 
-
-
 .. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
-
-Setup install:
---------------
-
-If you have already installed Jellyfish with Python `bindings`_, you can install km using setup.py.
-
-Requirements:
-*************
-* Python 3.5.0 or later
-* Jellyfish 2.2 or later **with** Python `bindings`_.
-
-Usage:
-******
-
-.. code:: shell
-
-  $ python setup.py install
-
 
 Without install:
 ----------------
@@ -108,8 +98,8 @@ km can be executed directly from source code.
 
 Requirements:
 *************
-* Python 3.5.0 or later
-* Jellyfish 2.2 or later **with** Python `bindings`_.
+* Python 3.6.0 or later
+* pyJellyfish python module or Jellyfish 2.2 or later **with** Python `bindings`_.
 
 Usage:
 ******
@@ -124,6 +114,7 @@ Usage:
 ----------------------------
 Design your target sequence:
 ----------------------------
+
 * km is designed to make targeted analysis based on **target sequences**. These target sequences **need to be designed** and given to km as input.
 * A target sequence is a nucleotide sequence saved in a fasta file. Some target sequences are provided in `catalog <https://github.com/iric-soft/km/tree/master/km/data/catalog>`_.
 * To fit your specific needs, you will have to create your own target sequences.
@@ -131,7 +122,7 @@ Design your target sequence:
 
 .. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
 
-* A web portal is available to assist you in the creation of your target sequences (of case 1 and 2).
+* A web portal is available to assist you in the creation of your target sequences (for cases 1 and 2).
 
   - km-target: https://bioinfo.iric.ca/km-target/
 
@@ -185,6 +176,7 @@ a target sequence and a k-mer jellyfish database.
 
 find_report:
 ------------
+
 This tool parse find_mutation output to reformat it in more user friendly
 tabulated file.
 
