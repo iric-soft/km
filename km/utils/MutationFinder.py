@@ -229,7 +229,7 @@ class MutationFinder:
         - ITD (k=3)
             ref
                 | ``(•••)•••••••••••••[•••]••(•••)``
-                | ``(000)0000000111111[1  ]12(2  )``
+                | ``(000)0000000111111[111]12(2  )``
                 | ``(0  )3456789012345[6  ]90(1  )``
             alt
                 | ``(•••)•••••••••••••[•••]•••••••••••••[•••]••(•••)``
@@ -455,7 +455,7 @@ class MutationFinder:
 
         if diff.end_ref == diff.end_var:
             if diff.start == diff.end_ref:
-                # Ref and Alt end on at the same position, which is also the start
+                # Ref and Alt end at the same position, which is also the start
                 variant = "Reference"
             else:
                 # SNPs and MNPs come from sequences of equal lengths
