@@ -104,12 +104,7 @@ class PathQuant:
     to maximizing the other, with the added benefit of having more
     precise float values with the log-likelihood.
 
-    The EM will compute a ratio for the input paths. In addition,
-    a depth value is computed by taking the highest expressed
-    `unique` kmer for each path. For cases where there is no unique
-    kmer, which arise during reference quantification or if we have
-    an ITD, the path with no unique kmers will have a depth equal
-    to the highest expressed kmer from its whole path.
+    The EM will compute a ratio for the input paths.
 
     Note
     ----
@@ -138,8 +133,6 @@ class PathQuant:
         Number of kmers used for quantification (M).
     ratio : (N,) array_like
         Ratio values for all paths. Always sums to 1.
-    depth : (N,) array_like
-        Depth values for all paths.
 
     Methods
     -------
@@ -257,14 +250,18 @@ class PathQuant:
         self.ratio = rho
         self.expression = expression
 
-        w = self.contrib[nn_ix,:] * rho
-        weighted_contrib = w.T / np.maximum(w.sum(axis=1), np.finfo(float).eps)
-        counts = weighted_contrib * self.counts[nn_ix]
-        gmean = np.exp(np.log(np.where(counts == 0, 1, counts)).sum(axis=1) / paths_lengths)
-        # special case where all counts are 0: geometric mean needs adjustment
-        gmean[counts.sum(axis=1) == 0] = 0
+        #w = self.contrib[nn_ix,:] * rho
+        #weighted_contrib = w.T / np.maximum(w.sum(axis=1), np.finfo(float).eps)
+        #counts = weighted_contrib * self.counts[nn_ix]
+        #log_counts = np.log(np.where(counts == 0, 1, counts))
+        #self.geomexpr = np.exp(log_counts.sum(axis=1) / paths_lengths)
+        ## special case where all counts are 0: geometric mean needs adjustment
+        #self.geomexpr[counts.sum(axis=1) == 0] = 0
 
-        self.geomexpr = gmean
+
+    def adjust_for_reference(self):
+        self.ratio = np.array([1, 0])
+        self.expression = np.array([self.expression.sum(), 0])
 
 
     #def compute_coef(self):
@@ -307,9 +304,7 @@ class PathQuant:
     #        self.ratio = self.coef / np.sum(self.coef)
     #    return self.ratio
 
-    def adjust_for_reference(self):
-        self.ratio = np.array([1, 0])
-        self.expression = np.array([self.expression.sum(), 0])
+    #def adjust_for_reference(self):
     #    self.ratio[0] = np.nan
     #    self.ratio[1] = np.nan
     #    self.coef[self.coef >= 0] = min(self.counts)
