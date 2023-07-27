@@ -161,10 +161,11 @@ class AltSeqSpawner(BaseAltSeq):
             paths = paths_dct[pl]
 
             for i, path in enumerate(paths):
-                # sanity check: paths cannot be the same
-                for j in range(i+1, len(paths)):
-                    path2 = paths[j]
-                    assert path.seq != path2.seq
+                if self.finder.DEBUG:
+                    # sanity check: paths cannot be the same
+                    for j in range(i+1, len(paths)):
+                        path2 = paths[j]
+                        assert path.seq != path2.seq
 
                 longer_paths = [x for x in paths_dct.keys() if x >= pl]
                 for path_longer in (p for l in longer_paths for p in paths_dct[l]):
@@ -251,6 +252,8 @@ class AltSeq(BaseAltSeq):
                     self.finder.get_seq(fc.ref_index, False),
                     self.finder.get_seq(self.seq_index, False)
                 )
+                if self.finder.DEBUG:
+                    raise
         winner = filtered_candidates[0]
 
         self.ref_index = winner.ref_index

@@ -84,6 +84,8 @@ class MutationFinder:
     output_header
     """
 
+    DEBUG = True
+
     def __init__(self,
             refpaths,
             jf,
@@ -606,25 +608,39 @@ class MutationFinder:
 
         # Locate shortest paths from non-reference edges
         short_paths = graph.all_shortest()
-        #for path in shortpaths:
-        #    assert sum([s in path for s in self.start_kmers_ix]) < 3
-        #    assert sum([s in path for s in self.end_kmers_ix]) < 3
+
+        if self.DEBUG:
+            for path in short_paths:
+                assert sum([s in path for s in self.start_kmers_ix]) < 3
+                assert sum([s in path for s in self.end_kmers_ix]) < 3
+
         # remove capping nodes from paths
         short_paths = [tuple(p[1:-1]) for p in short_paths]
-        # initialize initial reference-free paths
-        short_paths = [us.AltSeqSpawner(s, self) for s in short_paths]
+
+        # initialize paths without worrying about finding a reference
+        sp_no_ref = [us.AltSeqSpawner(s, self) for s in short_paths]
+
         # spawn alternative paths while locating the reference
-        short_paths = [path for alt in short_paths for path in alt.spawn()]
-        # remove duplicates
-        self.alt_paths = []
-        altdct = {}
-        for path in short_paths:
-            if path.seq_index in altdct:
-                # make sure existing path does not conflict with this one
-                assert altdct[path.seq_index] == (path.ref_index, path.ref_name)
-            else:
-                altdct[path.seq_index] = (path.ref_index, path.ref_name)
-                self.alt_paths.append(path)
+        sp_ref = [path for alt in sp_no_ref for path in alt.spawn()]
+
+        # remove duplicates (duplicate = same alt mapped to same ref)
+        def is_duplicate(path, s):
+            if path.seq_index not in s:
+                s.add(path.seq_index)
+                return True
+            return False
+
+        seen = set()
+        self.alt_paths = list(filter(lambda p: is_duplicate(p, seen), sp_ref))
+
+        if self.DEBUG:
+            altdct = {}
+            for path in sp_ref:
+                if path.seq_index in altdct:
+                    # make sure existing path does not conflict with current one
+                    assert altdct[path.seq_index] == (path.ref_index, path.ref_name)
+                else:
+                    altdct[path.seq_index] = (path.ref_index, path.ref_name)
 
         # Group alternative paths with the same origin (ref_name) together
         alt_groups = {}

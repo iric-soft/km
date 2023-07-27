@@ -54,6 +54,7 @@ def main_find_mut(args, argparser):
 
         refpaths.append(refpath)
 
+    umf.DEBUG = True
     umf.MutationFinder.output_header()
 
     for refpath in refpaths:
