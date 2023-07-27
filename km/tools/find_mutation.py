@@ -30,7 +30,7 @@ def main_find_mut(args, argparser):
 
     seq_files = uc.target_2_seqfiles(args.target_fn)
 
-    refpaths_list = []
+    refpaths = []
 
     for seq_f in seq_files:
 
@@ -38,7 +38,7 @@ def main_find_mut(args, argparser):
 
         ref_seqs, ref_attr = uc.file_2_seq(seq_f)
 
-        refpaths = []
+        refpath = []
         for seq, att in zip(ref_seqs, ref_attr):
             # gets triggered if '_filename' in fasta header, highly unlikely
             if '_filename' in ref_attr and ref_name != ref_attr['_filename']:
@@ -48,18 +48,18 @@ def main_find_mut(args, argparser):
 
             assert len(seq) >= jf.k
             refseq = us.RefSeq(seq, att, jf.k)
-            refpaths.append(refseq)
+            refpath.append(refseq)
 
             sys.stdout.write("#target:" + str(refseq) + '\n')
 
-        refpaths_list.append(refpaths)
+        refpaths.append(refpath)
 
     umf.MutationFinder.output_header()
 
-    for refpaths in refpaths_list:
+    for refpath in refpaths:
 
         finder = umf.MutationFinder(
-            refpaths, jf, args.steps, args.branchs, args.nodes
+            refpath, jf, args.steps, args.branchs, args.nodes
         )
 
         finder.graph_analysis()

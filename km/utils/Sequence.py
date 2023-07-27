@@ -156,29 +156,23 @@ class AltSeqSpawner(BaseAltSeq):
 
         # group paths by length
         paths_dct = {l: list(p) for l, p in groupby(altpaths, lambda x: x.seq_len)}
-        lengths = sorted(list(paths_dct.keys()))[::-1]
-        for pl in lengths:
-            paths = paths_dct[pl]
-            for i, path in enumerate(paths):
-                skip = False
 
-                # sanity check: paths cannot be the same length and equal
+        for pl in sorted(list(paths_dct.keys()))[::-1]:
+            paths = paths_dct[pl]
+
+            for i, path in enumerate(paths):
+                # sanity check: paths cannot be the same
                 for j in range(i+1, len(paths)):
                     path2 = paths[j]
                     assert path.seq != path2.seq
 
-                longers = [x for x in lengths if x >= pl]
-                while longers:
-                    pl_longer = longers.pop()
-                    for path2 in paths_dct[pl_longer]:
-                        if path.seq in path2.seq and path.divergence > path2.divergence:
-                            skip = True
-                            longers = []
-                            break
-                if skip:
-                    log.info('Skipping %s', path.ref_name)
-                else:
-                    yield path
+                longer_paths = [x for x in paths_dct.keys() if x >= pl]
+                for path_longer in (p for l in longer_paths for p in paths_dct[l]):
+                    if path.seq in path_longer.seq and path.divergence > path_longer.divergence:
+                        log.info('Skipping nested path %s', path.ref_name)
+                        return
+
+                yield path
 
     def _spawn(self):
         starts = [i for i, s in enumerate(self.seq_index) if s in self.finder.start_kmers_all_ix]

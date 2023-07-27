@@ -177,19 +177,27 @@ class MutationFinder:
             first = sequence.first_kmer
             last = sequence.last_kmer
 
-            self.start_kmers.add(first)
+            nested_first = False
             for sequence in self.refpaths:
                 if first in set(sequence.ref_mer[1:]):
-                    self.start_kmers.remove(first)
-                    self.start_kmers_nested.add(first)
+                    nested_first = True
                     break
 
-            self.end_kmers.add(last)
+            nested_last = False
             for sequence in self.refpaths:
                 if last in set(sequence.ref_mer[:-1]):
-                    self.end_kmers.remove(last)
-                    self.end_kmers_nested.add(last)
+                    nested_last = True
                     break
+
+            if nested_first:
+                self.start_kmers_nested.add(first)
+            else:
+                self.start_kmers.add(first)
+
+            if nested_last:
+                self.end_kmers_nested.add(last)
+            else:
+                self.end_kmers.add(last)
 
         self.start_kmers_ix = set([self.kmer.index(k) for k in self.start_kmers])
         self.end_kmers_ix = set([self.kmer.index(k) for k in self.end_kmers])
@@ -574,15 +582,13 @@ class MutationFinder:
         # from 1 to 0.01 in graph
         weight = 0.01
 
-        def adjust_graph_weights(ref_index):
+        for sequence in self.refpaths:
+            # should we remove start and end kmers (as these were already processed)
+            ref_index = sequence.seq_index
             for k in range(len(ref_index)-1):
                 i = ref_index[k]
                 j = ref_index[k+1]
                 graph[i, j] = weight
-
-        for sequence in self.refpaths:
-            # should we remove start and end kmers (as these were already processed)
-            adjust_graph_weights(sequence.seq_index)
 
         first_ix = self.kmer.index(self.first_seq)
         for start_ix in self.start_kmers_ix:
