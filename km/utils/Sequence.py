@@ -6,7 +6,6 @@ import sys
 import logging as log
 from collections import namedtuple
 from itertools import groupby
-import uuid
 
 from . import common as uc
 
@@ -66,16 +65,22 @@ class RefSeq:
         try:
             exon_name = attr['gene_name']
         except KeyError:
-            exon_name = attr['_filename']
+            try:
+                exon_name = attr['name']
+            except KeyError:
+                exon_name = attr['_filename']
 
         try:
             exon_id = attr["exon_id"]
         except KeyError:
-            #exon_id = hashlib.sha256(self.location.encode('utf-8'))
-            #exon_id = exon_id.hexdigest()[:6].upper()
-            global COUNTER
-            COUNTER += 1
-            exon_id = str(COUNTER)
+            try:
+                exon_id = attr["n"]
+            except KeyError:
+                #exon_id = hashlib.sha256(self.location.encode('utf-8'))
+                #exon_id = exon_id.hexdigest()[:6].upper()
+                global COUNTER
+                COUNTER += 1
+                exon_id = str(COUNTER)
 
         self.name = "%s.e%s" % (exon_name, exon_id)
 
@@ -146,7 +151,10 @@ class BaseAltSeq:
 
 class AltSeqSpawner(BaseAltSeq):
     def spawn(self):
+
         altpaths = list(self._spawn())
+
+        # group paths by length
         paths_dct = {l: list(p) for l, p in groupby(altpaths, lambda x: x.seq_len)}
         lengths = sorted(list(paths_dct.keys()))[::-1]
         for pl in lengths:
@@ -231,7 +239,24 @@ class AltSeq(BaseAltSeq):
         if len(filtered_candidates) > 1:
             lowest_divergence = sorted(filtered_candidates, key=lambda c: c.divergence)[0].divergence
             filtered_candidates = [c for c in candidates_mer if c.divergence == lowest_divergence]
-        assert len(filtered_candidates) == 1
+            if len(filtered_candidates) > 1:
+                shortest_ref = len(sorted(filtered_candidates, key=lambda c: len(c.ref_index))[0].ref_index)
+                filtered_candidates = [c for c in candidates_mer if len(c.ref_index) == shortest_ref]
+
+        try:
+            assert len(filtered_candidates) == 1
+        except AssertionError:
+            for fc in filtered_candidates:
+                log.info(
+                    "Warning: Candidate filtering failed. " +\
+                    "Name=%s, Common=%d, Divergent=%d, RefLen=%d, RefSeq=%s, Seq=%s.",
+                    fc.ref_name,
+                    fc.common,
+                    fc.divergence,
+                    len(fc.ref_index),
+                    self.finder.get_seq(fc.ref_index, False),
+                    self.finder.get_seq(self.seq_index, False)
+                )
         winner = filtered_candidates[0]
 
         self.ref_index = winner.ref_index
