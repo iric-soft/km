@@ -12,6 +12,9 @@ from . import Sequence as us
 from . import common as uc
 
 
+sys.setrecursionlimit(10000)
+
+
 PathDiff = namedtuple('PathDiff',
     [
         'start',
@@ -134,8 +137,6 @@ class MutationFinder:
     def __extend(self, stack, breaks=0):
         """Recursive depth first search"""
 
-        sys.setrecursionlimit(10000)
-
         if len(stack) > self.max_stack:
             return
 
@@ -155,12 +156,13 @@ class MutationFinder:
                 return
 
         for child in childs:
-            ustack = stack + [child]
-            if child in self.node_data:
+            if child in self.node_data or child in set(stack):
+                if child in set(stack) and child not in self.node_data:
+                    log.info('Broke loop at kmer: %s' % child)
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
             else:
-                self.__extend(ustack, breaks)
+                self.__extend(stack + [child], breaks)
 
 
     def __define_edges(self):
