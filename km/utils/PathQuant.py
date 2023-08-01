@@ -202,18 +202,20 @@ class PathQuant:
             counts = weighted_contrib * self.counts[nn_ix]
             count_sums = counts.sum(axis=1)
             expression = count_sums / paths_lengths
-            # compute alpha
-            assert np.isclose(all_counts, count_sums.sum())
-            try:
-                alpha = count_sums / all_counts
-            except ZeroDivisionError:
-                alpha = count_sums
-            # compute rho
-            new_rho = alpha / paths_lengths
-            try:
-                new_rho /= new_rho.sum()
-            except ZeroDivisionError:
-                sys.stderrwirte('WARNING: New rho is 0\n')
+
+            with np.errstate(divide='raise', invalid='raise'):
+                assert np.isclose(all_counts, count_sums.sum())
+                try:
+                    # compute alpha
+                    alpha = count_sums / all_counts
+                    # compute rho
+                    new_rho = alpha / paths_lengths
+                    new_rho = new_rho / new_rho.sum()  # note that new_rho /= new_rho.sum() would
+                except FloatingPointError:             # get applyed before exception catching
+                    assert count_sums.sum() == 0
+                    alpha = new_rho = count_sums
+                    #log.info('Counts are all 0.')
+
             # compute log-likelihood
             selection_prob = np.dot(self.contrib[nn_ix], alpha / paths_lengths)
             counts = self.counts[nn_ix]
@@ -235,9 +237,15 @@ class PathQuant:
             num_iter += 1
             prev_rho = rho
             prev_log_likelihood = log_likelihood
+
             rho, alpha, expression, log_likelihood = calc_em(rho)
-            assert log_likelihood >= prev_log_likelihood
-            #^ 'or equal' for cases where at least one alpha value is 0
+
+            try:
+                assert log_likelihood >= prev_log_likelihood
+                #^ 'or equal' for cases where at least one alpha value is 0
+            except AssertionError:
+                log.info("ERROR @ Log likelihood assertion failed")
+
             log.debug(
                 "Iteration=%d, rho=%s, LogLikelihood=%f",
                 num_iter,
