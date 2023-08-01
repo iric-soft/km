@@ -189,6 +189,7 @@ def create_report(args):
                     start_pos = nts[end + 1]
                     end_pos = nts[pos]
                 region = "{}:{}-{}".format(chro, start_pos, end_pos + 1)
+                insert_type = variant[0]
 
                 var = insert.upper()
                 ibef = get_extremities(var, pos, ref_seq)  # include current position
@@ -205,20 +206,10 @@ def create_report(args):
                     sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
                     continue
 
-                # Reinterpret mutations for small ITDs
-                insert_type = "Insertion"
-                if pos-len(insert) >= 0 and len(insert) >= 3:
-                    # careful, going upstream may put us outside the reference.
-                    upstream = alt_seq[pos-len(insert):pos]
-                    if insert == upstream:
-                        insert_type = "ITD"
-                        added += " | " + str(end_pos - start_pos + 1)
-                    else:
-                        comm = [insert[i] == upstream[i] for i in range(len(insert))]
-                        match = sum(comm) / len(insert)
-                        if match > 0.5:
-                            insert_type = "I&I"
-                            added += " | " + str(end_pos - start_pos + 1)
+                if insert_type == "ITD":
+                    added += " | " + str(end_pos - start_pos + 1)
+                elif insert_type == "I&I":
+                    added += " | " + str(end_pos - start_pos + 1)
 
                 location = chro + ":" + str(end_pos)
 

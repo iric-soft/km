@@ -29,7 +29,7 @@ PathDiff = namedtuple('PathDiff',
 
 class MutationFinder:
     """This class is the core of km. It sets up the environment
-    and intializes kmer data structures.
+    and initializes kmer data structures.
 
     The first step is performed automatically where the jellyfish
     database (JF DB) is queried for all kmers that fit the
@@ -488,6 +488,24 @@ class MutationFinder:
             del_seq = del_seq[:-trim]
             ins_seq = ins_seq[:-trim]
 
+        def reinterpret():
+            # Reinterpret mutations for small ITDs
+            insert = ins_seq
+            pos = diff.start + self.jf.k - 1  # 0-based coordinate
+            insert_type = variant
+            if pos-len(insert) >= 0 and len(insert) >= 3:
+                alt_seq = self.get_seq(path_ix, skip_prefix=False)
+                # careful, going upstream may put us outside the reference.
+                upstream = alt_seq[pos-len(insert):pos]
+                if insert == upstream:
+                    insert_type = "ITD"
+                else:
+                    comm = [insert[i] == upstream[i] for i in range(len(insert))]
+                    match = sum(comm) / len(insert)
+                    if match > 0.5:
+                        insert_type = "I&I"
+            return insert_type
+
         if diff.end_ref == diff.end_var:
             if diff.start == diff.end_ref:
                 # Ref and Alt end at the same position, which is also the start
@@ -499,13 +517,25 @@ class MutationFinder:
             if diff.start == diff.end_ref_overlap:
                 # we retraced the whole reference
                 # ITD have zero kmers in ref after trimming, but I&I do.
+                # NOTE that this method will miss ITDs < 30 nts in length
+                # NOTE that this method might return I&Is or in rare cases
+                # false positives for ITDs > 30 nts
                 variant = "ITD"
+                new_variant = reinterpret()
+                if variant != new_variant:
+                    log.info('Reinterpreting %s as %s.' % (variant, new_variant))
+                    variant = new_variant
             else:
                 # we have an indel
                 variant = "Indel"
                 if diff.end_ref < diff.end_var:
                     if len(del_seq) == 0:
+                        # NOTE that the mutation could be a short ITD or I&I
                         variant = "Insertion"
+                        new_variant = reinterpret()
+                        if variant != new_variant:
+                            log.info('Reinterpreting %s as %s.' % (variant, new_variant))
+                            variant = new_variant
                 else:
                     if len(ins_seq) == 0:
                         variant = "Deletion"

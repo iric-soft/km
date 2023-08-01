@@ -56,7 +56,7 @@ class TestkmMuttaion(unittest.TestCase):
         find_output = find_output[16].split("\t")
 
         self.assertEqual(find_output[2],
-                         "Insertion",
+                         "ITD",
                          "Test fail: NPM1 -> find type")
         self.assertEqual(find_output[3],
                          "49:/TCTG:49",
