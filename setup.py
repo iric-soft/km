@@ -23,6 +23,7 @@ setup(
 
     description='A software for RNA-seq investigation using k-mer decomposition',
     long_description=long_description,
+    long_description_content_type='text/x-rst',
 
     # The project's main homepage.
     url='https://github.com/iric-soft/km',
@@ -54,7 +55,14 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
 
         # Others
         'Natural Language :: English',
