@@ -19,7 +19,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='2.2.0',
+    version='2.2.1',
 
     description='A software for RNA-seq investigation using k-mer decomposition',
     long_description=long_description,
@@ -75,7 +75,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy>=1.18.1', 'matplotlib>=3.3.4', 'pyjellyfish>=1.1.1', 'pytest>=6.2.0'],
+    install_requires=['numpy>=1.18.1', 'matplotlib>=3.3.4', 'pyjellyfish>=1.2.0', 'pytest>=6.2.0'],
     python_requires='>=3.6',
 
     # List additional groups of dependencies here (e.g. development
