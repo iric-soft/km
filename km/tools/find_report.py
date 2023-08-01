@@ -206,22 +206,19 @@ def create_report(args):
                     continue
 
                 # Reinterpret mutations for small ITDs
-                # careful, going upstream may put us outside the reference.
-                upstream = alt_seq[pos-len(insert):pos]
-                match = 0
-                if pos-len(insert) >= 0:
-                    for i in range(0, len(insert)):
-                        if insert[i] == upstream[i]:
-                            match += 1
-                    match = float(match)/len(insert)
-
                 insert_type = "Insertion"
-                if pos-len(insert) >= 0 and len(insert) >= 3 and insert == upstream:
-                    insert_type = "ITD"
-                    added += " | " + str(end_pos - start_pos + 1)
-                elif pos-len(insert) >= 0 and len(insert) >= 3 and match > 0.5:
-                    insert_type = "I&I"
-                    added += " | " + str(end_pos - start_pos + 1)
+                if pos-len(insert) >= 0 and len(insert) >= 3:
+                    # careful, going upstream may put us outside the reference.
+                    upstream = alt_seq[pos-len(insert):pos]
+                    if insert == upstream:
+                        insert_type = "ITD"
+                        added += " | " + str(end_pos - start_pos + 1)
+                    else:
+                        comm = [insert[i] == upstream[i] for i in range(len(insert))]
+                        match = sum(comm) / len(insert)
+                        if match > 0.5:
+                            insert_type = "I&I"
+                            added += " | " + str(end_pos - start_pos + 1)
 
                 location = chro + ":" + str(end_pos)
 
