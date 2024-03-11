@@ -326,7 +326,7 @@ class VCFReport(Report):
                 end_var = line.nts[iaft-len(ref_var)+1]
 
             if loc_var + len(ref_var) - 1 != end_var:
-                sys.stderr.write("NOTE: Mutation overlaps 2 exons or more, VCF output is disabled \n")
+                sys.stderr.write("NOTE: Mutation is shared by > 1 exon, VCF output is disabled\n")
             else:
                 if line.strand == '-':
                     complement = str.maketrans('ATGCU', 'TACGA')

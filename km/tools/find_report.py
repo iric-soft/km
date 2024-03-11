@@ -1,6 +1,4 @@
 import sys
-import re
-from collections import namedtuple
 
 from .. utils import Report as ur
 

@@ -237,7 +237,7 @@ class TestkmMuttaion(unittest.TestCase):
         find_output = find_output[0]
 
         self.assertEqual(find_output,
-                         "NOTE: Mutation overlaps 2 exons or more, VCF output is disabled ")
+                         "NOTE: Mutation is shared by > 1 exon, VCF output is disabled")
 
     def test_FLT3_ITD(self):
         target = "./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa"
