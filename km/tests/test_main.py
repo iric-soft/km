@@ -94,13 +94,13 @@ class TestkmMuttaion(unittest.TestCase):
                          "4 | 1",
                          "Test fail: NPM1 -> report Added")
         self.assertEqual(report_output[6],
-                         "2792.0",
+                         "2858.7",
                          "Test fail: NPM1 -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "2964.5",
+                         "3029.1",
                          "Test fail: NPM1 -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.485",
+                         "0.486",
                          "Test fail: NPM1 -> report rVAF")
         self.assertEqual(report_output[9],
                          "2428",
@@ -164,7 +164,7 @@ class TestkmMuttaion(unittest.TestCase):
                          "Indel",
                          "Test fail: FLT3-IandI -> find type")
         self.assertEqual(find_output[3],
-                         "47:atattctctgaaatcaacgtagaagtactcattatctgaggagccggtcacctgtaccatctgtagctggctt" + 
+                         "47:atattctctgaaatcaacgtagaagtactcattatctgaggagccggtcacctgtaccatctgtagctggctt" +
                          "tcatacctaaattgctttcagcattttgacggcaacctggattgagactcctgttttgctaattccataagctg/TC:194",
                          "Test fail: FLT3-IandI -> find variant")
         self.assertEqual(find_output[8],
@@ -200,13 +200,13 @@ class TestkmMuttaion(unittest.TestCase):
                          "2",
                          "Test fail: FLT3-IandI -> report Added")
         self.assertEqual(report_output[6],
-                         "424.8",
+                         "375.0",
                          "Test fail: FLT3-IandI -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "695.7",
+                         "694.9",
                          "Test fail: FLT3-IandI -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.379",
+                         "0.350",
                          "Test fail: FLT3-IandI -> report rVAF")
         self.assertEqual(report_output[9],
                          "285",
@@ -302,13 +302,13 @@ class TestkmMuttaion(unittest.TestCase):
                          "75 | 1",
                          "Test fail: FLT3-ITD -> report Added")
         self.assertEqual(report_output[6],
-                         "575.0",
+                         "543.5",
                          "Test fail: FLT3-ITD -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "676.9",
+                         "713.2",
                          "Test fail: FLT3-ITD -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.459",
+                         "0.432",
                          "Test fail: FLT3-ITD -> report rVAF")
         self.assertEqual(report_output[9],
                          "443",
@@ -500,13 +500,13 @@ class TestkmMuttaion(unittest.TestCase):
                          "1",
                          "Test fail: DNMT3A -> report Added")
         self.assertEqual(report_output[6],
-                         "33.7",
+                         "34.0",
                          "Test fail: DNMT3A -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "48.7",
+                         "48.9",
                          "Test fail: DNMT3A -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.409",
+                         "0.410",
                          "Test fail: DNMT3A -> report rVAF")
         self.assertEqual(report_output[9],
                          "32",

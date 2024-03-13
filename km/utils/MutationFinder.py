@@ -12,6 +12,9 @@ from . import Sequence as us
 from . import common as uc
 
 
+sys.setrecursionlimit(10000)
+
+
 PathDiff = namedtuple('PathDiff',
     [
         'start',
@@ -135,8 +138,6 @@ class MutationFinder:
     def __extend(self, stack, breaks=0):
         """Recursive depth first search"""
 
-        sys.setrecursionlimit(10000)
-
         if len(stack) > self.max_stack:
             return
 
@@ -156,12 +157,13 @@ class MutationFinder:
                 return
 
         for child in childs:
-            ustack = stack + [child]
-            if child in self.node_data:
+            if child in self.node_data or child in set(stack):
+                if child in set(stack) and child not in self.node_data:
+                    log.info('Broke loop at kmer: %s' % child)
                 for p in stack:
                     self.node_data[p] = self.jf.query(p)
             else:
-                self.__extend(ustack, breaks)
+                self.__extend(stack + [child], breaks)
 
 
     def __define_edges(self):
@@ -199,13 +201,13 @@ class MutationFinder:
 
         log.info("BigBang=%d, BigCrunch=%d" % (self.first_seq_ix, self.last_seq_ix))
         for s in self.start_kmers:
-            log.info("Start kmer %d %s" % (self.kmer.index(s), s))
+            log.info("Start kmer %s %d" % (s, self.kmer.index(s)))
         for e in self.end_kmers:
-            log.info("End   kmer %d %s" % (self.kmer.index(e), e))
+            log.info("End   kmer %s %d" % (e, self.kmer.index(e)))
         for s in self.start_kmers_nested:
-            log.info("Nested start kmer %d %s" % (self.kmer.index(s), s))
+            log.info("Nested start kmer %s %d" % (s, self.kmer.index(s)))
         for e in self.end_kmers_nested:
-            log.info("Nested end   kmer %d %s" % (self.kmer.index(e), e))
+            log.info("Nested end   kmer %s %d" % (e, self.kmer.index(e)))
 
 
     @staticmethod
@@ -668,32 +670,32 @@ class MutationFinder:
 
         for path in self.alt_paths:
             ref_name, ref_index, alt_index = path.ref_name, path.ref_index, path.seq_index
+
+            log.info('Quantifying %s' % ref_name)
+
             quant = upq.PathQuant(
                 all_paths=[alt_index, ref_index],
                 counts=self.counts
             )
-            quant.compute_coef()
-            quant.refine_coef()
-            quant.get_ratio()
+            quant.quantify()
 
-            # Reference
             if alt_index == ref_index:
                 quant.adjust_for_reference()
 
-            rvaf, ref_rvaf = quant.rVAF
-            coef, ref_coef = quant.coef
+            rvaf, _ = quant.ratio
+            expression, ref_expression = quant.expression
 
             path_o = upq.Path(
                 self.jf.filename,
                 ref_name,
                 self.get_name(ref_index, alt_index),
                 rvaf,
-                coef,
+                expression,
+                ref_expression,
+                '0',
                 min(self.get_counts(alt_index)),
-                0,
+                min(self.get_counts(ref_index)),
                 self.get_seq(alt_index, skip_prefix=False),
-                ref_rvaf,
-                ref_coef,
                 self.get_seq(ref_index, skip_prefix=False),
                 "vs_ref"
             )
@@ -812,6 +814,8 @@ class MutationFinder:
             ref_name, ref_path, clipped_paths, start_off = cluster
             num_cluster = i + 1
 
+            log.info('Quantifying %s in cluster mode' % ref_name)
+
             if graphical:
                 plt.figure(figsize=(10, 6))
                 plt.plot(
@@ -835,26 +839,24 @@ class MutationFinder:
                 all_paths=[ref_path] + clipped_paths,
                 counts=self.counts
             )
-            quant.compute_coef()
-            quant.refine_coef()
-            quant.get_ratio()
+            quant.quantify()
 
-            ref_rvaf, paths_rvaf = quant.rVAF[0], quant.rVAF[1:]
-            ref_coef, paths_coef = quant.coef[0], quant.coef[1:]
+            rvaf_list = quant.ratio[1:]
+            ref_expression, expr_list = quant.expression[0], quant.expression[1:]
 
-            for path, rvaf, coef in zip(clipped_paths, paths_rvaf, paths_coef):
+            for path, rvaf, expression in zip(clipped_paths, rvaf_list, expr_list):
                 assert path != ref_path
                 path_o = upq.Path(
                     self.jf.filename,
                     ref_name,
                     self.get_name(ref_path, path, start_off),
                     rvaf,
-                    coef,
-                    min(self.get_counts(path)),
+                    expression,
+                    ref_expression,
                     start_off,
+                    min(self.get_counts(path)),
+                    min(self.get_counts(ref_path)),
                     self.get_seq(path, skip_prefix=False),
-                    ref_rvaf,
-                    ref_coef,
                     self.get_seq(ref_path, skip_prefix=False),
                     "cluster %d n=%d" % (num_cluster, len(clipped_paths))
                 )
