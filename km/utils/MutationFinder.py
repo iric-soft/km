@@ -44,8 +44,8 @@ class MutationFinder:
 
     Attributes
     ---------
-    refpath : km.utils.Sequence.RefSeq
-        Reference path object.
+    refpaths : list
+        List of km.utils.Sequence.RefSeq path objects.
     first_kmer : str
         Source capping node.
     last_kmer : str
@@ -84,20 +84,22 @@ class MutationFinder:
     output_header
     """
 
+    DEBUG = True
+
     def __init__(self,
-            refpath,
+            refpaths,
             jf,
             max_stack=500,
             max_break=10,
             max_node=10000
         ):
 
-        self.refpath = refpath
-
         self.first_seq = "BigBang"
         self.last_seq = "BigCrunch"
 
-        self.ref_set = set(self.refpath.ref_mer)
+        self.refpaths = refpaths
+        self.ref_set = set([kmer for s in self.refpaths for kmer in s.ref_mer])
+
         log.info("Ref. set contains %d kmers.", len(self.ref_set))
 
         self.jf = jf
@@ -126,7 +128,8 @@ class MutationFinder:
         log.info("k-mer graph contains %d nodes.", self.num_k)
 
         # reference path, with node indices
-        self.refpath.set_index(self.kmer)
+        for sequence in self.refpaths:
+            sequence.set_index(self.kmer)
 
         self.first_seq_ix = self.kmer.index(self.first_seq)
         self.last_seq_ix = self.kmer.index(self.last_seq)
@@ -169,22 +172,52 @@ class MutationFinder:
         self.start_kmers = set()
         self.end_kmers = set()
 
-        if type(self.refpath) == us.RefSeq:
-            first = self.refpath.first_kmer
-            last = self.refpath.last_kmer
+        self.start_kmers_nested = set()
+        self.end_kmers_nested = set()
 
-            self.start_kmers.add(first)
+        for sequence in self.refpaths:
+            first = sequence.first_kmer
+            last = sequence.last_kmer
 
-            self.end_kmers.add(last)
+            nested_first = False
+            for sequence in self.refpaths:
+                if first in set(sequence.ref_mer[1:]):
+                    nested_first = True
+                    break
+
+            nested_last = False
+            for sequence in self.refpaths:
+                if last in set(sequence.ref_mer[:-1]):
+                    nested_last = True
+                    break
+
+            if nested_first:
+                self.start_kmers_nested.add(first)
+            else:
+                self.start_kmers.add(first)
+
+            if nested_last:
+                self.end_kmers_nested.add(last)
+            else:
+                self.end_kmers.add(last)
 
         self.start_kmers_ix = set([self.kmer.index(k) for k in self.start_kmers])
         self.end_kmers_ix = set([self.kmer.index(k) for k in self.end_kmers])
+        self.start_kmers_nested_ix = set([self.kmer.index(k) for k in self.start_kmers_nested])
+        self.end_kmers_nested_ix = set([self.kmer.index(k) for k in self.end_kmers_nested])
+
+        self.start_kmers_all_ix = self.start_kmers_ix.union(self.start_kmers_nested_ix)
+        self.end_kmers_all_ix = self.end_kmers_ix.union(self.end_kmers_nested_ix)
 
         log.info("BigBang=%d, BigCrunch=%d" % (self.first_seq_ix, self.last_seq_ix))
         for s in self.start_kmers:
             log.info("Start kmer %s %d" % (s, self.kmer.index(s)))
         for e in self.end_kmers:
             log.info("End   kmer %s %d" % (e, self.kmer.index(e)))
+        for s in self.start_kmers_nested:
+            log.info("Nested start kmer %s %d" % (s, self.kmer.index(s)))
+        for e in self.end_kmers_nested:
+            log.info("Nested end   kmer %s %d" % (e, self.kmer.index(e)))
 
 
     @staticmethod
@@ -493,6 +526,23 @@ class MutationFinder:
         counts = [self.node_data[self.kmer[k]] for k in path]
         return counts
 
+    def add_kmers(self, mers):
+        """"""
+
+        for k in mers:
+            if k not in self.node_data:
+                if len(self.node_data.keys()) > self.max_node:
+                    sys.exit(
+                        "ERROR: Node query count limit exceeded: max={}".format(
+                            self.max_node
+                        )
+                    )
+                c = self.jf.query(k)
+                self.kmer.append(k)
+                self.counts.append(c)
+                self.node_data[k] = c
+                self.num_k = len(self.kmer)
+
     def graph_analysis(self):
         """Perform kmer walking and find alternative paths
 
@@ -534,13 +584,13 @@ class MutationFinder:
         # from 1 to 0.01 in graph
         weight = 0.01
 
-        def adjust_graph_weights(ref_index):
+        for sequence in self.refpaths:
+            # should we remove start and end kmers (as these were already processed)
+            ref_index = sequence.seq_index
             for k in range(len(ref_index)-1):
                 i = ref_index[k]
                 j = ref_index[k+1]
                 graph[i, j] = weight
-
-        adjust_graph_weights(self.refpath.seq_index)
 
         first_ix = self.kmer.index(self.first_seq)
         for start_ix in self.start_kmers_ix:
@@ -558,9 +608,39 @@ class MutationFinder:
 
         # Locate shortest paths from non-reference edges
         short_paths = graph.all_shortest()
+
+        if self.DEBUG:
+            for path in short_paths:
+                assert sum([s in path for s in self.start_kmers_ix]) < 3
+                assert sum([s in path for s in self.end_kmers_ix]) < 3
+
         # remove capping nodes from paths
         short_paths = [tuple(p[1:-1]) for p in short_paths]
-        self.alt_paths = [us.AltSeq(s, self) for s in short_paths]
+
+        # initialize paths without worrying about finding a reference
+        sp_no_ref = [us.AltSeqSpawner(s, self) for s in short_paths]
+
+        # spawn alternative paths while locating the reference
+        sp_ref = [path for alt in sp_no_ref for path in alt.spawn()]
+
+        # remove duplicates (duplicate = same alt mapped to same ref)
+        def is_duplicate(path, s):
+            if path.seq_index not in s:
+                s.add(path.seq_index)
+                return True
+            return False
+
+        seen = set()
+        self.alt_paths = list(filter(lambda p: is_duplicate(p, seen), sp_ref))
+
+        if self.DEBUG:
+            altdct = {}
+            for path in sp_ref:
+                if path.seq_index in altdct:
+                    # make sure existing path does not conflict with current one
+                    assert altdct[path.seq_index] == (path.ref_index, path.ref_name)
+                else:
+                    altdct[path.seq_index] = (path.ref_index, path.ref_name)
 
         # Group alternative paths with the same origin (ref_name) together
         alt_groups = {}

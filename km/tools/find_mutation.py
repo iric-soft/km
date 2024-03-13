@@ -30,8 +30,6 @@ def main_find_mut(args, argparser):
 
     seq_files = uc.target_2_seqfiles(args.target_fn)
 
-    umf.MutationFinder.output_header()
-
     refpaths = []
 
     for seq_f in seq_files:
@@ -40,9 +38,24 @@ def main_find_mut(args, argparser):
 
         ref_seqs, ref_attr = uc.file_2_seq(seq_f)
 
-        refpath = us.RefSeq(''.join(ref_seqs), ref_name, jf.k)
+        refpath = []
+        for seq, att in zip(ref_seqs, ref_attr):
+            # gets triggered if '_filename' in fasta header, highly unlikely
+            if '_filename' in ref_attr and ref_name != ref_attr['_filename']:
+                msg = 'Field `_filename` is reserverd and will be overwritten.'
+                sys.stderr.write(msg + '\n')
+            att['_filename'] = ref_name
+
+            assert len(seq) >= jf.k
+            refseq = us.RefSeq(seq, att, jf.k)
+            refpath.append(refseq)
+
+            sys.stdout.write("#target:" + str(refseq) + '\n')
 
         refpaths.append(refpath)
+
+    umf.DEBUG = True
+    umf.MutationFinder.output_header()
 
     for refpath in refpaths:
 
