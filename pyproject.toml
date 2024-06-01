@@ -53,8 +53,8 @@ Repository = "https://github.com/iric-soft/km"
 [project.scripts]
 km = "km.km:main"
 
-[tool.setuptools.packages.find]
-exclude = ['contrib', 'docs', 'tests']
+[tool.setuptools]
+packages = ["km"]
 
 [tool.setuptools.dynamic]
 version = {attr = "km.__version__"}
