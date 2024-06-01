@@ -10,7 +10,7 @@ dependencies = [
   "pyjellyfish>=1.2.0",
   "pytest>=6.2.0"
 ]
-requires-python = ">= 3.6"
+requires-python = ">= 3.8"
 authors = [
   { name="Albert Feghaly", email="albert.feghaly@umontreal.ca" },
   { name="Eric Audemard", email="eric.audemard@umontreal.ca" },
@@ -30,8 +30,6 @@ classifiers = [
   "Topic :: Software Development :: Build Tools",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.6",
-  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
