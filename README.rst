@@ -3,12 +3,13 @@
 km : a software for RNA-seq investigation using k-mer decomposition
 ===================================================================
 
-+-------------+-----------+
-| |pyversion| | |codecov| |
-+-------------+-----------+
+|pyversion| |pypi| |codecov|
 
-.. |pyversion| image:: https://img.shields.io/badge/python-3.6%20%7C%203.7%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue.svg
+.. |pyversion| image:: https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue.svg
    :target: https://pypi.org/project/km-walk/
+
+.. |pypi| image:: https://img.shields.io/pypi/v/km-walk.svg
+   :target: https://pypi.python.org/pypi/km-walk
 
 .. |codecov| image:: https://codecov.io/gh/iric-soft/km/branch/master/graph/badge.svg
    :target: https://codecov.io/gh/iric-soft/km/
@@ -39,8 +40,8 @@ Citing:
 Install:
 --------
 
-Recommended method - using pip:
--------------------------------
+Using pip (recommended)
+-----------------------
 
 .. code:: shell
 
@@ -49,24 +50,15 @@ Recommended method - using pip:
   pip install --upgrade pip setuptools wheel
   pip install km-walk
 
-Alternative method - easy install script:
------------------------------------------
-
-`easy_install.sh`_ will install jellyfish with python binding, km in a virtual
-environement, and test it. Without modification, all the code source will be
-downloaded in your $HOME/software directory and all executable will be available
-in the virtual environement directory: $HOME/.virtualenvs/km.
-
 Requirements:
 *************
-* Python 3.6.0 or later with `pip`_ installed.
+* Python 3.8.0 or later with `pip`_ installed.
 
 .. _pip: https://pip.pypa.io/en/stable/installing/
 
 Usage:
 ******
 
-* Copy/paste each line in a terminal.
 * The virtual environment needs to be loaded each time you open a new terminal, with this command:
 
 .. code:: shell
@@ -78,7 +70,7 @@ Test:
 
 * 4bp insertion in NPM1
 
-.. code:: shell
+.. code:: console
 
   $ cd [your_km_folder]
   $ km find_mutation ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa ./data/jf/02H025_NPM1.jf | km find_report -t ./data/catalog/GRCh38/NPM1_4ins_exons_10-11utr.fa
@@ -90,7 +82,7 @@ Test:
 
 * ITD of 75 bp
 
-.. code:: shell
+.. code:: console
 
   $ cd [your_km_folder]
   $ km find_mutation ./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa ./data/jf/03H116_ITD.jf | km find_report -t ./data/catalog/GRCh38/FLT3-ITD_exons_13-15.fa
@@ -98,16 +90,27 @@ Test:
   ./data/jf/03H116_ITD.jf		-	Reference	0	0	0.0	443.0	1.000	912		-	FLT3-ITD_exons_13-15	vs_ref
   ./data/jf/03H116_ITD.jf	chr13:28034105-28034179	chr13:28034180	ITD	0	75 | 75	417.6	1096.7	0.276	443		/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC	FLT3-ITD_exons_13-15	vs_ref	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC	CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC
 
+Bootstrap:
+**********
+
+Or you can run `easy_install.sh`_ which installs km in a virtual environement and test it
+as shown above. Running the script as is will install km in a virtual environment in:
+$HOME/.virtualenvs/km.
+
+.. code:: shell
+
+  ./easy_install.sh
+
 .. _easy_install.sh: https://github.com/iric-soft/km/blob/master/easy_install.sh
 
-Without install:
-----------------
+From source code
+-----------------
 km can be executed directly from source code.
 
 Requirements:
 *************
 * Python 3.6.0 or later
-* pyJellyfish python module or Jellyfish 2.2 or later **with** Python `bindings`_.
+* Jellyfish 2.2 or later **with** Python `bindings`_ (or pyJellyfish module).
 
 Usage:
 ******
@@ -128,7 +131,7 @@ Design your target sequence:
 * To fit your specific needs, you will have to create your own target sequences.
 * On generic cases, you can follow some good practices described below:
 
-.. image:: https://github.com/iric-soft/km/blob/master/data/figure/doc_target_sequence.png
+.. image:: https://raw.githubusercontent.com/iric-soft/km/master/data/figure/doc_target_sequence.png
 
 * A web portal is available to assist you in the creation of your target sequences (for cases 1 and 2).
 
@@ -226,4 +229,4 @@ Runing km on a real sample from downloaded fastq:
 In the `example`_ folder you can find a script to help you to
 run a km analysis on one Leucegene sample.
 
-  .. _example: https://github.com/iric-soft/km/tree/master/example
+.. _example: https://github.com/iric-soft/km/tree/master/example
