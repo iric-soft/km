@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "km-walk"
+dependencies = [
+  "numpy>=1.18.1",
+  "matplotlib>=3.3.4",
+  "pyjellyfish>=1.3.0",
+  "pytest>=6.2.0"
+]
+requires-python = ">= 3.8"
+authors = [
+  { name="Albert Feghaly", email="albert.feghaly@umontreal.ca" },
+  { name="Eric Audemard", email="eric.audemard@umontreal.ca" },
+  { name="Patrick Gendron", email="patrick.gendron@umontreal.ca" },
+  { name="Sebastien Lemieux", email="s.lemieux@umontreal.ca" }
+]
+description = "A software for RNA-seq investigation using k-mer decomposition"
+license = { text="MIT" }
+keywords = ["k-mer", "RNA-seq", "variant", "sequencing"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Healthcare Industry",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Topic :: Software Development",
+  "Topic :: Software Development :: Build Tools",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: MacOS",
+  "Operating System :: POSIX :: Linux",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: English",
+]
+dynamic = ["version", "readme"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.urls]
+Repository = "https://github.com/iric-soft/km"
+
+[project.scripts]
+km = "km.km:main"
+
+[tool.setuptools]
+packages = ["km"]
+
+[tool.setuptools.dynamic]
+version = {attr = "km.__version__"}
+readme = {file = ["README.rst"], content-type = "text/x-rst"}
