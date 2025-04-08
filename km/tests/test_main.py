@@ -53,13 +53,13 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[13].split("\t")
+        find_output = find_output[16].split("\t")
 
         self.assertEqual(find_output[2],
                          "Insertion",
                          "Test fail: NPM1 -> find type")
         self.assertEqual(find_output[3],
-                         "45:/TCTG:45",
+                         "49:/TCTG:49",
                          "Test fail: NPM1 -> find variant")
         self.assertEqual(find_output[8],
                          "CGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAG",
@@ -94,13 +94,13 @@ class TestkmMuttaion(unittest.TestCase):
                          "4 | 1",
                          "Test fail: NPM1 -> report Added")
         self.assertEqual(report_output[6],
-                         "2919.2",
+                         "2858.7",
                          "Test fail: NPM1 -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "3102.6",
+                         "3029.1",
                          "Test fail: NPM1 -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.485",
+                         "0.486",
                          "Test fail: NPM1 -> report rVAF")
         self.assertEqual(report_output[9],
                          "2428",
@@ -109,7 +109,7 @@ class TestkmMuttaion(unittest.TestCase):
                          "/TCTG",
                          "Test fail: NPM1 -> report variant")
         self.assertEqual(report_output[14],
-                         "AATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
+                         "GAAGAATTGCTTCCGGATGACTGACCAAGAGGCTATTCAAGATCTCTGTCTGGCAGTGGAGGAAGTCTCTTTAAGAAAATAGTTTAAA",
                          "Test fail: NPM1 -> report sequence")
 
         args = Namespace(
@@ -158,20 +158,17 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[13].split("\t")
+        find_output = find_output[20].split("\t")
 
         self.assertEqual(find_output[2],
-                         "ITD",
+                         "Indel",
                          "Test fail: FLT3-IandI -> find type")
         self.assertEqual(find_output[3],
-                         "152:/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAA" +
-                         "ACTCCCATTTGAGATCATATTC:152",
+                         "47:atattctctgaaatcaacgtagaagtactcattatctgaggagccggtcacctgtaccatctgtagctggctt" +
+                         "tcatacctaaattgctttcagcattttgacggcaacctggattgagactcctgttttgctaattccataagctg/TC:194",
                          "Test fail: FLT3-IandI -> find variant")
         self.assertEqual(find_output[8],
-                         "TTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTC" +
-                         "CCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACC" +
-                         "TGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAAT" +
-                         "CAACGTAGAAGTACTC",
+                         "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCTG",
                          "Test fail: FLT3-IandI -> find sequence")
 
         args = Namespace(
@@ -188,43 +185,39 @@ class TestkmMuttaion(unittest.TestCase):
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_output = report_output[2].split("\t")
+        report_output = report_output[4].split("\t")
 
         self.assertEqual(report_output[2],
-                         "chr13:28034128",
+                         "chr13:28033946",
                          "Test fail: FLT3-IandI -> report pos")
         self.assertEqual(report_output[3],
-                         "I&I",
+                         "Indel",
                          "Test fail: FLT3-IandI -> report type")
         self.assertEqual(report_output[4],
-                         "0",
+                         "147",
                          "Test fail: FLT3-IandI -> report Removed")
         self.assertEqual(report_output[5],
-                         "93 | 1",
+                         "2",
                          "Test fail: FLT3-IandI -> report Added")
         self.assertEqual(report_output[6],
-                         "365.0",
+                         "375.0",
                          "Test fail: FLT3-IandI -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "434.8",
+                         "694.9",
                          "Test fail: FLT3-IandI -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.456",
+                         "0.350",
                          "Test fail: FLT3-IandI -> report rVAF")
         self.assertEqual(report_output[9],
                          "285",
                          "Test fail: FLT3-IandI -> report Min_coverage")
         self.assertEqual(report_output[11],
-                         "/TCTTGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCC" +
-                         "CATTTGAGATCATATTC",
+                         "atattctctgaaatcaacgtagaagtactcattatctgaggagccggtcacctgtaccatctgtagctggctttcat" +
+                         "acctaaattgctttcagcattttgacggcaacctggattgagactcctgttttgctaattccataagctg/TC",
                          "Test fail: FLT3-IandI -> report variant")
         self.assertEqual(report_output[14],
-                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTT" +
-                         "CCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCT" +
-                         "TGCGTTCATCACTTTTCCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATT" +
-                         "TGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGT" +
-                         "AGCTGGCTTTCATACCTAAATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACA" +
-                         "AACACCAATTGTTGCATAGAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
+                         "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCTCTTGCGTTCATCACTTTTCCAAAAGCACCT" +
+                         "GATCCTAGTACCTTCC",
                          "Test fail: FLT3-IandI -> report sequence")
 
         args = Namespace(
@@ -266,16 +259,16 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[13].split("\t")
+        find_output = find_output[20].split("\t")
 
         self.assertEqual(find_output[2],
                          "ITD",
                          "Test fail: FLT3-ITD -> find type")
         self.assertEqual(find_output[3],
-                         "204:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:204",
+                         "99:/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC:99",
                          "Test fail: FLT3-ITD -> find variant")
         self.assertEqual(find_output[8],
-                         "TACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGA" +
+                         "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGA" +
                          "AGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAG" +
                          "TACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA",
                          "Test fail: FLT3-ITD -> find sequence")
@@ -294,7 +287,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         output = out.getvalue()
         report_output = output.split("\n")
-        report_output = report_output[2].split("\t")
+        report_output = report_output[4].split("\t")
 
         self.assertEqual(report_output[2],
                          "chr13:28034180",
@@ -309,13 +302,13 @@ class TestkmMuttaion(unittest.TestCase):
                          "75 | 1",
                          "Test fail: FLT3-ITD -> report Added")
         self.assertEqual(report_output[6],
-                         "471.9",
+                         "543.5",
                          "Test fail: FLT3-ITD -> report Abnormal")
         self.assertEqual(report_output[7],
-                         "1038.5",
+                         "713.2",
                          "Test fail: FLT3-ITD -> report Normal")
         self.assertEqual(report_output[8],
-                         "0.312",
+                         "0.432",
                          "Test fail: FLT3-ITD -> report rVAF")
         self.assertEqual(report_output[9],
                          "443",
@@ -324,12 +317,11 @@ class TestkmMuttaion(unittest.TestCase):
                          "/AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC",
                          "Test fail: FLT3-ITD -> report variant")
         self.assertEqual(report_output[14],
-                         "CTTTCAGCATTTTGACGGCAACCTGGATTGAGACTCCTGTTTTGCTAATTCCATAAGCTGTTGCGTTCATCACTTTT" +
-                         "CCAAAAGCACCTGATCCTAGTACCTTCCCAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATA" +
-                         "TTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCAACTCCCATTTGAGATCATATTCATATT" +
-                         "CTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTCATACCTA" +
-                         "AATTGCTTTTTGTACTTGTGACAAATTAGCAGGGTTAAAACGACAATGAAGAGGAGACAAACACCAATTGTTGCATA" +
-                         "GAATGAGATGTTGTCTTGGATGAAAGGGAAGGGGC",
+                         "CAAACTCTAAATTTTCTCTTGGAAACTCCCATTTGAGATCATATTCATA" +
+                         "TTCTCTGAAATCAACGTAGAAGTACTCATTATCTGAGGAGCCGGTCACC" +
+                         "AACTCCCATTTGAGATCATATTCATATTCTCTGAAATCAACGTAGAAGT" +
+                         "ACTCATTATCTGAGGAGCCGGTCACCTGTACCATCTGTAGCTGGCTTTC" +
+                         "ATACCTAAATTG",
                          "Test fail: FLT3-ITD -> report sequence")
 
 
@@ -380,7 +372,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[13].split("\t")
+        find_output = find_output[14].split("\t")
 
         self.assertEqual(find_output[2],
                          "Deletion",
@@ -439,7 +431,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         self.assertEqual(report_output[1],
                          "28018497",
-                         "Test fail: FLT3-TKD -> vcf report pos")
+                         "T./data/jf/02H033_DNMT3A_sub.jfest fail: FLT3-TKD -> vcf report pos")
         self.assertEqual(report_output[3],
                          "CATGATA",
                          "Test fail: FLT3-TKD -> vcf report ref")
@@ -467,7 +459,7 @@ class TestkmMuttaion(unittest.TestCase):
 
         fm_output = out.getvalue()
         find_output = fm_output.split("\n")
-        find_output = find_output[13].split("\t")
+        find_output = find_output[14].split("\t")
 
         self.assertEqual(find_output[2],
                          "Substitution",

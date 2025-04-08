@@ -211,7 +211,7 @@ class PathQuant:
                     # compute rho
                     new_rho = alpha / paths_lengths
                     new_rho = new_rho / new_rho.sum()  # note that new_rho /= new_rho.sum() would
-                except FloatingPointError:             # get applyed before exception catching
+                except FloatingPointError:             # get applied before exception catching
                     assert count_sums.sum() == 0
                     alpha = new_rho = count_sums
                     #log.info('Counts are all 0.')

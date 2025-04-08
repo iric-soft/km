@@ -1,7 +1,17 @@
 import sys
 import re
+from collections import namedtuple
 
 from .. utils import common as uc
+
+
+Exon = namedtuple('Exon',
+    [
+        'chro',
+        'strand',
+        'nts'
+    ]
+)
 
 
 def print_line(sample, region, location, type_var, removed,
@@ -35,57 +45,29 @@ def print_vcf_line(chro, loc, ref_var, alt_var, type_var, target, ratio, min_cov
     sys.stdout.write(line + "\n")
 
 
-def init_ref_seq(arg_ref):
-    if not arg_ref:
-        sys.exit("ERROR: Target file is empty\n")
+def parse_exon(exon):
+    chro, loc, strand = exon.split(':')
+    refstart, refstop = loc.split('-')
+    refstart = int(refstart)
+    refstop = int(refstop)
+    nts = list(range(refstart, refstop + 1)) # BE 1-based
+    if strand == "-":
+        nts = nts[::-1]
+    nts = tuple(nts)
 
-    # BE 1-based
-    nts = []
-    chro = None
-    strand = None
+    return Exon(chro, strand, nts)
 
-    # CODE for multiple >LOC lines:
-    for line in open(arg_ref, "r"):
-        line = line.strip()
-        nt = []
-        # Parse attributes
-        if line[0] == '>':
-            # sanity check
-            loc = line.split(" ")[0]
-            if ":" not in loc or "-" not in loc:
-                sys.exit('ERROR: Fasta entries do not contain a correctly ' +
-                         'formatted location: {}\n'.format(loc))
 
-            # look up attributes in fasta file
-            line = line.replace(">", "location=", 1)
-            attr = {x.split("=")[0].strip(): x.split("=")[1].strip() for x in line.split("|")}
-            exon = attr["location"]
-            chro, pos = exon.split(":")
-            refstart, refstop = pos.split("-")
+# Find correct extremities of a mutation
+sys.setrecursionlimit(10000)
 
-            # get nt coordinates on the genome
-            if 'strand' not in list(attr.keys()):
-                attr['strand'] = '+'
-                sys.stderr.write("WARNING: Strand is assumed to be '+' \n")
-            strand = attr["strand"]
-            for i in range(int(refstart), int(refstop) + 1):
-                nt += [i]
-            nt = nt[::-1] if strand == "-" else nt
-            nts.extend(nt)
-
-    return nts, chro, strand
+def get_extremities(va, p, rs):
+    if p - 1 > 0 and rs[p - 1] == va[-1]:
+        return get_extremities(rs[p - 1] + va[:-1], p - 1, rs)
+    return p - 1
 
 
 def create_report(args):
-
-    # Find correct extremities of a mutation
-    sys.setrecursionlimit(10000)
-
-    def get_extremities(va, p, rs):
-        if p - 1 > 0 and rs[p - 1] == va[-1]:
-            return get_extremities(rs[p - 1] + va[:-1], p - 1, rs)
-        return p - 1
-
     if args.format == "vcf" and args.info == "cluster":
         # Note: could salvage that option if we get the fill ref from vs_ref entries
         sys.exit("ERROR: -f vcf and -i cluster options are incompatible")
@@ -96,8 +78,6 @@ def create_report(args):
     vcf = True if args.format == 'vcf' else False
     table = True if args.format == 'table' else False
 
-    (nts, chro, strand) = init_ref_seq(args.target)
-
     if vcf:
         print_vcf_header()
     elif not table:
@@ -106,17 +86,21 @@ def create_report(args):
                    "Exclu_min_cov", "Variant", "Target", "Info", "Variant_sequence",
                    "Reference_sequence")
 
+    ref_exons = {}
+
     for line in args.infile:
         # filter header
         if line[0] == "#":
-            # sys.stderr.write("Filtred: " + line)
+            if line.startswith('#target:'):
+                exon = line.strip().split(':')[1].replace('/', ':')
+                exon_id, exon_loc = exon.split('=')
+                ref_exons[exon_id] = parse_exon(exon_loc)
             continue
 
         tok = line.strip("\n").split("\t")
 
         # filter on info column
         if not re.search(args.info, line) or tok[0] == "Database" or len(tok) <= 1:
-            # sys.stderr.write("Filtered: " + line)
             continue
 
         samp = tok[0]
@@ -134,12 +118,25 @@ def create_report(args):
         variant = (tok[2], tok[3])
         ref_seq = refSeq.upper()
 
+        if int(min_cov) < args.min_cov:
+            continue
+
         if args.exclu != "" and alt_seq != "":
             res = uc.get_cov(args.exclu, alt_seq)
             min_exclu = str(res[2])
 
-        if int(min_cov) < args.min_cov:
-            continue
+        ref_pair = query.split('::')
+        assert len(ref_pair) <= 2
+
+        chro = set([ref_exons[r].chro for r in ref_pair])
+        assert len(chro) == 1  # TODO: Implement > 1 chromosome
+        chro = chro.pop()
+
+        strand = set([ref_exons[r].strand for r in ref_pair])
+        assert len(strand) == 1  # TODO: Implement mixed strand
+        strand = strand.pop()
+
+        nts = [x for r in ref_pair for x in ref_exons[r].nts]
 
         # case: entries with no mutations
         if variant[0] == 'Reference':
@@ -329,8 +326,14 @@ def create_report(args):
 
 def main_find_report(args, argparser):
 
-    if args.infile.isatty() or args.target is None:
+    if args.infile.isatty():
         argparser.print_help()
         sys.exit()
+
+    if args.target is not None:
+        sys.stderr.write(
+            'DEPRECATED: Target file (-t option) is ignored and ' +
+            'will be removed in future versions.\n\n'
+        )
 
     create_report(args)
